@@ -1,0 +1,69 @@
+{
+  "name": "mesg-core",
+  "description": "MESG Core CLI",
+  "version": "0.0.0",
+  "author": "Anthony ESTEBE @antho1404",
+  "bin": {
+    "mesg-core": "./bin/run"
+  },
+  "bugs": "https://github.com/mesg-foundation/mesg-core/issues",
+  "dependencies": {
+    "@oclif/command": "^1.5.10",
+    "@oclif/config": "^1.12.6",
+    "@oclif/plugin-help": "^2.1.6",
+    "cli-ux": "^5.1.0",
+    "node-notifier": "^5.4.0",
+    "tslib": "^1.9.3"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "^1.21.0",
+    "@oclif/test": "^1.2.4",
+    "@oclif/tslint": "^3.1.1",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.12.26",
+    "chai": "^4.2.0",
+    "globby": "^8.0.2",
+    "mocha": "^5.2.0",
+    "nyc": "^13.3.0",
+    "ts-node": "^8.0.2",
+    "tslint": "^5.11.0",
+    "typescript": "^3.3.3"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "/bin",
+    "/lib",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/mesg-foundation/mesg-core",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "oclif": {
+    "commands": "./lib/commands",
+    "bin": "mesg-core",
+    "plugins": [
+      "@oclif/plugin-help"
+    ],
+    "topics": {
+      "service": { "description": "Manage services" },
+      "core": { "description": "Manage MESG Core" }
+    }
+  },
+  "repository": "mesg-foundation/mesg-core",
+  "scripts": {
+    "postpack": "rm -f oclif.manifest.json",
+    "posttest": "tslint -p test -t stylish",
+    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif-dev readme && git add README.md",
+    "oclif-dev": "oclif-dev"
+  },
+  "types": "lib/index.d.ts"
+}
