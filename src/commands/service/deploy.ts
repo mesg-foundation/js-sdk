@@ -1,17 +1,19 @@
 import {flags} from '@oclif/command'
+import cli from 'cli-ux'
 import {lstatSync, readdirSync} from 'fs'
+import {fromUrl} from 'hosted-git-info'
+import isGitUrl from 'is-git-url'
 import {tmpdir} from 'os'
 import {join} from 'path'
+import {sync as rimraf} from 'rimraf'
+import tar from 'tar'
+import {v4 as uuid} from 'uuid'
+import {isURL} from 'validator'
 
 import Command from '../../service-command'
 
 const gitclone = require('git-clone')
-const gitInfo = require('hosted-git-info')
-const isGitUrl = require('is-git-url')
-const {isURL} = require('validator')
-const rimraf = require('rimraf').sync
 const downloadTarball = require('download-tarball')
-const uuid = require('uuid/v4')
 
 export default class ServiceDeploy extends Command {
   static description = 'Deploy a service'
@@ -32,11 +34,37 @@ export default class ServiceDeploy extends Command {
   }]
 
   async run() {
-    const {args} = this.parse(ServiceDeploy)
+    const {args, flags} = this.parse(ServiceDeploy)
 
+    cli.action.start('Deploy service')
     const path = this.preprocessPath(await this.preprocessURL(args.SERVICE_PATH_OR_URL))
 
-    this.log('path', path)
+    const stream = this.mesg.api.DeployService()
+    stream.on('error', this.error)
+    stream.on('data', this.handleDeploymentResponse)
+    if (flags.env && flags.env.length > 0) {
+      const env = flags.env.reduce((prev, item) => {
+        const [key, value] = item.split('=')
+        return {
+          ...prev,
+          [key]: value
+        }
+      }, {})
+      stream.write({env})
+    }
+
+    const ignore = ['.git']
+    const reader = tar.create({
+      cwd: path,
+      filter: (path: string) => !ignore.includes(path),
+      strict: true,
+      gzip: true,
+    }, readdirSync(path))
+    reader.on('error', this.error)
+    reader.on('data', (chunk: Buffer) => {
+      if (chunk.length > 0) stream.write({chunk})
+    })
+    reader.on('end', () => stream.end(''))
   }
 
   async preprocessURL(pathOrUrl: string): Promise<string> {
@@ -46,21 +74,13 @@ export default class ServiceDeploy extends Command {
     return pathOrUrl
   }
 
-  preprocessPath(path: string): string {
-    const directories = readdirSync(path)
-      .map(name => join(path, name))
-      .filter(x => lstatSync(x).isDirectory())
-    if (readdirSync(path).length && directories.length === 1) {
-      return directories[0]
-    }
-    return path
-  }
-
   async downloadSrc(url: string): Promise<string> {
     const dir = join(tmpdir(), uuid())
-    if (gitInfo.fromUrl(url)) {
+    if (fromUrl(url)) {
+      cli.action.status = 'Clone repository'
       return this.gitclone(url, dir)
     }
+    cli.action.status = 'Download tarball'
     await downloadTarball({url, dir})
     return dir
   }
@@ -79,5 +99,25 @@ export default class ServiceDeploy extends Command {
         return resolve(dir)
       })
     })
+  }
+
+  preprocessPath(path: string): string {
+    const directories = readdirSync(path)
+      .map(name => join(path, name))
+      .filter(x => lstatSync(x).isDirectory())
+    if (readdirSync(path).length && directories.length === 1) {
+      return directories[0]
+    }
+    return path
+  }
+
+  handleDeploymentResponse(x: any) {
+    if (x.status) {
+      cli.action.status = x.status.message
+    } else if (x.serviceID) {
+      cli.action.stop(x.serviceID)
+    } else {
+      this.warn(x.validationError)
+    }
   }
 }
