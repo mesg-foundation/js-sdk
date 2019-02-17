@@ -41,7 +41,7 @@ export default class ServiceDeploy extends Command {
 
     const stream = this.mesg.api.DeployService()
     stream.on('error', this.error)
-    stream.on('data', this.handleDeploymentResponse)
+    stream.on('data', this.handleDeploymentResponse.bind(this))
     if (flags.env && flags.env.length > 0) {
       const env = flags.env.reduce((prev, item) => {
         const [key, value] = item.split('=')
@@ -105,7 +105,7 @@ export default class ServiceDeploy extends Command {
     const directories = readdirSync(path)
       .map(name => join(path, name))
       .filter(x => lstatSync(x).isDirectory())
-    if (readdirSync(path).length && directories.length === 1) {
+    if (readdirSync(path).length === 1 && directories.length === 1) {
       return directories[0]
     }
     return path
@@ -118,6 +118,7 @@ export default class ServiceDeploy extends Command {
       cli.action.stop(x.serviceID)
     } else {
       this.warn(x.validationError)
+      cli.action.stop('failed')
     }
   }
 }
