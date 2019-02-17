@@ -11,8 +11,10 @@
     "@oclif/command": "^1.5.10",
     "@oclif/config": "^1.12.6",
     "@oclif/plugin-help": "^2.1.6",
+    "chalk": "^2.4.2",
     "cli-ux": "^5.1.0",
-    "node-notifier": "^5.4.0",
+    "mesg-js": "^2.0.1",
+    "node-docker-api": "^1.1.22",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
@@ -52,8 +54,12 @@
       "@oclif/plugin-help"
     ],
     "topics": {
-      "service": { "description": "Manage services" },
-      "core": { "description": "Manage MESG Core" }
+      "service": {
+        "description": "Manage services"
+      },
+      "core": {
+        "description": "Manage MESG Core"
+      }
     }
   },
   "repository": "mesg-foundation/mesg-core",

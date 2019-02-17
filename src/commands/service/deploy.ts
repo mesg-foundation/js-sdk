@@ -1,10 +1,12 @@
-import {Command, flags} from '@oclif/command'
+import {flags} from '@oclif/command'
+
+import Command from '../../service-command'
 
 export default class ServiceDeploy extends Command {
   static description = 'Deploy a service'
 
   static flags = {
-    help: flags.help({char: 'h'}),
+    ...Command.flags,
     env: flags.string({
       description: 'set env defined in mesg.yml (configuration.env)',
       multiple: true,
@@ -19,6 +21,7 @@ export default class ServiceDeploy extends Command {
   }]
 
   async run() {
+    // TODO
     const {args, flags} = this.parse(ServiceDeploy)
 
     this.log('deploy', args, flags)

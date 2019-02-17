@@ -1,10 +1,13 @@
-import {Command, flags} from '@oclif/command'
+import {flags} from '@oclif/command'
+import chalk from 'chalk'
+
+import Command from '../../service-command'
 
 export default class ServiceLog extends Command {
   static description = 'Show logs of a service'
 
   static flags = {
-    help: flags.help({char: 'h'}),
+    ...Command.flags,
     dependency: flags.string({
       char: 'd',
       description: 'Name of the dependency to show the logs from',
@@ -20,8 +23,13 @@ export default class ServiceLog extends Command {
 
   async run() {
     const {args, flags} = this.parse(ServiceLog)
-
-    this.log('log', args, flags)
-
+    const stream = this.mesg.api.ServiceLogs({
+      serviceID: args.SERVICE,
+      dependencies: flags.dependency,
+    })
+    stream.on('data', (response: any) => {
+      const dependency = response.dependency
+      this.log(chalk.yellow(dependency + ' | '), response.data.toString().replace('\n', ''))
+    })
   }
 }

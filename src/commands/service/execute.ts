@@ -1,10 +1,12 @@
-import {Command, flags} from '@oclif/command'
+import {flags} from '@oclif/command'
+
+import Command from '../../service-command'
 
 export default class ServiceExecute extends Command {
   static description = 'describe the command here'
 
   static flags = {
-    help: flags.help({char: 'h'}),
+    ...Command.flags,
     json: flags.string({char: 'j', description: 'Path to a JSON file containing the data required to run the task'}),
     data: flags.string({
       char: 'd',
@@ -25,6 +27,7 @@ export default class ServiceExecute extends Command {
   }]
 
   async run() {
+    // TODO
     const {args, flags} = this.parse(ServiceExecute)
 
     this.log('execute', args, flags)

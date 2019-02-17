@@ -1,10 +1,13 @@
-import {Command, flags} from '@oclif/command'
+import {flags} from '@oclif/command'
+import cli from 'cli-ux'
+
+import Command from '../../service-command'
 
 export default class ServiceDelete extends Command {
   static description = 'Delete one or many services'
 
   static flags = {
-    help: flags.help({char: 'h'}),
+    ...Command.flags,
     all: flags.boolean({description: 'Delete all services'}),
     'keep-data': flags.boolean({description: 'Do not delete services\' persistent data'}),
   }
@@ -17,7 +20,17 @@ export default class ServiceDelete extends Command {
 
   async run() {
     const {args, flags} = this.parse(ServiceDelete)
-
-    this.log('delete', args, flags)
+    if (!flags['keep-data']) {
+      cli.warn('This will delete all data associated to this service')
+    }
+    if (!await cli.confirm('Are you sure?')) return
+    cli.action.start(`Delete service ${args.SERVICE}`)
+    this.mesg.api.DeleteService({
+      serviceID: args.SERVICE,
+      deleteData: !flags['keep-data'],
+    }, (error: Error) => {
+      cli.action.stop()
+      if (error) return this.error(error)
+    })
   }
 }

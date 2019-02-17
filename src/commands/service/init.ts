@@ -1,10 +1,12 @@
-import {Command, flags} from '@oclif/command'
+import {flags} from '@oclif/command'
+
+import Command from '../../service-command'
 
 export default class ServiceInit extends Command {
   static description = 'Initialize a service by creating a mesg.yml and Dockerfile in a dedicated directory.'
 
   static flags = {
-    help: flags.help({char: 'h'}),
+    ...Command.flags,
     template: flags.string({char: 't', description: 'Specify the template URL to use'}),
   }
 
@@ -16,6 +18,7 @@ export default class ServiceInit extends Command {
   }]
 
   async run() {
+    // TODO
     const {args, flags} = this.parse(ServiceInit)
 
     this.log('init', args, flags)

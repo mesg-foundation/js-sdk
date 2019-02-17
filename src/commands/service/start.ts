@@ -1,10 +1,12 @@
-import {Command, flags} from '@oclif/command'
+import cli from 'cli-ux'
+
+import Command from '../../service-command'
 
 export default class ServiceStart extends Command {
   static description = 'Start a service'
 
   static flags = {
-    help: flags.help({char: 'h'}),
+    ...Command.flags,
   }
 
   static args = [{
@@ -14,9 +16,11 @@ export default class ServiceStart extends Command {
   }]
 
   async run() {
-    const {args, flags} = this.parse(ServiceStart)
-
-    this.log('start', args, flags)
-
+    const {args} = this.parse(ServiceStart)
+    cli.action.start(`Start service ${args.SERVICE}`)
+    this.mesg.api.StartService({serviceID: args.SERVICE}, (error: Error) => {
+      cli.action.stop()
+      if (error) return this.error(error)
+    })
   }
 }
