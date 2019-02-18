@@ -28,5 +28,7 @@ export default class Logs extends Command {
     })
     logs.on('data', (buffer: Buffer) => this.log(this.parseLog(buffer)))
     logs.on('error', (error: Error) => { throw error })
+
+    return logs
   }
 }

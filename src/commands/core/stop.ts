@@ -2,6 +2,8 @@ import cli from 'cli-ux'
 
 import Command from '../../docker-command'
 
+import Status, {ServiceStatus} from './status'
+
 export default class Stop extends Command {
   static description = 'Stop the Core'
 
@@ -11,6 +13,11 @@ export default class Stop extends Command {
 
   async run() {
     const {flags} = this.parse(Stop)
+
+    const status = await Status.run(['--name', flags.name])
+    if (status === ServiceStatus.STOPPED) {
+      return false
+    }
     cli.action.start('MESG Core')
     cli.action.status = 'Fetching services'
     const services = await this.listServices({name: flags.name})
@@ -25,5 +32,7 @@ export default class Stop extends Command {
     await service.remove()
     await eventPromise
     cli.action.stop('stopped')
+
+    return true
   }
 }

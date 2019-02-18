@@ -3,6 +3,8 @@ import cli from 'cli-ux'
 
 import Command from '../../docker-command'
 
+import Status, {ServiceStatus} from './status'
+
 export default class Start extends Command {
   static description = 'Start the Core'
 
@@ -32,6 +34,10 @@ export default class Start extends Command {
   async run() {
     const {flags} = this.parse(Start)
 
+    const status = await Status.run(['--name', flags.name])
+    if (status === ServiceStatus.STARTED) {
+      return false
+    }
     cli.action.start('MESG Core')
     const eventPromise = this.waitForEvent(({Action, Type, from}) =>
       Type === 'container' &&
@@ -51,5 +57,7 @@ export default class Start extends Command {
     cli.action.status = 'Waiting service to start'
     await eventPromise
     cli.action.stop('Started')
+
+    return true
   }
 }
