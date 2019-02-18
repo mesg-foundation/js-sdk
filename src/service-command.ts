@@ -1,7 +1,6 @@
-import {Command, flags} from '@oclif/command'
-import {IConfig} from '@oclif/config'
 import {application} from 'mesg-js'
-import {Application} from 'mesg-js/lib/application'
+
+import Command from './root-command'
 
 export interface Service {
   sid: string
@@ -10,30 +9,28 @@ export interface Service {
   status: number
 }
 
+type UNARY_METHODS = 'DeleteService'
+  | 'GetService'
+  | 'ListServices'
+  | 'StartService'
+  | 'StopService'
+
 export default abstract class extends Command {
   static flags = {
-    help: flags.help({char: 'h'}),
+    ...Command.flags
   }
 
-  protected mesg: Application
-
-  constructor(argv: string[], config: IConfig) {
-    super(argv, config)
-    this.mesg = application({
-      endpoint: 'localhost:50052'
-    })
-  }
+  protected mesg = application({
+    endpoint: 'localhost:50052'
+  })
 
   status(s: number) {
     return ['unknown', 'stopped', 'starting', 'partial', 'running'][s]
   }
 
-  async getServiceFromCore(id: string): Promise<any> {
-    return new Promise((resolve: any, reject: any) => {
-      this.mesg.api.GetService({serviceID: id}, (error: Error, response: any) => error
-        ? reject(error)
-        : resolve(response.service)
-      )
-    })
+  async unaryCall(method: UNARY_METHODS, data: object): Promise<any> {
+    return new Promise((resolve, reject) => this.mesg.api[method](data, (error: Error, res: any) => error
+      ? reject(error)
+      : resolve(res)))
   }
 }

@@ -1,10 +1,11 @@
-import {Command, flags} from '@oclif/command'
-import {IConfig} from '@oclif/config'
+import {flags} from '@oclif/command'
 import {Docker} from 'node-docker-api'
 import {Network} from 'node-docker-api/lib/network'
 import {homedir} from 'os'
 import {join} from 'path'
 import {Readable} from 'stream'
+
+import Command from './root-command'
 
 interface Event {
   Type: string
@@ -30,7 +31,7 @@ interface ServiceOption {
 
 export default abstract class extends Command {
   static flags = {
-    help: flags.help({char: 'h'}),
+    ...Command.flags,
     name: flags.string({
       description: 'name of the service running the core',
       required: true,
@@ -38,12 +39,7 @@ export default abstract class extends Command {
     }),
   }
 
-  private docker: Docker
-
-  constructor(argv: string[], config: IConfig) {
-    super(argv, config)
-    this.docker = new Docker(null)
-  }
+  private docker: Docker = new Docker(null)
 
   async listServices(options: ListOption) {
     return this.docker.service.list({
