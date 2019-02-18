@@ -27,6 +27,6 @@ export default class Logs extends Command {
       tail: flags.tail && flags.tail >= 0 ? flags.tail : 'all'
     })
     logs.on('data', (buffer: Buffer) => this.log(this.parseLog(buffer)))
-    logs.on('error', this.error)
+    logs.on('error', (error: Error) => { throw error })
   }
 }

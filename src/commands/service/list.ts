@@ -13,7 +13,7 @@ export default class ServiceList extends Command {
   async run() {
     const {flags} = this.parse(ServiceList)
     this.mesg.api.ListServices({}, (error: Error, response: any) => {
-      if (error) return this.error(error)
+      if (error) throw error
       const services = response.services as Service[]
       if (!services) return
       cli.table(services, {

@@ -40,7 +40,7 @@ export default class ServiceDeploy extends Command {
     const path = this.preprocessPath(await this.preprocessURL(args.SERVICE_PATH_OR_URL))
 
     const stream = this.mesg.api.DeployService()
-    stream.on('error', this.error)
+    stream.on('error', (error: Error) => { throw error })
     stream.on('data', this.handleDeploymentResponse.bind(this))
     if (flags.env && flags.env.length > 0) {
       const env = flags.env.reduce((prev, item) => {
@@ -60,7 +60,7 @@ export default class ServiceDeploy extends Command {
       strict: true,
       gzip: true,
     }, readdirSync(path))
-    reader.on('error', this.error)
+    reader.on('error', (error: Error) => { throw error })
     reader.on('data', (chunk: Buffer) => {
       if (chunk.length > 0) stream.write({chunk})
     })

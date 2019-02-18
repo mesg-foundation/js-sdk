@@ -20,7 +20,7 @@ export default class ServiceStop extends Command {
     cli.action.start(`Stop service ${args.SERVICE}`)
     this.mesg.api.StopService({serviceID: args.SERVICE}, (error: Error) => {
       cli.action.stop()
-      if (error) return this.error(error)
+      if (error) throw error
     })
   }
 }

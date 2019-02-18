@@ -30,7 +30,7 @@ export default class ServiceDelete extends Command {
       deleteData: !flags['keep-data'],
     }, (error: Error) => {
       cli.action.stop()
-      if (error) return this.error(error)
+      if (error) throw error
     })
   }
 }

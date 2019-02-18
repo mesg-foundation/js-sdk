@@ -14,9 +14,6 @@ export default class Status extends Command {
     cli.action.start('MESG Core')
     cli.action.status = 'Fetching services'
     const services = await this.listServices({name: flags.name})
-    if (services.length === 0) {
-      return cli.action.stop('stopped')
-    }
-    return cli.action.stop('started')
+    return cli.action.stop(services.length === 0 ? 'stopped' : 'started')
   }
 }
