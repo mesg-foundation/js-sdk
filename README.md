@@ -36,7 +36,7 @@ USAGE
 * [`mesg-core core:stop`](#mesg-core-corestop)
 * [`mesg-core help [COMMAND]`](#mesg-core-help-command)
 * [`mesg-core service:delete SERVICE`](#mesg-core-servicedelete-service)
-* [`mesg-core service:deploy [SERVICE_PATH]`](#mesg-core-servicedeploy-service-path)
+* [`mesg-core service:deploy [SERVICE_PATH_OR_URL]`](#mesg-core-servicedeploy-service-path-or-url)
 * [`mesg-core service:detail SERVICE`](#mesg-core-servicedetail-service)
 * [`mesg-core service:dev [SERVICE_PATH]`](#mesg-core-servicedev-service-path)
 * [`mesg-core service:execute SERVICE TASK`](#mesg-core-serviceexecute-service-task)
@@ -57,7 +57,9 @@ USAGE
   $ mesg-core core:logs
 
 OPTIONS
-  -h, --help  show CLI help
+  -h, --help   show CLI help
+  --name=name  (required) [default: core] name of the service running the core
+  --tail=tail  [default: -1] Output specified number of lines at the end of logs
 ```
 
 _See code: [src/commands/core/logs.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/core/logs.ts)_
@@ -75,6 +77,8 @@ OPTIONS
   --log-force-colors                               log force colors
   --log-format=(text|json)                         [default: text] log format
   --log-level=(debug|info|warn|error|fatal|panic)  [default: info] log level
+  --name=name                                      (required) [default: core] name of the service running the core
+  --version=version                                (required) [default: latest] Version of the core to run
 ```
 
 _See code: [src/commands/core/start.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/core/start.ts)_
@@ -88,7 +92,8 @@ USAGE
   $ mesg-core core:status
 
 OPTIONS
-  -h, --help  show CLI help
+  -h, --help   show CLI help
+  --name=name  (required) [default: core] name of the service running the core
 ```
 
 _See code: [src/commands/core/status.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/core/status.ts)_
@@ -102,7 +107,8 @@ USAGE
   $ mesg-core core:stop
 
 OPTIONS
-  -h, --help  show CLI help
+  -h, --help   show CLI help
+  --name=name  (required) [default: core] name of the service running the core
 ```
 
 _See code: [src/commands/core/stop.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/core/stop.ts)_
@@ -143,16 +149,16 @@ OPTIONS
 
 _See code: [src/commands/service/delete.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/service/delete.ts)_
 
-## `mesg-core service:deploy [SERVICE_PATH]`
+## `mesg-core service:deploy [SERVICE_PATH_OR_URL]`
 
 Deploy a service
 
 ```
 USAGE
-  $ mesg-core service:deploy [SERVICE_PATH]
+  $ mesg-core service:deploy [SERVICE_PATH_OR_URL]
 
 ARGUMENTS
-  SERVICE_PATH  [default: ./] Path of the service
+  SERVICE_PATH_OR_URL  [default: ./] Path of the service or url to access it
 
 OPTIONS
   -h, --help     show CLI help
@@ -260,7 +266,14 @@ USAGE
   $ mesg-core service:list
 
 OPTIONS
-  -h, --help  show CLI help
+  -h, --help         show CLI help
+  -x, --extended     show extra columns
+  --columns=columns  only show provided columns (comma-separated)
+  --csv              output is csv format
+  --filter=filter    filter property by partial string matching, ex: name=foo
+  --no-header        hide table header from output
+  --no-truncate      do not truncate output to fit screen
+  --sort=sort        property to sort by (prepend '-' for descending)
 ```
 
 _See code: [src/commands/service/list.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/service/list.ts)_
