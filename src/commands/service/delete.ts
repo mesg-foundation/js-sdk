@@ -6,6 +6,8 @@ import Command from '../../service-command'
 export default class ServiceDelete extends Command {
   static description = 'Delete one or many services'
 
+  static aliases = ['service:rm', 'service:destroy']
+
   static flags = {
     ...Command.flags,
     all: flags.boolean({description: 'Delete all services'}),
@@ -23,14 +25,13 @@ export default class ServiceDelete extends Command {
     if (!flags['keep-data']) {
       cli.warn('This will delete all data associated to this service')
     }
-    if (!await cli.confirm('Are you sure?')) return
+    if (!await cli.confirm('Are you sure?')) return null
     cli.action.start(`Delete service ${args.SERVICE}`)
-    this.mesg.api.DeleteService({
+    await this.unaryCall('DeleteService', {
       serviceID: args.SERVICE,
       deleteData: !flags['keep-data'],
-    }, (error: Error) => {
-      cli.action.stop()
-      if (error) throw error
     })
+    cli.action.stop()
+    return args.SERVICE
   }
 }

@@ -18,9 +18,8 @@ export default class ServiceStart extends Command {
   async run() {
     const {args} = this.parse(ServiceStart)
     cli.action.start(`Start service ${args.SERVICE}`)
-    this.mesg.api.StartService({serviceID: args.SERVICE}, (error: Error) => {
-      cli.action.stop()
-      if (error) throw Error
-    })
+    await this.unaryCall('StartService', {serviceID: args.SERVICE})
+    cli.action.stop()
+    return args.SERVICE
   }
 }

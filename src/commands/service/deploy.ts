@@ -6,6 +6,7 @@ import isGitUrl from 'is-git-url'
 import {tmpdir} from 'os'
 import {join} from 'path'
 import {sync as rimraf} from 'rimraf'
+import {Readable, Writable} from 'stream'
 import tar from 'tar'
 import {v4 as uuid} from 'uuid'
 import {isURL} from 'validator'
@@ -39,32 +40,48 @@ export default class ServiceDeploy extends Command {
     cli.action.start('Deploy service')
     const path = this.preprocessPath(await this.preprocessURL(args.SERVICE_PATH_OR_URL))
 
-    const stream = this.mesg.api.DeployService()
-    stream.on('error', (error: Error) => { throw error })
-    stream.on('data', this.handleDeploymentResponse.bind(this))
-    if (flags.env && flags.env.length > 0) {
-      const env = flags.env.reduce((prev, item) => {
-        const [key, value] = item.split('=')
-        return {
-          ...prev,
-          [key]: value
-        }
-      }, {})
-      stream.write({env})
-    }
+    try {
+      const serviceId = await new Promise((resolve: (value: string) => void, reject: (reason: Error) => void) => {
+        const stream = this.mesg.api.DeployService()
+        stream.on('error', (error: Error) => { throw error })
+        stream.on('data', (data: any) => this.handleDeploymentResponse(data, resolve, reject))
+        this.writeEnv(stream, flags.env)
 
+        this.createTar(path)
+          .on('end', () => stream.end(''))
+          .on('data', (chunk: Buffer) => {
+            if (chunk.length > 0) stream.write({chunk})
+          })
+      })
+      return serviceId
+    } catch (e) {
+      this.warn(e)
+      return e
+    }
+  }
+
+  createTar(path: string): Readable {
     const ignore = ['.git']
-    const reader = tar.create({
+    const options = {
       cwd: path,
       filter: (path: string) => !ignore.includes(path),
       strict: true,
       gzip: true,
-    }, readdirSync(path))
-    reader.on('error', (error: Error) => { throw error })
-    reader.on('data', (chunk: Buffer) => {
-      if (chunk.length > 0) stream.write({chunk})
-    })
-    reader.on('end', () => stream.end(''))
+    }
+    return tar.create(options, readdirSync(path))
+      .on('error', (error: Error) => { throw error })
+  }
+
+  writeEnv(stream: Writable, envList: string[]) {
+    if (!envList || envList.length === 0) return
+    const env = envList.reduce((prev, item) => {
+      const [key, value] = item.split('=')
+      return {
+        ...prev,
+        [key]: value
+      }
+    }, {})
+    stream.write({env})
   }
 
   async preprocessURL(pathOrUrl: string): Promise<string> {
@@ -111,14 +128,16 @@ export default class ServiceDeploy extends Command {
     return path
   }
 
-  handleDeploymentResponse(x: any) {
+  handleDeploymentResponse(x: any, resolve: (value: string) => void, reject: (reason: Error) => void) {
     if (x.status) {
       cli.action.status = x.status.message
-    } else if (x.serviceID) {
-      cli.action.stop(x.serviceID)
-    } else {
-      this.warn(x.validationError)
-      cli.action.stop('failed')
+      return
     }
+    if (x.serviceID) {
+      cli.action.stop(x.serviceID)
+      return resolve(x.serviceID)
+    }
+    cli.action.stop('failed')
+    return reject(x.validationError)
   }
 }

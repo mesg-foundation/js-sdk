@@ -18,9 +18,8 @@ export default class ServiceStop extends Command {
   async run() {
     const {args} = this.parse(ServiceStop)
     cli.action.start(`Stop service ${args.SERVICE}`)
-    this.mesg.api.StopService({serviceID: args.SERVICE}, (error: Error) => {
-      cli.action.stop()
-      if (error) throw error
-    })
+    await this.unaryCall('StopService', {serviceID: args.SERVICE})
+    cli.action.stop()
+    return args.SERVICE
   }
 }

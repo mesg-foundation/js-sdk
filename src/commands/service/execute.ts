@@ -2,10 +2,12 @@ import {flags} from '@oclif/command'
 import {cli} from 'cli-ux'
 import {readFileSync} from 'fs'
 
-import Command from '../../service-command'
+import Command, {Service} from '../../service-command'
 
 export default class ServiceExecute extends Command {
   static description = 'describe the command here'
+
+  static aliases = ['service:exec']
 
   static flags = {
     ...Command.flags,
@@ -31,7 +33,7 @@ export default class ServiceExecute extends Command {
   async run() {
     const {args, flags} = this.parse(ServiceExecute)
 
-    const service = this.getServiceFromCore(args.SERVICE)
+    const service = (await this.unaryCall('GetService', {serviceID: args.SERVICE})) as Service
 
     const inputs = this.convertValue(service, this.dataFromFlags(flags))
 
@@ -46,6 +48,7 @@ export default class ServiceExecute extends Command {
     }
     this.log(`Result of task ${result.taskKey}: ${result.outputKey}`)
     cli.styledJSON(JSON.parse(result.outputData))
+    return result
   }
 
   dataFromFlags(flags: {data: string[], json: string | undefined}): any {
@@ -61,8 +64,9 @@ export default class ServiceExecute extends Command {
     }, {})
   }
 
-  convertValue(service: any, data: any): any {
+  convertValue(service: Service, data: any): any {
     // TODO
+    this.log('', service)
     return data
   }
 }

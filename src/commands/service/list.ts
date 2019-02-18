@@ -12,19 +12,17 @@ export default class ServiceList extends Command {
 
   async run() {
     const {flags} = this.parse(ServiceList)
-    this.mesg.api.ListServices({}, (error: Error, response: any) => {
-      if (error) throw error
-      const services = response.services as Service[]
-      if (!services) return
-      cli.table(services, {
-        hash: {header: 'HASH'},
-        sid: {header: 'SID'},
-        name: {header: 'NAME'},
-        status: {header: 'STATUS', get: x => this.status(x.status)}
-      }, {
-        printLine: this.log,
-        ...flags,
-      })
+    const services = (await this.unaryCall('ListServices', {})).services as Service[]
+    if (!services) return []
+    cli.table(services, {
+      hash: {header: 'HASH'},
+      sid: {header: 'SID'},
+      name: {header: 'NAME'},
+      status: {header: 'STATUS', get: x => this.status(x.status)}
+    }, {
+      printLine: this.log,
+      ...flags,
     })
+    return services
   }
 }
