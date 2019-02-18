@@ -1,5 +1,6 @@
 import Command from '../../service-command'
 
+import ServiceDelete from './delete'
 import ServiceDeploy from './deploy'
 import ServiceLog from './logs'
 import ServiceStart from './start'
@@ -30,6 +31,15 @@ export default class ServiceDev extends Command {
     const serviceID = await ServiceDeploy.run([args.SERVICE_PATH, ...envs])
     await ServiceStart.run([serviceID])
     await ServiceLog.run([serviceID])
+
+    process.on('SIGINT', async () => {
+      try {
+        await ServiceDelete.run([serviceID, '--keep-data', '--confirm'])
+      } finally {
+        process.exit(0)
+      }
+    })
+
     return serviceID
   }
 }

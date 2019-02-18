@@ -1,5 +1,6 @@
 import {flags} from '@oclif/command'
 import axios from 'axios'
+import {cli} from 'cli-ux'
 import {renameSync} from 'fs'
 import {prompt} from 'inquirer'
 import {join} from 'path'
@@ -7,7 +8,6 @@ import {join} from 'path'
 import Command from '../../service-command'
 
 import deployer from '../../deployer'
-import { cli } from 'cli-ux';
 
 const templatesURL = 'https://raw.githubusercontent.com/mesg-foundation/awesome/master/templates.json'
 

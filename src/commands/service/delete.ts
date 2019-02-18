@@ -10,8 +10,8 @@ export default class ServiceDelete extends Command {
 
   static flags = {
     ...Command.flags,
-    all: flags.boolean({description: 'Delete all services'}),
     'keep-data': flags.boolean({description: 'Do not delete services\' persistent data'}),
+    confirm: flags.boolean({description: 'Confirm delete', default: false})
   }
 
   static args = [{
@@ -25,7 +25,7 @@ export default class ServiceDelete extends Command {
     if (!flags['keep-data']) {
       cli.warn('This will delete all data associated to this service')
     }
-    if (!await cli.confirm('Are you sure?')) return null
+    if (!flags.confirm && !await cli.confirm('Are you sure?')) return null
     cli.action.start(`Delete service ${args.SERVICE}`)
     await this.unaryCall('DeleteService', {
       serviceID: args.SERVICE,
