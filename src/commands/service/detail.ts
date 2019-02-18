@@ -17,9 +17,7 @@ export default class ServiceDetail extends Command {
 
   async run() {
     const {args} = this.parse(ServiceDetail)
-    this.mesg.api.GetService({serviceID: args.SERVICE}, (error: Error, response: any) => {
-      if (error) return this.error(error)
-      cli.styledJSON(response.service)
-    })
+    const service = await this.getServiceFromCore(args.SERVICE)
+    cli.styledJSON(service)
   }
 }

@@ -27,4 +27,13 @@ export default abstract class extends Command {
   status(s: number) {
     return ['unknown', 'stopped', 'starting', 'partial', 'running'][s]
   }
+
+  async getServiceFromCore(id: string): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      this.mesg.api.GetService({serviceID: id}, (error: Error, response: any) => error
+        ? reject(error)
+        : resolve(response.service)
+      )
+    })
+  }
 }
