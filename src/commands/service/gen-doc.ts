@@ -3,6 +3,8 @@ import Command from '../../service-command'
 export default class ServiceGenDoc extends Command {
   static description = 'Generate the documentation for the service in a README.md file'
 
+  static aliases = ['service:doc']
+
   static flags = {
     ...Command.flags,
   }

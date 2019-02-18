@@ -1,6 +1,20 @@
 import {flags} from '@oclif/command'
+import axios from 'axios'
+import {renameSync} from 'fs'
+import {prompt} from 'inquirer'
+import {join} from 'path'
 
 import Command from '../../service-command'
+
+import deployer from '../../deployer'
+import { cli } from 'cli-ux';
+
+const templatesURL = 'https://raw.githubusercontent.com/mesg-foundation/awesome/master/templates.json'
+
+interface Template {
+  name: string
+  url: string
+}
 
 export default class ServiceInit extends Command {
   static description = 'Initialize a service by creating a mesg.yml and Dockerfile in a dedicated directory.'
@@ -12,16 +26,50 @@ export default class ServiceInit extends Command {
 
   static args = [{
     name: 'DIR',
-    default: './',
     required: true,
     description: 'Create the service in the directory'
   }]
 
   async run() {
-    // TODO
     const {args, flags} = this.parse(ServiceInit)
+    const templateUrl = await this.getTemplateUrl(flags.template)
+    cli.action.start('Initialize your project')
+    await this.downloadTemplate(args.DIR, templateUrl)
+    cli.action.stop()
+    return args.DIR
+  }
 
-    this.log('init', args, flags)
+  async getTemplateUrl(template: string | undefined) {
+    if (template) { return template }
+    cli.action.start('Fetch the list of templates available')
+    const templates = await this.fetchTemplates()
+    cli.action.stop()
+    const {value} = (await prompt({
+      type: 'list',
+      name: 'value',
+      message: 'Choose the template you want to use',
+      default: 'Basic',
+      choices: templates.map(x => ({
+        name: `${x.name} ➜ ${x.url}`,
+        value: x.name,
+        short: x.name
+      }))
+    })) as {value: string}
 
+    const selectedTemplate = templates.find(x => x.name === value)
+    if (!selectedTemplate) {
+      throw new Error(`The template "${value}" is not valid`)
+    }
+    return selectedTemplate.url
+  }
+
+  async fetchTemplates() {
+    const response = await axios.get(templatesURL)
+    return response.data as Template[]
+  }
+
+  async downloadTemplate(path: string, url: string) {
+    const tmpPath = await deployer(url)
+    renameSync(join(tmpPath, 'template'), path)
   }
 }
