@@ -1,17 +1,16 @@
-import {flags} from '@oclif/command'
-
 import Command from '../../service-command'
+
+import ServiceDeploy from './deploy'
+import ServiceLog from './logs'
+import ServiceStart from './start'
 
 export default class ServiceDev extends Command {
   static description = 'Run your service in development mode'
 
   static flags = {
     ...Command.flags,
-    env: flags.string({
-      description: 'set env defined in mesg.yml (configuration.env)',
-      multiple: true,
-      helpValue: 'FOO=BAR'
-    })
+    ...ServiceLog.flags,
+    ...ServiceDeploy.flags
   }
 
   static args = [{
@@ -21,9 +20,16 @@ export default class ServiceDev extends Command {
   }]
 
   async run() {
-    // TODO
     const {args, flags} = this.parse(ServiceDev)
 
-    this.log('dev', args, flags)
+    const envs = (flags.env || []).reduce((prev, value) => [
+      ...prev,
+      '--env',
+      value
+    ], [] as string[])
+    const serviceID = await ServiceDeploy.run([args.SERVICE_PATH, ...envs])
+    await ServiceStart.run([serviceID])
+    await ServiceLog.run([serviceID])
+    return serviceID
   }
 }
