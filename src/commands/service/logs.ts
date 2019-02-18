@@ -13,6 +13,24 @@ export default class ServiceLog extends Command {
       description: 'Name of the dependency to show the logs from',
       multiple: true
     }),
+    'no-events': flags.boolean({
+      description: 'Remove events from the logs'
+    }),
+    'no-results': flags.boolean({
+      description: 'Remove results from the logs'
+    }),
+    event: flags.string({
+      description: 'Filter specific events in the logs',
+      multiple: true
+    }),
+    output: flags.string({
+      description: 'Filter specific outputs in the logs',
+      multiple: true
+    }),
+    task: flags.string({
+      description: 'Filter specific task results in the logs',
+      multiple: true
+    })
   }
 
   static args = [{
@@ -33,13 +51,29 @@ export default class ServiceLog extends Command {
     })
     stream.on('error', (error: Error) => { throw error })
 
-    this.mesg.api.ListenResult({serviceID: args.SERVICE})
-      .on('data', (data: any) => this.log(this.formatResult(data)))
-      .on('error', (error: Error) => { throw error })
+    if (!flags['no-results']) {
+      const outputs = flags.output || []
+      const tasks = flags.task || []
+      this.mesg.api.ListenResult({serviceID: args.SERVICE})
+        .on('data', (data: any) => {
+          if (outputs.length > 0 && !outputs.includes(data.outputKey)) return
+          if (tasks.length > 0 && !tasks.includes(data.taskKey)) return
+          this.log(this.formatResult(data))
+        })
+        .on('error', (error: Error) => { throw error })
+    }
 
-    this.mesg.api.ListenEvent({serviceID: args.SERVICE})
-      .on('data', (data: any) => this.log(this.formatEvent(data)))
-      .on('error', (error: Error) => { throw error })
+    if (!flags['no-events']) {
+      const events = flags.event || []
+      this.mesg.api.ListenEvent({serviceID: args.SERVICE})
+        .on('data', (data: any) => {
+          if (events.length > 0 && !events.includes(data.evenKey)) return
+          this.log(this.formatEvent(data))
+        })
+        .on('error', (error: Error) => { throw error })
+    }
+
+    return stream
   }
 
   formatEvent(event: any) {
