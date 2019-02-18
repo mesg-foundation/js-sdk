@@ -31,5 +31,21 @@ export default class ServiceLog extends Command {
       const dependency = response.dependency
       this.log(chalk.yellow(dependency + ' | '), response.data.toString().replace('\n', ''))
     })
+    stream.on('error', (error: Error) => { throw error })
+
+    this.mesg.api.ListenResult({serviceID: args.SERVICE})
+      .on('data', (data: any) => this.log(this.formatResult(data)))
+      .on('error', (error: Error) => { throw error })
+
+    this.mesg.api.ListenEvent({serviceID: args.SERVICE})
+      .on('data', (data: any) => this.log(this.formatEvent(data)))
+      .on('error', (error: Error) => { throw error })
+  }
+
+  formatEvent(event: any) {
+    return `EVENT[${event.eventKey}]: ` + chalk.gray(event.eventData)
+  }
+  formatResult(result: any) {
+    return `RESULT[${result.taskKey}][${result.outputKey}]: ` + chalk.gray(result.outputData)
   }
 }
