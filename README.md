@@ -47,6 +47,13 @@ USAGE
 * [`mesg-core service:start SERVICE`](#mesg-core-servicestart-service)
 * [`mesg-core service:stop SERVICE`](#mesg-core-servicestop-service)
 * [`mesg-core service:validate [SERVICE_PATH]`](#mesg-core-servicevalidate-service-path)
+* [`mesg-core wallet:create`](#mesg-core-walletcreate)
+* [`mesg-core wallet:delete ADDRESS`](#mesg-core-walletdelete-address)
+* [`mesg-core wallet:export ADDRESS`](#mesg-core-walletexport-address)
+* [`mesg-core wallet:import`](#mesg-core-walletimport)
+* [`mesg-core wallet:import-private-key PRIVATE_KEY`](#mesg-core-walletimport-private-key-private-key)
+* [`mesg-core wallet:list`](#mesg-core-walletlist)
+* [`mesg-core wallet:sign ADDRESS TRANSACTION`](#mesg-core-walletsign-address-transaction)
 
 ## `mesg-core core:logs`
 
@@ -143,8 +150,12 @@ ARGUMENTS
 
 OPTIONS
   -h, --help   show CLI help
-  --all        Delete all services
+  --confirm    Confirm delete
   --keep-data  Do not delete services' persistent data
+
+ALIASES
+  $ mesg-core service:rm
+  $ mesg-core service:destroy
 ```
 
 _See code: [src/commands/service/delete.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/service/delete.ts)_
@@ -180,6 +191,9 @@ ARGUMENTS
 
 OPTIONS
   -h, --help  show CLI help
+
+ALIASES
+  $ mesg-core service:get
 ```
 
 _See code: [src/commands/service/detail.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/service/detail.ts)_
@@ -196,8 +210,14 @@ ARGUMENTS
   SERVICE_PATH  [default: ./] Path of the service
 
 OPTIONS
-  -h, --help     show CLI help
-  --env=FOO=BAR  set env defined in mesg.yml (configuration.env)
+  -d, --dependency=dependency  Name of the dependency to show the logs from
+  -h, --help                   show CLI help
+  --env=FOO=BAR                set env defined in mesg.yml (configuration.env)
+  --event=event                Filter specific events in the logs
+  --no-events                  Remove events from the logs
+  --no-results                 Remove results from the logs
+  --output=output              Filter specific outputs in the logs
+  --task=task                  Filter specific task results in the logs
 ```
 
 _See code: [src/commands/service/dev.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/service/dev.ts)_
@@ -218,6 +238,9 @@ OPTIONS
   -d, --data=FOO=BAR  data required to run the task
   -h, --help          show CLI help
   -j, --json=json     Path to a JSON file containing the data required to run the task
+
+ALIASES
+  $ mesg-core service:exec
 ```
 
 _See code: [src/commands/service/execute.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/service/execute.ts)_
@@ -235,6 +258,10 @@ ARGUMENTS
 
 OPTIONS
   -h, --help  show CLI help
+
+ALIASES
+  $ mesg-core service:doc
+  $ mesg-core service:docs
 ```
 
 _See code: [src/commands/service/gen-doc.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/service/gen-doc.ts)_
@@ -248,7 +275,7 @@ USAGE
   $ mesg-core service:init DIR
 
 ARGUMENTS
-  DIR  [default: ./] Create the service in the directory
+  DIR  Create the service in the directory
 
 OPTIONS
   -h, --help               show CLI help
@@ -292,6 +319,11 @@ ARGUMENTS
 OPTIONS
   -d, --dependency=dependency  Name of the dependency to show the logs from
   -h, --help                   show CLI help
+  --event=event                Filter specific events in the logs
+  --no-events                  Remove events from the logs
+  --no-results                 Remove results from the logs
+  --output=output              Filter specific outputs in the logs
+  --task=task                  Filter specific task results in the logs
 ```
 
 _See code: [src/commands/service/logs.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/service/logs.ts)_
@@ -346,4 +378,119 @@ OPTIONS
 ```
 
 _See code: [src/commands/service/validate.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/service/validate.ts)_
+
+## `mesg-core wallet:create`
+
+Create a new wallet
+
+```
+USAGE
+  $ mesg-core wallet:create
+
+OPTIONS
+  -h, --help               show CLI help
+  --passphrase=passphrase  (required) Passphrase to unlock your address
+```
+
+_See code: [src/commands/wallet/create.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/create.ts)_
+
+## `mesg-core wallet:delete ADDRESS`
+
+Delete an existing wallet
+
+```
+USAGE
+  $ mesg-core wallet:delete ADDRESS
+
+OPTIONS
+  -h, --help               show CLI help
+  --passphrase=passphrase  (required) Passphrase to unlock your address
+```
+
+_See code: [src/commands/wallet/delete.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/delete.ts)_
+
+## `mesg-core wallet:export ADDRESS`
+
+Export an existing account
+
+```
+USAGE
+  $ mesg-core wallet:export ADDRESS
+
+OPTIONS
+  -h, --help               show CLI help
+  --passphrase=passphrase  (required) Passphrase to unlock your address
+```
+
+_See code: [src/commands/wallet/export.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/export.ts)_
+
+## `mesg-core wallet:import`
+
+Import a wallet
+
+```
+USAGE
+  $ mesg-core wallet:import
+
+OPTIONS
+  -h, --help               show CLI help
+  --account=account        (required) Account saved from a previous account
+  --passphrase=passphrase  (required) Passphrase to unlock your address
+```
+
+_See code: [src/commands/wallet/import.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/import.ts)_
+
+## `mesg-core wallet:import-private-key PRIVATE_KEY`
+
+Import a wallet from a private key
+
+```
+USAGE
+  $ mesg-core wallet:import-private-key PRIVATE_KEY
+
+ARGUMENTS
+  PRIVATE_KEY  Private key for your account
+
+OPTIONS
+  -h, --help               show CLI help
+  --passphrase=passphrase  (required) Passphrase to unlock your address
+```
+
+_See code: [src/commands/wallet/import-private-key.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/import-private-key.ts)_
+
+## `mesg-core wallet:list`
+
+List all existing wallets
+
+```
+USAGE
+  $ mesg-core wallet:list
+
+OPTIONS
+  -h, --help         show CLI help
+  -x, --extended     show extra columns
+  --columns=columns  only show provided columns (comma-separated)
+  --csv              output is csv format
+  --filter=filter    filter property by partial string matching, ex: name=foo
+  --no-header        hide table header from output
+  --no-truncate      do not truncate output to fit screen
+  --sort=sort        property to sort by (prepend '-' for descending)
+```
+
+_See code: [src/commands/wallet/list.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/list.ts)_
+
+## `mesg-core wallet:sign ADDRESS TRANSACTION`
+
+Sign a transaction
+
+```
+USAGE
+  $ mesg-core wallet:sign ADDRESS TRANSACTION
+
+OPTIONS
+  -h, --help               show CLI help
+  --passphrase=passphrase  (required) Passphrase to unlock your address
+```
+
+_See code: [src/commands/wallet/sign.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/sign.ts)_
 <!-- commandsstop -->
