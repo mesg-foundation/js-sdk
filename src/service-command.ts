@@ -9,6 +9,8 @@ export interface Service {
   status: number
 }
 
+export type SERVICE_PARAMETER_TYPE = 'String' | 'Number' | 'Boolean' | 'Object' | 'Any'
+
 type UNARY_METHODS = 'DeleteService'
   | 'GetService'
   | 'ListServices'

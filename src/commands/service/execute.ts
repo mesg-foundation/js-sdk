@@ -2,7 +2,7 @@ import {flags} from '@oclif/command'
 import {cli} from 'cli-ux'
 import {readFileSync} from 'fs'
 
-import Command, {Service} from '../../service-command'
+import Command, {SERVICE_PARAMETER_TYPE} from '../../service-command'
 
 export default class ServiceExecute extends Command {
   static description = 'describe the command here'
@@ -33,9 +33,14 @@ export default class ServiceExecute extends Command {
   async run() {
     const {args, flags} = this.parse(ServiceExecute)
 
-    const service = (await this.unaryCall('GetService', {serviceID: args.SERVICE})) as Service
+    const service = (await this.unaryCall('GetService', {serviceID: args.SERVICE})).service
 
-    const inputs = this.convertValue(service, this.dataFromFlags(flags))
+    const task = service.tasks.find((x: any) => x.key === args.TASK)
+    if (!task) {
+      this.error(`The task ${args.TASK} does not exists in the service ${args.SERVICE}`)
+      return null
+    }
+    const inputs = this.convertValue(task.inputs, this.dataFromFlags(flags))
 
     const result = await this.mesg.executeTaskAndWaitResult({
       serviceID: args.SERVICE,
@@ -64,9 +69,27 @@ export default class ServiceExecute extends Command {
     }, {})
   }
 
-  convertValue(service: Service, data: any): any {
-    // TODO
-    this.log('', service)
-    return data
+  convertValue(inputs: any, data: any): any {
+    return inputs
+      .filter((x: any) => !!data[x.key])
+      .reduce((prev: any, value: any) => ({
+        ...prev,
+        [value.key]: this.convert(value.type, data[value.key])
+      }), {})
+  }
+
+  convert(type: SERVICE_PARAMETER_TYPE, value: string): any {
+    try {
+      return {
+        Object: (x: string) => JSON.parse(x),
+        String: (x: string) => x,
+        Boolean: (x: string) => ['true', 't', 'TRUE', 'T', '1'].includes(x),
+        Number: (x: string) => parseFloat(x),
+        Any: (x: string) => x,
+      }[type](value)
+    } catch {
+      this.warn(`Cannot parse ${value} in ${type}`)
+      return value
+    }
   }
 }
