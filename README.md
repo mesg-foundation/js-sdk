@@ -30,11 +30,18 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
+* [`mesg-core account:create`](#mesg-core-accountcreate)
+* [`mesg-core account:delete ADDRESS`](#mesg-core-accountdelete-address)
+* [`mesg-core account:export ADDRESS`](#mesg-core-accountexport-address)
+* [`mesg-core account:import`](#mesg-core-accountimport)
+* [`mesg-core account:import-private-key PRIVATE_KEY`](#mesg-core-accountimport-private-key-private-key)
+* [`mesg-core account:list`](#mesg-core-accountlist)
 * [`mesg-core core:logs`](#mesg-core-corelogs)
 * [`mesg-core core:start`](#mesg-core-corestart)
 * [`mesg-core core:status`](#mesg-core-corestatus)
 * [`mesg-core core:stop`](#mesg-core-corestop)
 * [`mesg-core help [COMMAND]`](#mesg-core-help-command)
+* [`mesg-core marketplace:publish SERVICE_PATH`](#mesg-core-marketplacepublish-service-path)
 * [`mesg-core service:delete SERVICE`](#mesg-core-servicedelete-service)
 * [`mesg-core service:deploy [SERVICE_PATH_OR_URL]`](#mesg-core-servicedeploy-service-path-or-url)
 * [`mesg-core service:detail SERVICE`](#mesg-core-servicedetail-service)
@@ -47,13 +54,106 @@ USAGE
 * [`mesg-core service:start SERVICE`](#mesg-core-servicestart-service)
 * [`mesg-core service:stop SERVICE`](#mesg-core-servicestop-service)
 * [`mesg-core service:validate [SERVICE_PATH]`](#mesg-core-servicevalidate-service-path)
-* [`mesg-core wallet:create`](#mesg-core-walletcreate)
-* [`mesg-core wallet:delete ADDRESS`](#mesg-core-walletdelete-address)
-* [`mesg-core wallet:export ADDRESS`](#mesg-core-walletexport-address)
-* [`mesg-core wallet:import`](#mesg-core-walletimport)
-* [`mesg-core wallet:import-private-key PRIVATE_KEY`](#mesg-core-walletimport-private-key-private-key)
-* [`mesg-core wallet:list`](#mesg-core-walletlist)
-* [`mesg-core wallet:sign ADDRESS TRANSACTION`](#mesg-core-walletsign-address-transaction)
+
+## `mesg-core account:create`
+
+Create a new account
+
+```
+USAGE
+  $ mesg-core account:create
+
+OPTIONS
+  -h, --help               show CLI help
+  --passphrase=passphrase  (required) Passphrase to unlock your account
+```
+
+_See code: [src/commands/account/create.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/account/create.ts)_
+
+## `mesg-core account:delete ADDRESS`
+
+Delete an existing account
+
+```
+USAGE
+  $ mesg-core account:delete ADDRESS
+
+OPTIONS
+  -h, --help               show CLI help
+  --passphrase=passphrase  (required) Passphrase to unlock your address
+```
+
+_See code: [src/commands/account/delete.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/account/delete.ts)_
+
+## `mesg-core account:export ADDRESS`
+
+Export an existing account
+
+```
+USAGE
+  $ mesg-core account:export ADDRESS
+
+OPTIONS
+  -h, --help               show CLI help
+  --passphrase=passphrase  (required) Passphrase to unlock your address
+```
+
+_See code: [src/commands/account/export.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/account/export.ts)_
+
+## `mesg-core account:import`
+
+Import a account
+
+```
+USAGE
+  $ mesg-core account:import
+
+OPTIONS
+  -h, --help               show CLI help
+  --account=account        (required) Account saved from a previous account
+  --passphrase=passphrase  (required) Passphrase to unlock your address
+```
+
+_See code: [src/commands/account/import.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/account/import.ts)_
+
+## `mesg-core account:import-private-key PRIVATE_KEY`
+
+Import a account from a private key
+
+```
+USAGE
+  $ mesg-core account:import-private-key PRIVATE_KEY
+
+ARGUMENTS
+  PRIVATE_KEY  Private key for your account
+
+OPTIONS
+  -h, --help               show CLI help
+  --passphrase=passphrase  (required) Passphrase to unlock your address
+```
+
+_See code: [src/commands/account/import-private-key.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/account/import-private-key.ts)_
+
+## `mesg-core account:list`
+
+List all existing accounts
+
+```
+USAGE
+  $ mesg-core account:list
+
+OPTIONS
+  -h, --help         show CLI help
+  -x, --extended     show extra columns
+  --columns=columns  only show provided columns (comma-separated)
+  --csv              output is csv format
+  --filter=filter    filter property by partial string matching, ex: name=foo
+  --no-header        hide table header from output
+  --no-truncate      do not truncate output to fit screen
+  --sort=sort        property to sort by (prepend '-' for descending)
+```
+
+_See code: [src/commands/account/list.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/account/list.ts)_
 
 ## `mesg-core core:logs`
 
@@ -136,6 +236,25 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.1.6/src/commands/help.ts)_
+
+## `mesg-core marketplace:publish SERVICE_PATH`
+
+Publish a service on the MESG Marketplace
+
+```
+USAGE
+  $ mesg-core marketplace:publish SERVICE_PATH
+
+ARGUMENTS
+  SERVICE_PATH  [default: ./] Path of the service
+
+OPTIONS
+  -a, --account=account        Account to use
+  -h, --help                   show CLI help
+  -p, --passphrase=passphrase  (required) Passphrase to decrypt the account
+```
+
+_See code: [src/commands/marketplace/publish.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/marketplace/publish.ts)_
 
 ## `mesg-core service:delete SERVICE`
 
@@ -378,119 +497,4 @@ OPTIONS
 ```
 
 _See code: [src/commands/service/validate.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/service/validate.ts)_
-
-## `mesg-core wallet:create`
-
-Create a new wallet
-
-```
-USAGE
-  $ mesg-core wallet:create
-
-OPTIONS
-  -h, --help               show CLI help
-  --passphrase=passphrase  (required) Passphrase to unlock your address
-```
-
-_See code: [src/commands/wallet/create.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/create.ts)_
-
-## `mesg-core wallet:delete ADDRESS`
-
-Delete an existing wallet
-
-```
-USAGE
-  $ mesg-core wallet:delete ADDRESS
-
-OPTIONS
-  -h, --help               show CLI help
-  --passphrase=passphrase  (required) Passphrase to unlock your address
-```
-
-_See code: [src/commands/wallet/delete.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/delete.ts)_
-
-## `mesg-core wallet:export ADDRESS`
-
-Export an existing account
-
-```
-USAGE
-  $ mesg-core wallet:export ADDRESS
-
-OPTIONS
-  -h, --help               show CLI help
-  --passphrase=passphrase  (required) Passphrase to unlock your address
-```
-
-_See code: [src/commands/wallet/export.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/export.ts)_
-
-## `mesg-core wallet:import`
-
-Import a wallet
-
-```
-USAGE
-  $ mesg-core wallet:import
-
-OPTIONS
-  -h, --help               show CLI help
-  --account=account        (required) Account saved from a previous account
-  --passphrase=passphrase  (required) Passphrase to unlock your address
-```
-
-_See code: [src/commands/wallet/import.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/import.ts)_
-
-## `mesg-core wallet:import-private-key PRIVATE_KEY`
-
-Import a wallet from a private key
-
-```
-USAGE
-  $ mesg-core wallet:import-private-key PRIVATE_KEY
-
-ARGUMENTS
-  PRIVATE_KEY  Private key for your account
-
-OPTIONS
-  -h, --help               show CLI help
-  --passphrase=passphrase  (required) Passphrase to unlock your address
-```
-
-_See code: [src/commands/wallet/import-private-key.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/import-private-key.ts)_
-
-## `mesg-core wallet:list`
-
-List all existing wallets
-
-```
-USAGE
-  $ mesg-core wallet:list
-
-OPTIONS
-  -h, --help         show CLI help
-  -x, --extended     show extra columns
-  --columns=columns  only show provided columns (comma-separated)
-  --csv              output is csv format
-  --filter=filter    filter property by partial string matching, ex: name=foo
-  --no-header        hide table header from output
-  --no-truncate      do not truncate output to fit screen
-  --sort=sort        property to sort by (prepend '-' for descending)
-```
-
-_See code: [src/commands/wallet/list.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/list.ts)_
-
-## `mesg-core wallet:sign ADDRESS TRANSACTION`
-
-Sign a transaction
-
-```
-USAGE
-  $ mesg-core wallet:sign ADDRESS TRANSACTION
-
-OPTIONS
-  -h, --help               show CLI help
-  --passphrase=passphrase  (required) Passphrase to unlock your address
-```
-
-_See code: [src/commands/wallet/sign.ts](https://github.com/mesg-foundation/mesg-core/blob/v0.0.0/src/commands/wallet/sign.ts)_
 <!-- commandsstop -->
