@@ -21,6 +21,7 @@
     "handlebars": "^4.1.0",
     "hosted-git-info": "^2.7.1",
     "inquirer": "^6.2.2",
+    "ipfs-http-client": "^29.1.1",
     "is-git-url": "^1.0.0",
     "js-yaml": "^3.12.1",
     "mesg-js": "^2.0.1",
