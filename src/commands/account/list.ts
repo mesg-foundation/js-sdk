@@ -13,11 +13,7 @@ export default class AccountList extends Command {
 
   async run() {
     const {flags} = this.parse(AccountList)
-    const {output, data} = await this.execute(services.account.id, services.account.tasks.list)
-    if (output === 'error') {
-      this.error(data.message)
-      return null
-    }
+    const {data} = await this.executeAndCaptureError(services.account.id, services.account.tasks.list)
     cli.table(data.addresses, {
       address: {header: 'ADDRESS', get: (x: any) => x},
     }, {

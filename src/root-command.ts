@@ -8,7 +8,7 @@ type UNARY_METHODS = 'DeleteService'
   | 'StopService'
   | 'Info'
 
-interface ExecutionResult {
+export interface ExecutionResult {
   output: string
   data: any
 }
@@ -39,6 +39,16 @@ export default abstract class extends Command {
       data: JSON.parse(result.outputData),
       output: result.outputKey,
     }
+  }
+
+  async executeAndCaptureError(serviceID: string, taskKey: string, data: object = {}): Promise<ExecutionResult> {
+    this.debug(`Execute task ${taskKey} from ${serviceID} with ${JSON.stringify(data)}`)
+    const result = await this.execute(serviceID, taskKey, data)
+    if (result.output === 'error') {
+      this.error(result.data.message)
+      throw new Error(result.data.message)
+    }
+    return result
   }
 
   async unaryCall(method: UNARY_METHODS, data: object = {}): Promise<any> {

@@ -24,14 +24,10 @@ export default class AccountDelete extends Command {
     const {args, flags} = this.parse(AccountDelete)
 
     cli.action.start('Delete account')
-    const {output, data} = await this.execute(services.account.id, services.account.tasks.delete, {
+    const {data} = await this.executeAndCaptureError(services.account.id, services.account.tasks.delete, {
       passphrase: flags.passphrase,
       address: args.ADDRESS,
     })
-    if (output === 'error') {
-      this.error(data.message)
-      return null
-    }
     cli.action.stop(data.address)
     return data
   }

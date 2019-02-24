@@ -24,14 +24,10 @@ export default class AccountExport extends Command {
     const {args, flags} = this.parse(AccountExport)
 
     cli.action.start('Export account')
-    const {output, data} = await this.execute(services.account.id, services.account.tasks.export, {
+    const {data} = await this.executeAndCaptureError(services.account.id, services.account.tasks.export, {
       passphrase: flags.passphrase,
       address: args.ADDRESS,
     })
-    if (output === 'error') {
-      this.error(data.message)
-      return null
-    }
     cli.action.stop()
     cli.styledJSON(data)
     return data

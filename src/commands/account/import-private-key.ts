@@ -25,14 +25,10 @@ export default class AccountImportPK extends Command {
     const {args, flags} = this.parse(AccountImportPK)
 
     cli.action.start('Import account')
-    const {output, data} = await this.execute(services.account.id, services.account.tasks.importPK, {
+    const {data} = await this.executeAndCaptureError(services.account.id, services.account.tasks.importPK, {
       passphrase: flags.passphrase,
       privateKey: args.PRIVATE_KEY,
     })
-    if (output === 'error') {
-      this.error(data.message)
-      return null
-    }
     cli.action.stop(data.address)
     return data
   }
