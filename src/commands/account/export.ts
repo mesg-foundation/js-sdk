@@ -1,10 +1,11 @@
 import {flags} from '@oclif/command'
 import {cli} from 'cli-ux'
 
-import Command from '../../wallet-command'
+import Command from '../../account-command'
+import services from '../../services'
 
-export default class WalletDelete extends Command {
-  static description = 'Delete an existing wallet'
+export default class AccountExport extends Command {
+  static description = 'Export an existing account'
 
   static flags = {
     ...Command.flags,
@@ -20,10 +21,10 @@ export default class WalletDelete extends Command {
   }]
 
   async run() {
-    const {args, flags} = this.parse(WalletDelete)
+    const {args, flags} = this.parse(AccountExport)
 
-    cli.action.start('Delete wallet')
-    const {output, data} = await this.execute(this.walletServiceID, this.tasks.delete, {
+    cli.action.start('Export account')
+    const {output, data} = await this.execute(services.account.id, services.account.tasks.export, {
       passphrase: flags.passphrase,
       address: args.ADDRESS,
     })
@@ -31,7 +32,8 @@ export default class WalletDelete extends Command {
       this.error(data.message)
       return null
     }
-    cli.action.stop(data.address)
+    cli.action.stop()
+    cli.styledJSON(data)
     return data
   }
 }

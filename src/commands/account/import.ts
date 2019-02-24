@@ -1,10 +1,11 @@
 import {flags} from '@oclif/command'
 import {cli} from 'cli-ux'
 
-import Command from '../../wallet-command'
+import Command from '../../account-command'
+import services from '../../services'
 
-export default class WalletImport extends Command {
-  static description = 'Import a wallet'
+export default class AccountImport extends Command {
+  static description = 'Import a account'
 
   static flags = {
     ...Command.flags,
@@ -19,10 +20,10 @@ export default class WalletImport extends Command {
   }
 
   async run() {
-    const {flags} = this.parse(WalletImport)
+    const {flags} = this.parse(AccountImport)
 
-    cli.action.start('Import wallet')
-    const {output, data} = await this.execute(this.walletServiceID, this.tasks.import, {
+    cli.action.start('Import account')
+    const {output, data} = await this.execute(services.account.id, services.account.tasks.import, {
       passphrase: flags.passphrase,
       account: JSON.parse(flags.account),
     })
