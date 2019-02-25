@@ -1,6 +1,5 @@
 import {flags} from '@oclif/command'
 import axios from 'axios'
-import {cli} from 'cli-ux'
 import {renameSync} from 'fs'
 import {prompt} from 'inquirer'
 import {join} from 'path'
@@ -33,17 +32,17 @@ export default class ServiceInit extends Command {
   async run() {
     const {args, flags} = this.parse(ServiceInit)
     const templateUrl = await this.getTemplateUrl(flags.template)
-    cli.action.start('Initialize your project')
+    this.spinner.start('Initialize your project')
     await this.downloadTemplate(args.DIR, templateUrl)
-    cli.action.stop()
+    this.spinner.stop(args.DIR)
     return args.DIR
   }
 
   async getTemplateUrl(template: string | undefined) {
     if (template) { return template }
-    cli.action.start('Fetch the list of templates available')
+    this.spinner.start('Fetch the list of templates available')
     const templates = await this.fetchTemplates()
-    cli.action.stop()
+    this.spinner.stop()
     const {value} = (await prompt({
       type: 'list',
       name: 'value',

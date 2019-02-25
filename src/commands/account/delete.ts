@@ -1,5 +1,4 @@
 import {flags} from '@oclif/command'
-import {cli} from 'cli-ux'
 
 import Command from '../../account-command'
 import services from '../../services'
@@ -23,12 +22,12 @@ export default class AccountDelete extends Command {
   async run() {
     const {args, flags} = this.parse(AccountDelete)
 
-    cli.action.start('Delete account')
+    this.spinner.start('Delete account')
     const {data} = await this.executeAndCaptureError(services.account.id, services.account.tasks.delete, {
       passphrase: flags.passphrase,
       address: args.ADDRESS,
     })
-    cli.action.stop(data.address)
+    this.spinner.stop(data.address)
     return data
   }
 }

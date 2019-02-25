@@ -26,12 +26,12 @@ export default class ServiceDelete extends Command {
       cli.warn('This will delete all data associated to this service')
     }
     if (!flags.confirm && !await cli.confirm('Are you sure?')) return null
-    cli.action.start(`Delete service ${args.SERVICE}`)
+    this.spinner.start(`Delete service ${args.SERVICE}`)
     await this.unaryCall('DeleteService', {
       serviceID: args.SERVICE,
       deleteData: !flags['keep-data'],
     })
-    cli.action.stop()
+    this.spinner.stop(args.SERVICE)
     return args.SERVICE
   }
 }

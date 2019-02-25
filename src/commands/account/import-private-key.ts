@@ -1,5 +1,4 @@
 import {flags} from '@oclif/command'
-import {cli} from 'cli-ux'
 
 import Command from '../../account-command'
 import services from '../../services'
@@ -24,12 +23,12 @@ export default class AccountImportPK extends Command {
   async run() {
     const {args, flags} = this.parse(AccountImportPK)
 
-    cli.action.start('Import account')
+    this.spinner.start('Import account')
     const {data} = await this.executeAndCaptureError(services.account.id, services.account.tasks.importPK, {
       passphrase: flags.passphrase,
       privateKey: args.PRIVATE_KEY,
     })
-    cli.action.stop(data.address)
+    this.spinner.stop(data.address)
     return data
   }
 }

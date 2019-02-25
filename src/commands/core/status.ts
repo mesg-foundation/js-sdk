@@ -1,5 +1,3 @@
-import cli from 'cli-ux'
-
 import Command from '../../docker-command'
 
 export const enum ServiceStatus {
@@ -16,14 +14,14 @@ export default class Status extends Command {
 
   async run() {
     const {flags} = this.parse(Status)
-    cli.action.start('MESG Core')
-    cli.action.status = 'Fetching services'
+    this.spinner.start('MESG Core')
+    this.spinner.status = 'Fetching services'
     const services = await this.listServices({name: flags.name})
     if (services.length === 0) {
-      cli.action.stop('stopped')
+      this.spinner.stop('stopped')
       return ServiceStatus.STOPPED
     }
-    cli.action.stop('started')
+    this.spinner.stop('started')
     return ServiceStatus.STARTED
   }
 }

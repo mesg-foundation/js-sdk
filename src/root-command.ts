@@ -1,4 +1,5 @@
 import {Command, flags} from '@oclif/command'
+import {cli} from 'cli-ux'
 import {application} from 'mesg-js'
 
 type UNARY_METHODS = 'DeleteService'
@@ -16,11 +17,22 @@ export interface ExecutionResult {
 export default abstract class extends Command {
   static flags = {
     help: flags.help({char: 'h'}),
+    quiet: flags.boolean({char: 'q'})
   }
 
   protected mesg = application({
     endpoint: 'localhost:50052'
   })
+
+  get spinner() {
+    const {flags} = this.parse()
+    const quietSpinner = {
+      start: () => {},
+      stop: (message?: string) => message ? this.log(message) : null,
+      status: null
+    }
+    return flags.quiet ? quietSpinner : cli.action
+  }
 
   async execute(serviceID: string, taskKey: string, data: object = {}): Promise<ExecutionResult> {
     this.debug(`Execute task ${taskKey} from ${serviceID} with ${JSON.stringify(data)}`)

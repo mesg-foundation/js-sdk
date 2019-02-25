@@ -1,5 +1,3 @@
-import cli from 'cli-ux'
-
 import Command from '../../service-command'
 
 export default class ServiceStop extends Command {
@@ -17,9 +15,9 @@ export default class ServiceStop extends Command {
 
   async run() {
     const {args} = this.parse(ServiceStop)
-    cli.action.start(`Stop service ${args.SERVICE}`)
+    this.spinner.start(`Stop service ${args.SERVICE}`)
     await this.unaryCall('StopService', {serviceID: args.SERVICE})
-    cli.action.stop()
+    this.spinner.stop(args.SERVICE)
     return args.SERVICE
   }
 }

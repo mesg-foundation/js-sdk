@@ -1,5 +1,4 @@
 import {flags} from '@oclif/command'
-import cli from 'cli-ux'
 import {readdirSync} from 'fs'
 import {Readable, Writable} from 'stream'
 import tar from 'tar'
@@ -29,8 +28,8 @@ export default class ServiceDeploy extends Command {
   async run() {
     const {args, flags} = this.parse(ServiceDeploy)
 
-    cli.action.start('Deploy service')
-    cli.action.status = 'Download sources'
+    this.spinner.start('Deploy service')
+    this.spinner.status = 'Download sources'
     const path = await deployer(args.SERVICE_PATH_OR_URL)
 
     try {
@@ -79,14 +78,14 @@ export default class ServiceDeploy extends Command {
 
   handleDeploymentResponse(x: any, resolve: (value: string) => void, reject: (reason: Error) => void) {
     if (x.status) {
-      cli.action.status = x.status.message
+      this.spinner.status = x.status.message
       return
     }
     if (x.serviceID) {
-      cli.action.stop(x.serviceID)
+      this.spinner.stop(x.serviceID)
       return resolve(x.serviceID)
     }
-    cli.action.stop('failed')
+    this.spinner.stop('failed')
     return reject(x.validationError)
   }
 }

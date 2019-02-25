@@ -1,5 +1,4 @@
 import {flags} from '@oclif/command'
-import cli from 'cli-ux'
 
 import Command from '../../docker-command'
 
@@ -38,15 +37,15 @@ export default class Start extends Command {
     if (status === ServiceStatus.STARTED) {
       return false
     }
-    cli.action.start('MESG Core')
+    this.spinner.start('MESG Core')
     const eventPromise = this.waitForEvent(({Action, Type, from}) =>
       Type === 'container' &&
       Action === 'start' &&
       from === `mesg/core:${flags.version}`
     )
-    cli.action.status = 'Creating network'
+    this.spinner.status = 'Creating network'
     const network = await this.getOrCreateNetwork({name: flags.name})
-    cli.action.status = 'Creating service'
+    this.spinner.status = 'Creating service'
     await this.createService(network, {
       name: flags.name,
       version: flags.version,
@@ -54,9 +53,9 @@ export default class Start extends Command {
       format: flags['log-format'],
       level: flags['log-level']
     })
-    cli.action.status = 'Waiting service to start'
+    this.spinner.status = 'Waiting service to start'
     await eventPromise
-    cli.action.stop('Started')
+    this.spinner.stop('Started')
 
     return true
   }

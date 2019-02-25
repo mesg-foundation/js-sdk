@@ -32,15 +32,15 @@ export default class MarketplacePublish extends Command {
       return
     }
 
-    cli.action.start('Deploy service')
-    cli.action.status = 'Creating manifest file'
+    this.spinner.start('Deploy service')
+    this.spinner.status = 'Creating manifest file'
     const manifest = await this.createManifest(args.SERVICE_PATH)
     const manifestHash = await this.upload(Buffer.from(JSON.stringify(manifest)))
     this.log(manifestHash)
 
-    cli.action.status = 'Publishing service'
+    this.spinner.status = 'Publishing service'
     const txs = await this.preparePublishService(manifest, manifestHash)
-    cli.action.stop()
+    this.spinner.stop()
     // txs.map(x => this.signAndBroadcast(x, flags)
 
     cli.styledJSON(txs)

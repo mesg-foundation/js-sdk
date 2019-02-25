@@ -1,5 +1,3 @@
-import cli from 'cli-ux'
-
 import Command from '../../docker-command'
 
 import Status, {ServiceStatus} from './status'
@@ -18,8 +16,8 @@ export default class Stop extends Command {
     if (status === ServiceStatus.STOPPED) {
       return false
     }
-    cli.action.start('MESG Core')
-    cli.action.status = 'Fetching services'
+    this.spinner.start('MESG Core')
+    this.spinner.status = 'Fetching services'
     const services = await this.listServices({name: flags.name})
     if (services.length === 0) return
     const service = services[0]
@@ -28,10 +26,10 @@ export default class Stop extends Command {
       Action === 'destroy' &&
       from === (service.data as any).Spec.TaskTemplate.ContainerSpec.Image
     )
-    cli.action.status = 'Removing service'
+    this.spinner.status = 'Removing service'
     await service.remove()
     await eventPromise
-    cli.action.stop('stopped')
+    this.spinner.stop('stopped')
 
     return true
   }
