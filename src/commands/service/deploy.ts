@@ -19,37 +19,42 @@ export default class ServiceDeploy extends Command {
     })
   }
 
+  static strict = false
+
   static args = [{
     name: 'SERVICE_PATH_OR_URL',
     description: 'Path of the service or url to access it',
     default: './'
   }]
 
-  async run() {
-    const {args, flags} = this.parse(ServiceDeploy)
+  async run(): Promise<string[]> {
+    const {argv, flags} = this.parse(ServiceDeploy)
 
     this.spinner.start('Deploy service')
-    this.spinner.status = 'Download sources'
-    const path = await deployer(args.SERVICE_PATH_OR_URL)
+    let deployed: string[] = []
+    for (const arg of argv) {
+      this.spinner.status = 'Download sources'
+      const path = await deployer(arg)
 
-    try {
-      const serviceId = await new Promise((resolve: (value: string) => void, reject: (reason: Error) => void) => {
-        const stream = this.mesg.api.DeployService()
-        stream.on('error', (error: Error) => { throw error })
-        stream.on('data', (data: any) => this.handleDeploymentResponse(data, resolve, reject))
-        this.writeEnv(stream, flags.env)
+      try {
+        deployed.push(await new Promise((resolve: (value: string) => void, reject: (reason: Error) => void) => {
+          const stream = this.mesg.api.DeployService()
+          stream.on('error', (error: Error) => { throw error })
+          stream.on('data', (data: any) => this.handleDeploymentResponse(data, resolve, reject))
+          this.writeEnv(stream, flags.env)
 
-        this.createTar(path)
-          .on('end', () => stream.end(''))
-          .on('data', (chunk: Buffer) => {
-            if (chunk.length > 0) stream.write({chunk})
-          })
-      })
-      return serviceId
-    } catch (e) {
-      this.warn(e)
-      return e
+          this.createTar(path)
+            .on('end', () => stream.end(''))
+            .on('data', (chunk: Buffer) => {
+              if (chunk.length > 0) stream.write({chunk})
+            })
+        }))
+      } catch (e) {
+        this.error(e)
+      }
     }
+    this.spinner.stop(deployed.join(', '))
+    return deployed
   }
 
   createTar(path: string): Readable {
@@ -81,11 +86,6 @@ export default class ServiceDeploy extends Command {
       this.spinner.status = x.status.message
       return
     }
-    if (x.serviceID) {
-      this.spinner.stop(x.serviceID)
-      return resolve(x.serviceID)
-    }
-    this.spinner.stop('failed')
-    return reject(x.validationError)
+    return x.serviceID ? resolve(x.serviceID) : reject(x.validationError)
   }
 }

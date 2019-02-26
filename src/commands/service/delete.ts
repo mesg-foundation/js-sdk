@@ -14,24 +14,29 @@ export default class ServiceDelete extends Command {
     confirm: flags.boolean({description: 'Confirm delete', default: false})
   }
 
+  static strict = false
+
   static args = [{
     name: 'SERVICE',
     required: true,
     description: 'Hash or Sid'
   }]
 
-  async run() {
-    const {args, flags} = this.parse(ServiceDelete)
+  async run(): Promise<string[]> {
+    const {argv, flags} = this.parse(ServiceDelete)
     if (!flags['keep-data']) {
       cli.warn('This will delete all data associated to this service')
     }
-    if (!flags.confirm && !await cli.confirm('Are you sure?')) return null
-    this.spinner.start(`Delete service ${args.SERVICE}`)
-    await this.unaryCall('DeleteService', {
-      serviceID: args.SERVICE,
-      deleteData: !flags['keep-data'],
-    })
-    this.spinner.stop(args.SERVICE)
-    return args.SERVICE
+    if (!flags.confirm && !await cli.confirm('Are you sure?')) return []
+    this.spinner.start('Delete service')
+    for (const arg of argv) {
+      this.spinner.status = arg
+      await this.unaryCall('DeleteService', {
+        serviceID: arg,
+        deleteData: !flags['keep-data'],
+      })
+    }
+    this.spinner.stop()
+    return argv
   }
 }

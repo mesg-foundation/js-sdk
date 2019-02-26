@@ -2,7 +2,7 @@ import Command from '../../service-command'
 
 import ServiceDelete from './delete'
 import ServiceDeploy from './deploy'
-import ServiceLog from './logs'
+import ServiceLog, {Log} from './logs'
 import ServiceStart from './start'
 
 export default class ServiceDev extends Command {
@@ -20,7 +20,7 @@ export default class ServiceDev extends Command {
     default: './'
   }]
 
-  async run() {
+  async run(): Promise<Log> {
     const {args, flags} = this.parse(ServiceDev)
 
     const envs = (flags.env || []).reduce((prev, value) => [
@@ -28,18 +28,18 @@ export default class ServiceDev extends Command {
       '--env',
       value
     ], [] as string[])
-    const serviceID = await ServiceDeploy.run([args.SERVICE_PATH, ...envs])
-    await ServiceStart.run([serviceID])
-    await ServiceLog.run([serviceID])
+    const serviceIDs = await ServiceDeploy.run([args.SERVICE_PATH, ...envs])
+    await ServiceStart.run([...serviceIDs])
+    const stream = await ServiceLog.run([...serviceIDs])
 
     process.on('SIGINT', async () => {
       try {
-        await ServiceDelete.run([serviceID, '--keep-data', '--confirm'])
+        await ServiceDelete.run([...serviceIDs, '--keep-data', '--confirm'])
       } finally {
         process.exit(0)
       }
     })
 
-    return serviceID
+    return stream
   }
 }
