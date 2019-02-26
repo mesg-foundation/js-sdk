@@ -1,10 +1,12 @@
 import {cli} from 'cli-ux'
 
-import Command from '../../account-command'
+import {WithoutPassphrase as Command} from '../../account-command'
 import services from '../../services'
 
 export default class AccountList extends Command {
   static description = 'List all existing accounts'
+
+  static aliases = ['account:ls']
 
   static flags = {
     ...Command.flags,

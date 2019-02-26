@@ -1,30 +1,22 @@
-import {flags} from '@oclif/command'
-
-import Command from '../../account-command'
+import {WithPassphrase as Command} from '../../account-command'
 import services from '../../services'
 
 export default class AccountImport extends Command {
   static description = 'Import a account'
 
-  static flags = {
-    ...Command.flags,
-    passphrase: flags.string({
-      required: true,
-      description: 'Passphrase to unlock your address'
-    }),
-    account: flags.string({
-      required: true,
-      description: 'Account saved from a previous account'
-    })
-  }
+  static args = [{
+    name: 'ACCOUNT',
+    description: 'Account saved from a previous account',
+    required: true
+  }]
 
   async run() {
-    const {flags} = this.parse(AccountImport)
+    const {args} = this.parse(AccountImport)
 
     this.spinner.start('Import account')
     const {data} = await this.executeAndCaptureError(services.account.id, services.account.tasks.import, {
-      passphrase: flags.passphrase,
-      account: JSON.parse(flags.account),
+      passphrase: await this.getPassphrase(),
+      account: JSON.parse(args.ACCOUNT),
     })
     this.spinner.stop(data.address)
     return data
