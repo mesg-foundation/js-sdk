@@ -1,5 +1,3 @@
-import cli from 'cli-ux'
-
 import Command, {Service} from '../../service-command'
 
 export default class ServiceDetail extends Command {
