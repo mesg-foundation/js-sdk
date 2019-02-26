@@ -29,7 +29,7 @@ export default class ServiceInit extends Command {
     description: 'Create the service in the directory'
   }]
 
-  async run() {
+  async run(): Promise<string> {
     const {args, flags} = this.parse(ServiceInit)
     const templateUrl = await this.getTemplateUrl(flags.template)
     this.spinner.start('Initialize your project')

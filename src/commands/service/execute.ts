@@ -1,8 +1,10 @@
 import {flags} from '@oclif/command'
-import {cli} from 'cli-ux'
 import {readFileSync} from 'fs'
+import {ResultData} from 'mesg-js/lib/application'
 
 import Command, {SERVICE_PARAMETER_TYPE} from '../../service-command'
+
+import Detail from './detail'
 
 export default class ServiceExecute extends Command {
   static description = 'describe the command here'
@@ -30,10 +32,10 @@ export default class ServiceExecute extends Command {
     description: 'Task key'
   }]
 
-  async run() {
+  async run(): Promise<ResultData | null> {
     const {args, flags} = this.parse(ServiceExecute)
 
-    const service = (await this.unaryCall('GetService', {serviceID: args.SERVICE})).service
+    const service = (await Detail.run([args.SERVICE, '--silent']))[0]
 
     const task = service.tasks.find((x: any) => x.key === args.TASK)
     if (!task) {
@@ -43,7 +45,7 @@ export default class ServiceExecute extends Command {
     const inputs = this.convertValue(task.inputs, this.dataFromFlags(flags))
 
     const result = await this.mesg.executeTaskAndWaitResult({
-      serviceID: args.SERVICE,
+      serviceID: service.hash,
       taskKey: args.TASK,
       inputData: JSON.stringify(inputs),
       executionTags: [],
@@ -52,7 +54,7 @@ export default class ServiceExecute extends Command {
       return this.error(result.error)
     }
     this.log(`Result of task ${result.taskKey}: ${result.outputKey}`)
-    cli.styledJSON(JSON.parse(result.outputData))
+    this.styledJSON(JSON.parse(result.outputData))
     return result
   }
 

@@ -1,7 +1,13 @@
 import {flags} from '@oclif/command'
 import chalk from 'chalk'
+import {Stream} from 'mesg-js/lib/service'
 
 import Command from '../../service-command'
+
+export interface Log {
+  dependency: string
+  data: Buffer
+}
 
 export default class ServiceLog extends Command {
   static description = 'Show logs of a service'
@@ -39,13 +45,13 @@ export default class ServiceLog extends Command {
     description: 'Hash or Sid'
   }]
 
-  async run() {
+  async run(): Promise<Stream<Log>> {
     const {args, flags} = this.parse(ServiceLog)
     const stream = this.mesg.api.ServiceLogs({
       serviceID: args.SERVICE,
       dependencies: flags.dependency,
-    })
-    stream.on('data', (response: any) => {
+    }) as Stream<Log>
+    stream.on('data', response => {
       const dependency = response.dependency
       this.log(chalk.yellow(dependency + ' | '), response.data.toString().replace('\n', ''))
     })

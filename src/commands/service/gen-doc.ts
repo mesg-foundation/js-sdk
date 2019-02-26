@@ -20,7 +20,7 @@ export default class ServiceGenDoc extends Command {
     default: './'
   }]
 
-  async run() {
+  async run(): Promise<string> {
     const {args} = this.parse(ServiceGenDoc)
     const definition = safeLoad(readFileSync(join(args.SERVICE_PATH, 'mesg.yml')).toString())
     const markdown = this.generateTemplate(definition)
