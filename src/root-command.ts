@@ -45,6 +45,12 @@ export default abstract class extends Command {
     process.stdout.write(format(message, ...args) + '\n')
   }
 
+  styledJSON(data: any) {
+    const {flags} = this.parse()
+    if (flags.silent) return
+    cli.styledJSON(data)
+  }
+
   async execute(serviceID: string, taskKey: string, data: object = {}): Promise<ExecutionResult> {
     this.debug(`Execute task ${taskKey} from ${serviceID} with ${JSON.stringify(data)}`)
     const result = await this.mesg.executeTaskAndWaitResult({

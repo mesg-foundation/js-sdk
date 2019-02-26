@@ -1,4 +1,3 @@
-import {cli} from 'cli-ux'
 import {readdirSync, readFileSync} from 'fs'
 import {safeLoad} from 'js-yaml'
 import {join} from 'path'
@@ -43,7 +42,7 @@ export default class MarketplacePublish extends Command {
     this.spinner.stop()
     // txs.map(x => this.signAndBroadcast(x, flags)
 
-    cli.styledJSON(txs)
+    this.styledJSON(txs)
   }
 
   async createManifest(path: string): Promise<Manifest> {

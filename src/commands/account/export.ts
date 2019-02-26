@@ -1,5 +1,4 @@
 import {flags} from '@oclif/command'
-import {cli} from 'cli-ux'
 
 import Command from '../../account-command'
 import services from '../../services'
@@ -29,7 +28,7 @@ export default class AccountExport extends Command {
       address: args.ADDRESS,
     })
     this.spinner.stop()
-    cli.styledJSON(data)
+    this.styledJSON(data)
     return data
   }
 }
