@@ -1,6 +1,7 @@
 import {Command, flags} from '@oclif/command'
 import {cli} from 'cli-ux'
 import {application} from 'mesg-js'
+import {format, inspect} from 'util'
 
 type UNARY_METHODS = 'DeleteService'
   | 'GetService'
@@ -17,7 +18,8 @@ export interface ExecutionResult {
 export default abstract class extends Command {
   static flags = {
     help: flags.help({char: 'h'}),
-    quiet: flags.boolean({char: 'q'})
+    quiet: flags.boolean({char: 'q'}),
+    silent: flags.boolean(),
   }
 
   protected mesg = application({
@@ -26,12 +28,21 @@ export default abstract class extends Command {
 
   get spinner() {
     const {flags} = this.parse()
-    const quietSpinner = {
-      start: () => {},
-      stop: (message?: string) => message ? this.log(message) : null,
-      status: null
+    const nope = () => {}
+    if (flags.quiet) {
+      return {start: nope, stop: (message?: string) => message ? this.log(message) : null, status: null}
     }
-    return flags.quiet ? quietSpinner : cli.action
+    if (flags.silent) {
+      return {start: nope, stop: nope, status: null}
+    }
+    return cli.action
+  }
+
+  log(message?: string, ...args: any[]): void {
+    const {flags} = this.parse()
+    if (flags.silent) { return }
+    message = typeof message === 'string' ? message : inspect(message)
+    process.stdout.write(format(message, ...args) + '\n')
   }
 
   async execute(serviceID: string, taskKey: string, data: object = {}): Promise<ExecutionResult> {
