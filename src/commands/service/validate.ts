@@ -1,10 +1,14 @@
 import Command from '../../service-command'
 
+import ServiceDelete from './delete'
+import ServiceDeploy from './deploy'
+
 export default class ServiceValidate extends Command {
   static description = 'Validate a service file. Check the yml format and rules.'
 
   static flags = {
     ...Command.flags,
+    ...ServiceDeploy.flags
   }
 
   static args = [{
@@ -14,9 +18,14 @@ export default class ServiceValidate extends Command {
   }]
 
   async run() {
-    // TODO
     const {args, flags} = this.parse(ServiceValidate)
 
-    this.log('validate', args, flags)
+    const envs = (flags.env || []).reduce((prev, value) => [
+      ...prev,
+      '--env',
+      value
+    ], [] as string[])
+    const serviceIDs = await ServiceDeploy.run([args.SERVICE_PATH, ...envs, '--silent'])
+    await ServiceDelete.run([...serviceIDs, '--keep-data', '--confirm', '--silent'])
   }
 }
