@@ -80,10 +80,10 @@ export default class ServiceExecute extends Command {
       }), {})
   }
 
-  convert(type: SERVICE_PARAMETER_TYPE, value: string): any {
+  convert(type: SERVICE_PARAMETER_TYPE, value: string | any): any {
     try {
       return {
-        Object: (x: string) => JSON.parse(x),
+        Object: (x: string | any) => typeof x === 'string' ? JSON.parse(x) : x,
         String: (x: string) => x,
         Boolean: (x: string) => ['true', 't', 'TRUE', 'T', '1'].includes(x),
         Number: (x: string) => parseFloat(x),
