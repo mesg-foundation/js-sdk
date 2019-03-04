@@ -1,4 +1,5 @@
 import {flags} from '@oclif/command'
+import {cli} from 'cli-ux'
 import {prompt} from 'inquirer'
 
 import Command from './root-command'
@@ -26,7 +27,7 @@ export default abstract class MarketplaceCommand extends Command {
     passphrase: flags.string({
       char: 'p',
       required: true,
-      description: 'Passphrase to decrypt the account'
+      description: 'Passphrase to unlock your account'
     })
   }
 
@@ -34,16 +35,16 @@ export default abstract class MarketplaceCommand extends Command {
     const res = await this.executeAndCaptureError(services.account.id, services.account.tasks.sign, {
       passphrase,
       address: account,
-      transaction: JSON.parse(data),
+      transaction: data,
     })
-    return this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.sendSignedTransaction, res.data.signedTransaction)
+    return this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.sendSignedTransaction, res.data)
   }
 
-  async getAccount(): Promise<string | null> {
+  async getAccount(): Promise<string> {
     const {flags} = this.parse()
     if (flags.account) { return flags.account }
     const list = await this.executeAndCaptureError(services.account.id, services.account.tasks.list)
-    if (list.data.addresses.length === 0) { return null }
+    if (list.data.addresses.length === 0) { throw new Error('You need to create an account first.') }
     if (list.data.addresses.length === 1) { return list.data.addresses[0] }
     const {account} = (await prompt({
       type: 'list',
@@ -52,5 +53,11 @@ export default abstract class MarketplaceCommand extends Command {
       choices: list.data.addresses
     })) as {account: string}
     return account
+  }
+
+  async getPassphrase(): Promise<string> {
+    const {flags} = this.parse()
+    if (flags.passphrase) { return flags.passphrase }
+    return cli.prompt('Type your passphrase', {type: 'hide'})
   }
 }

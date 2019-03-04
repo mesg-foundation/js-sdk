@@ -1,3 +1,4 @@
+import {createHash} from 'crypto'
 import {readdirSync, readFileSync} from 'fs'
 import {safeLoad} from 'js-yaml'
 import {join} from 'path'
@@ -20,29 +21,28 @@ export default class MarketplacePublish extends Command {
 
   private IPFS = ipfsClient('ipfs.infura.io', '5001', {protocol: 'https'})
 
-  private account: string | null = null
-
   async run() {
     const {args} = this.parse(MarketplacePublish)
 
-    this.account = await this.getAccount()
-    if (!this.account) {
-      this.error('You need to create an account first.')
-      return
-    }
-
+    const account = await this.getAccount()
     this.spinner.start('Deploy service')
     this.spinner.status = 'Creating manifest file'
     const manifest = await this.createManifest(args.SERVICE_PATH)
     const manifestHash = await this.upload(Buffer.from(JSON.stringify(manifest)))
-    this.log(manifestHash)
 
     this.spinner.status = 'Publishing service'
-    const txs = await this.preparePublishService(manifest, manifestHash)
-    this.spinner.stop()
-    // txs.map(x => this.signAndBroadcast(x, flags)
+    const txs = await this.preparePublishService(manifest, manifestHash, account)
+    this.spinner.stop('ready')
+    const passphrase = await this.getPassphrase()
 
-    this.styledJSON(txs)
+    const results: any[] = []
+    for (let i = 0; i < txs.length; i++) {
+      results.push(await this.signAndBroadcast(account, {
+        ...txs[i],
+        nonce: txs[i].nonce + i,
+      }, passphrase))
+    }
+    return results
   }
 
   async createManifest(path: string): Promise<Manifest> {
@@ -66,21 +66,21 @@ export default class MarketplacePublish extends Command {
     })
   }
 
-  async preparePublishService(manifest: Manifest, hash: string): Promise<any[]> {
+  async preparePublishService(manifest: Manifest, hash: string, account: string): Promise<any[]> {
     const sid = manifest.definition.sid
     const get = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.exists, {sid})
     const txs = []
     if (!get.data.exist) {
       const createService = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.createService, {
         sid,
-        from: this.account
+        from: account
       })
       txs.push(createService.data)
     }
     const createVersion = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.createVersion, {
-      from: this.account,
+      from: account,
       sid,
-      hash,
+      hash: '0x' + createHash('sha256').update(hash).digest().toString('hex'),
       manifest: JSON.stringify(manifest),
       manifestProtocol: 'IPFS'
     })
