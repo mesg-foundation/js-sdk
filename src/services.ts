@@ -14,10 +14,7 @@ export default {
   marketplace: {
     id: 'marketplace',
     tasks: {
-      getService: 'getService',
-      exists: 'serviceExist',
-      createService: 'createService',
-      createVersion: 'createServiceVersion',
+      createVersion: 'publishServiceVersion',
       sendSignedTransaction: 'sendSignedTransaction'
     }
   }

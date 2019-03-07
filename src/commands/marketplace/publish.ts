@@ -31,26 +31,22 @@ export default class MarketplacePublish extends Command {
     const manifestHash = await this.upload(Buffer.from(JSON.stringify(manifest)))
 
     this.spinner.status = 'Publishing service'
-    const txs = await this.preparePublishService(manifest, manifestHash, account)
+    const serviceTx = await this.preparePublishService(manifest, manifestHash, account)
     this.spinner.stop('ready')
     const passphrase = await this.getPassphrase()
 
-    const results: any[] = []
-    for (let i = 0; i < txs.length; i++) {
-      results.push(await this.signAndBroadcast(account, {
-        ...txs[i],
-        nonce: txs[i].nonce + i,
-      }, passphrase))
-    }
-    return results
+    const result = await this.signAndBroadcast(account, serviceTx, passphrase)
+    this.styledJSON(result)
+    return result
   }
 
   async createManifest(path: string): Promise<Manifest> {
     const cmd = new ServiceDeploy(this.argv, this.config)
     const buffer: any[] = []
-    return new Promise<Manifest>(resolve => {
+    return new Promise<Manifest>((resolve, reject) => {
       cmd.createTar(join(path))
         .on('data', (data: any) => buffer.push(...data))
+        .once('error', reject)
         .on('end', async () => resolve({
           version: 1,
           definition: safeLoad(readFileSync(join(path, 'mesg.yml')).toString()),
@@ -67,25 +63,14 @@ export default class MarketplacePublish extends Command {
   }
 
   async preparePublishService(manifest: Manifest, hash: string, account: string): Promise<any[]> {
-    const sid = manifest.definition.sid
-    const get = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.exists, {sid})
-    const txs = []
-    if (!get.data.exist) {
-      const createService = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.createService, {
-        sid,
-        from: account
-      })
-      txs.push(createService.data)
-    }
-    const createVersion = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.createVersion, {
+    const publishTx = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.createVersion, {
       from: account,
-      sid,
-      hash: '0x' + createHash('sha256').update(hash).digest().toString('hex'),
-      manifest: JSON.stringify(manifest),
+      sid: manifest.definition.sid,
+      versionHash: '0x' + createHash('sha256').update(hash).digest().toString('hex'),
+      manifest: hash,
       manifestProtocol: 'IPFS'
     })
-    txs.push(createVersion.data)
-    return txs
+    return publishTx.data
   }
 
   private lookupReadme(path: string): string {
@@ -96,7 +81,7 @@ export default class MarketplacePublish extends Command {
   }
 
   private async upload(buffer: Buffer): Promise<string> {
-    const res = await this.IPFS.add(Buffer.from(buffer))
+    const res = await this.IPFS.add(Buffer.from(buffer), {pin: false})
     if (!res.length) {
       throw new Error('Error with the generation of your manifest')
     }
