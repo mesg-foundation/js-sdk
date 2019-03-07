@@ -62,7 +62,7 @@ export default class ServiceExecute extends Command {
     if (flags.json) {
       return JSON.parse(readFileSync(flags.json).toString())
     }
-    return flags.data.reduce((acc, item) => {
+    return (flags.data || []).reduce((acc, item) => {
       const [key, value] = item.split('=')
       return {
         ...acc,
@@ -72,6 +72,7 @@ export default class ServiceExecute extends Command {
   }
 
   convertValue(inputs: any, data: any): any {
+    if (!inputs) return {}
     return inputs
       .filter((x: any) => !!data[x.key])
       .reduce((prev: any, value: any) => ({
