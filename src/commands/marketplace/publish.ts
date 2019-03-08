@@ -30,12 +30,14 @@ export default class MarketplacePublish extends Command {
     const manifest = await this.createManifest(args.SERVICE_PATH)
     const manifestHash = await this.upload(Buffer.from(JSON.stringify(manifest)))
 
-    this.spinner.status = 'Publishing service'
+    this.spinner.status = 'Preparing service'
     const serviceTx = await this.preparePublishService(manifest, manifestHash, account)
     this.spinner.stop('ready')
     const passphrase = await this.getPassphrase()
 
+    this.spinner.start('Publish service')
     const result = await this.signAndBroadcast(account, serviceTx, passphrase)
+    this.spinner.stop()
     this.styledJSON(result)
     return result
   }
@@ -53,7 +55,7 @@ export default class MarketplacePublish extends Command {
           readme: this.lookupReadme(path),
           service: {
             deployment: {
-              type: 'IPFS',
+              type: 'ipfs',
               source: await this.upload(Buffer.from(buffer))
             }
           }
@@ -68,7 +70,7 @@ export default class MarketplacePublish extends Command {
       sid: manifest.definition.sid,
       versionHash: '0x' + createHash('sha256').update(hash).digest().toString('hex'),
       manifest: hash,
-      manifestProtocol: 'IPFS'
+      manifestProtocol: 'ipfs'
     })
     return publishTx.data
   }

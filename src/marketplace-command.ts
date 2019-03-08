@@ -11,7 +11,7 @@ export interface Manifest {
   readme: string
   service: {
     deployment: {
-      type: 'IPFS'
+      type: 'ipfs'
       source: string
     }
   }
