@@ -1,4 +1,3 @@
-import {createHash} from 'crypto'
 import {readdirSync, readFileSync} from 'fs'
 import {safeLoad} from 'js-yaml'
 import {join} from 'path'
@@ -68,7 +67,6 @@ export default class MarketplacePublish extends Command {
     const publishTx = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.createVersion, {
       from: account,
       sid: manifest.definition.sid,
-      versionHash: '0x' + createHash('sha256').update(hash).digest().toString('hex'),
       manifest: hash,
       manifestProtocol: 'ipfs'
     })
