@@ -1,12 +1,12 @@
 {
-  "name": "mesg-core",
-  "description": "MESG Core CLI",
+  "name": "mesg-cli",
+  "description": "MESG CLI",
   "version": "0.0.0",
   "author": "Anthony ESTEBE @antho1404",
   "bin": {
-    "mesg-core": "./bin/run"
+    "mesg-cli": "./bin/run"
   },
-  "bugs": "https://github.com/mesg-foundation/mesg-core/issues",
+  "bugs": "https://github.com/mesg-foundation/cli/issues",
   "dependencies": {
     "@oclif/command": "^1.5.10",
     "@oclif/config": "^1.12.6",
@@ -65,7 +65,7 @@
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
-  "homepage": "https://github.com/mesg-foundation/mesg-core",
+  "homepage": "https://github.com/mesg-foundation/cli",
   "keywords": [
     "oclif"
   ],
@@ -73,7 +73,7 @@
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
-    "bin": "mesg-core",
+    "bin": "mesg-cli",
     "plugins": [
       "@oclif/plugin-help",
       "@oclif/plugin-not-found",
@@ -83,7 +83,7 @@
       "service": {
         "description": "Manage MESG Services"
       },
-      "core": {
+      "daemon": {
         "description": "Manage MESG Core"
       },
       "marketplace": {
@@ -94,7 +94,7 @@
       }
     }
   },
-  "repository": "mesg-foundation/mesg-core",
+  "repository": "mesg-foundation/cli",
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
     "posttest": "tslint -p test -t stylish",

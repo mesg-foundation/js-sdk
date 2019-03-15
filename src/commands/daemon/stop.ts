@@ -3,7 +3,7 @@ import Command from '../../docker-command'
 import Status, {ServiceStatus} from './status'
 
 export default class Stop extends Command {
-  static description = 'Stop the Core'
+  static description = 'Stop the MESG Core\'s daemon'
 
   static flags = {
     ...Command.flags
