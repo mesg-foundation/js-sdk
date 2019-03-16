@@ -45,6 +45,7 @@ export default class ServiceDeploy extends Command {
 
           this.createTar(path)
             .on('end', () => stream.end(''))
+            .on('error', (error: Error) => { throw error })
             .on('data', (chunk: Buffer) => {
               if (chunk.length > 0) stream.write({chunk})
             })
@@ -53,7 +54,7 @@ export default class ServiceDeploy extends Command {
         this.error(e)
       }
     }
-    this.spinner.stop(deployed.join(', '))
+    this.spinner.stop(deployed.map((x: any) => x.sid).join(', '))
     return deployed
   }
 
@@ -86,6 +87,6 @@ export default class ServiceDeploy extends Command {
       this.spinner.status = x.status.message
       return
     }
-    return x.serviceID ? resolve(x.serviceID) : reject(x.validationError)
+    return x.service ? resolve(x.service) : reject(x.validationError)
   }
 }
