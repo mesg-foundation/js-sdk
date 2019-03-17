@@ -15,7 +15,8 @@ export default {
     id: 'marketplace',
     tasks: {
       createVersion: 'publishServiceVersion',
-      sendSignedTransaction: 'sendSignedTransaction'
+      sendSignedTransaction: 'sendSignedTransaction',
+      purchase: 'purchase',
     }
   }
 }
