@@ -3,8 +3,10 @@ import {safeLoad} from 'js-yaml'
 import {join} from 'path'
 
 import Command, {Manifest} from '../../marketplace-command'
+import {Service} from '../../service-command'
 import services from '../../services'
 import ServiceDeploy from '../service/deploy'
+import { cli } from 'cli-ux';
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -32,17 +34,26 @@ export default class MarketplacePublish extends Command {
     this.spinner.status = 'Preparing service'
     const serviceTx = await this.preparePublishService(manifest, manifestHash, account)
     this.spinner.stop('ready')
+    if (!await cli.confirm(`Ready to send a transaction to ${serviceTx.to} with the account ${account}?`)) {
+      return null
+    }
     const passphrase = await this.getPassphrase()
 
     this.spinner.start('Publish service')
-    const result = await this.signAndBroadcast(account, serviceTx, passphrase)
+    const {data} = await this.signAndBroadcast(account, serviceTx, passphrase)
     this.spinner.stop()
-    this.styledJSON(result)
-    return result
+    this.styledJSON(data)
+    return data
   }
 
   async createManifest(path: string): Promise<Manifest> {
     const cmd = new ServiceDeploy(this.argv, this.config)
+    this.spinner.status = 'Deploy service'
+    const services = (await ServiceDeploy.run([path, '--silent'])) as Service[]
+    if (services.length !== 1) {
+      throw new Error('Deployed service issue')
+    }
+    this.spinner.status = 'Upload sources'
     const buffer: any[] = []
     return new Promise<Manifest>((resolve, reject) => {
       cmd.createTar(join(path))
@@ -50,9 +61,11 @@ export default class MarketplacePublish extends Command {
         .once('error', reject)
         .on('end', async () => resolve({
           version: 1,
-          definition: safeLoad(readFileSync(join(path, 'mesg.yml')).toString()),
-          readme: this.lookupReadme(path),
           service: {
+            definition: safeLoad(readFileSync(join(path, 'mesg.yml')).toString()),
+            readme: this.lookupReadme(path),
+            hash: services[0].hash,
+            hashVersion: '1',
             deployment: {
               type: 'ipfs',
               source: await this.upload(Buffer.from(buffer))
@@ -63,10 +76,10 @@ export default class MarketplacePublish extends Command {
     })
   }
 
-  async preparePublishService(manifest: Manifest, hash: string, account: string): Promise<any[]> {
+  async preparePublishService(manifest: Manifest, hash: string, account: string): Promise<any> {
     const publishTx = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.createVersion, {
       from: account,
-      sid: manifest.definition.sid,
+      sid: manifest.service.definition.sid,
       manifest: hash,
       manifestProtocol: 'ipfs'
     })

@@ -7,9 +7,11 @@ import services from './services'
 
 export interface Manifest {
   version: 1
-  definition: any
-  readme: string
   service: {
+    definition: any
+    readme: string
+    hash: string
+    hashVersion: '1'
     deployment: {
       type: 'ipfs'
       source: string
