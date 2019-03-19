@@ -28,7 +28,6 @@ export default abstract class MarketplaceCommand extends Command {
     }),
     passphrase: flags.string({
       char: 'p',
-      required: true,
       description: 'Passphrase to unlock your account'
     })
   }

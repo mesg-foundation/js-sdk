@@ -17,6 +17,12 @@ export default {
       createVersion: 'publishServiceVersion',
       sendSignedTransaction: 'sendSignedTransaction',
       purchase: 'purchase',
+      createOffer: 'createServiceOffer',
+    },
+    events: {
+      serviceVersionCreated: 'serviceVersionCreated',
+      serviceOfferCreated: 'serviceOfferCreated',
+      servicePurchased: 'servicePurchased',
     }
   }
 }

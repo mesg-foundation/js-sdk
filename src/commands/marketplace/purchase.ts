@@ -18,20 +18,25 @@ export default class MarketplacePurchase extends Command {
     const {args} = this.parse(MarketplacePurchase)
 
     const account = await this.getAccount()
-    this.spinner.start('Verifying service')
-    const purchaseTxs = (await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.purchase, {
+    this.spinner.start('Verifying offer')
+    const {data} = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.purchase, {
       sid: args.SERVICE_ID,
       offerIndex: args.OFFER_ID,
       from: account,
-    })) as unknown as any[]
+    })
+    this.spinner.stop()
     const passphrase = await this.getPassphrase()
-    this.spinner.status = 'Purchasing service'
-    const results = []
-    for (const tx of purchaseTxs) {
-      results.push(await this.signAndBroadcast(account, tx, passphrase))
+    this.spinner.start('Purchasing offer')
+    for (const tx of data.transactions) {
+      await this.signAndBroadcast(account, tx, passphrase)
     }
-    this.spinner.stop('Service purchased')
-    this.styledJSON(results)
-    return results
+    const purchase = await this.listenEventOnce(
+      services.marketplace.id,
+      services.marketplace.events.servicePurchased,
+      (data: any) => data.sid === args.SERVICE_ID && data.purchaser.toLowerCase() === account.toLowerCase(),
+    )
+    this.spinner.stop()
+    this.styledJSON(purchase)
+    return purchase
   }
 }
