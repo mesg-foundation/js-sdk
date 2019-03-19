@@ -60,13 +60,13 @@ export default class ServiceDeploy extends Command {
 
   createTar(path: string): Readable {
     const ignore = ['.git']
-    const options = {
+    return tar.create({
       cwd: path,
       filter: (path: string) => !ignore.includes(path),
       strict: true,
       gzip: true,
-    }
-    return tar.create(options, readdirSync(path))
+      portable: true,
+    }, readdirSync(path))
       .on('error', (error: Error) => { throw error })
   }
 
