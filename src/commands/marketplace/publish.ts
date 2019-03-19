@@ -1,3 +1,4 @@
+import {cli} from 'cli-ux'
 import {readdirSync, readFileSync} from 'fs'
 import {safeLoad} from 'js-yaml'
 import {join} from 'path'
@@ -6,7 +7,6 @@ import Command, {Manifest} from '../../marketplace-command'
 import {Service} from '../../service-command'
 import services from '../../services'
 import ServiceDeploy from '../service/deploy'
-import { cli } from 'cli-ux';
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -40,10 +40,13 @@ export default class MarketplacePublish extends Command {
     const passphrase = await this.getPassphrase()
 
     this.spinner.start('Publish service')
-    const {data} = await this.signAndBroadcast(account, serviceTx, passphrase)
-    this.spinner.stop()
-    this.styledJSON(data)
-    return data
+
+    const transaction = this.waitForTransaction(manifestHash)
+    await this.signAndBroadcast(account, serviceTx, passphrase)
+    this.spinner.status = 'Waiting transaction to be mined'
+    const result = await transaction
+    this.styledJSON(result)
+    return result
   }
 
   async createManifest(path: string): Promise<Manifest> {
@@ -99,5 +102,13 @@ export default class MarketplacePublish extends Command {
       throw new Error('Error with the generation of your manifest')
     }
     return res[0].hash
+  }
+
+  private async waitForTransaction(manifestHash: string): Promise<any> {
+    return this.listenEventOnce(
+      services.marketplace.id,
+      services.marketplace.events.serviceVersionCreated,
+      (data: any) => data.manifest === manifestHash
+    )
   }
 }

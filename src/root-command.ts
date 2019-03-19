@@ -1,6 +1,8 @@
 import {Command, flags} from '@oclif/command'
 import {cli} from 'cli-ux'
 import {application} from 'mesg-js'
+import {EventData, Stream} from 'mesg-js/lib/application'
+import {checkStreamReady, errNoStatus} from 'mesg-js/lib/util/grpc'
 import {format, inspect} from 'util'
 
 type UNARY_METHODS = 'DeleteService'
@@ -87,5 +89,39 @@ export default abstract class extends Command {
     return new Promise((resolve, reject) => this.mesg.api[method](data, (error: Error, res: any) => error
       ? reject(error)
       : resolve(res)))
+  }
+
+  listenEventOnce(serviceID: string, event: string, filter?: (data: any) => boolean): Promise<any> {
+    return new Promise((resolve: any) => {
+      const stream = this.listenEvent(serviceID, event)
+      stream.on('end', () => stream.cancel())
+      stream.on('data', (data: EventData) => {
+        const event = JSON.parse(data.eventData)
+        if (!filter || filter(event)) {
+          stream.cancel()
+          resolve(event)
+        }
+      })
+    })
+  }
+
+  listenEvent(serviceID: string, event: string): Stream<EventData> {
+    const stream = this.mesg.listenEvent({
+      eventFilter: event,
+      serviceID
+    })
+    return stream
+      .on('error', (err: Error) => {
+        stream.cancel()
+        throw err
+      })
+      .on('metadata', metadata => {
+        const err = checkStreamReady(metadata)
+        if (err === errNoStatus) return
+        if (err) {
+          stream.destroy(err)
+          return
+        }
+      })
   }
 }
