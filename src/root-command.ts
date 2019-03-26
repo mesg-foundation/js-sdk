@@ -40,6 +40,12 @@ export default abstract class extends Command {
     return cli.action
   }
 
+  require(condition: any, errorMessage: string) {
+    if (!condition) {
+      throw new Error(errorMessage)
+    }
+  }
+
   log(message?: string, ...args: any[]): void {
     if (this.parse) {
       const {flags} = this.parse()
@@ -75,7 +81,6 @@ export default abstract class extends Command {
   }
 
   async executeAndCaptureError(serviceID: string, taskKey: string, data: object = {}): Promise<ExecutionResult> {
-    this.debug(`Execute task ${taskKey} from ${serviceID} with ${JSON.stringify(data)}`)
     const result = await this.execute(serviceID, taskKey, data)
     if (result.output === 'error') {
       this.error(result.data.message)
@@ -106,6 +111,7 @@ export default abstract class extends Command {
   }
 
   listenEvent(serviceID: string, event: string): Stream<EventData> {
+    this.debug(`Listenning to events ${event} from ${serviceID}`)
     const stream = this.mesg.listenEvent({
       eventFilter: event,
       serviceID
