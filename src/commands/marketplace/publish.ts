@@ -3,7 +3,7 @@ import {readdirSync, readFileSync} from 'fs'
 import {safeLoad} from 'js-yaml'
 import {join} from 'path'
 
-import Command, {Manifest} from '../../marketplace-command'
+import Command from '../../marketplace-command'
 import {Service} from '../../service-command'
 import services from '../../services'
 import ServiceDeploy from '../service/deploy'
@@ -24,15 +24,28 @@ export default class MarketplacePublish extends Command {
 
   async run() {
     const {args} = this.parse(MarketplacePublish)
+    const path = args.SERVICE_PATH
 
     const account = await this.getAccount()
+
     this.spinner.start('Deploy service')
-    this.spinner.status = 'Creating manifest file'
-    const manifest = await this.createManifest(args.SERVICE_PATH)
-    const manifestHash = await this.upload(Buffer.from(JSON.stringify(manifest)))
+    const [service] = (await ServiceDeploy.run([path, '--silent'])) as Service[]
+    this.require(service, 'Deployed service issue')
+
+    this.spinner.status = 'Upload sources'
+    const sources = await this.deploySources(path)
 
     this.spinner.status = 'Preparing service'
-    const serviceTx = await this.preparePublishService(manifest, manifestHash, account)
+    const serviceTx = await this.preparePublishService({
+      definition: safeLoad(readFileSync(join(path, 'mesg.yml')).toString()),
+      readme: this.lookupReadme(path),
+      hash: service.hash,
+      hashVersion: '1',
+      deployment: {
+        type: 'ipfs',
+        source: sources
+      }
+    }, account)
     this.spinner.stop('ready')
     if (!await cli.confirm(`Ready to send a transaction to ${serviceTx.to} with the account ${account}?`)) {
       return null
@@ -41,7 +54,7 @@ export default class MarketplacePublish extends Command {
 
     this.spinner.start('Publish service')
 
-    const transaction = this.waitForTransaction(manifestHash)
+    const transaction = this.waitForTransaction()
     await this.signAndBroadcast(account, serviceTx, passphrase)
     this.spinner.status = 'Waiting transaction to be mined'
     const result = await transaction
@@ -49,42 +62,22 @@ export default class MarketplacePublish extends Command {
     return result
   }
 
-  async createManifest(path: string): Promise<Manifest> {
+  async deploySources(path: string): Promise<string> {
     const cmd = new ServiceDeploy(this.argv, this.config)
-    this.spinner.status = 'Deploy service'
-    const services = (await ServiceDeploy.run([path, '--silent'])) as Service[]
-    if (services.length !== 1) {
-      throw new Error('Deployed service issue')
-    }
-    this.spinner.status = 'Upload sources'
     const buffer: any[] = []
-    return new Promise<Manifest>((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
       cmd.createTar(join(path))
         .on('data', (data: any) => buffer.push(...data))
         .once('error', reject)
-        .on('end', async () => resolve({
-          version: 1,
-          service: {
-            definition: safeLoad(readFileSync(join(path, 'mesg.yml')).toString()),
-            readme: this.lookupReadme(path),
-            hash: services[0].hash,
-            hashVersion: '1',
-            deployment: {
-              type: 'ipfs',
-              source: await this.upload(Buffer.from(buffer))
-            }
-          }
-        })
+        .on('end', async () => resolve(await this.upload(Buffer.from(buffer)))
       )
     })
   }
 
-  async preparePublishService(manifest: Manifest, hash: string, account: string): Promise<any> {
+  async preparePublishService(service: any, account: string): Promise<any> {
     const publishTx = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.createVersion, {
-      from: account,
-      sid: manifest.service.definition.sid,
-      manifest: hash,
-      manifestProtocol: 'ipfs'
+      service,
+      from: account
     })
     return publishTx.data
   }
@@ -104,11 +97,11 @@ export default class MarketplacePublish extends Command {
     return res[0].hash
   }
 
-  private async waitForTransaction(manifestHash: string): Promise<any> {
+  private async waitForTransaction(): Promise<any> {
     return this.listenEventOnce(
       services.marketplace.id,
       services.marketplace.events.serviceVersionCreated,
-      (data: any) => data.manifest === manifestHash
+      () => true
     )
   }
 }
