@@ -108,20 +108,6 @@ export default abstract class extends Command {
       : resolve(res)))
   }
 
-  listenEventOnce(serviceID: string, event: string, filter?: (data: any) => boolean): Promise<any> {
-    return new Promise((resolve: any) => {
-      const stream = this.listenEvent(serviceID, event)
-      stream.on('end', () => stream.cancel())
-      stream.on('data', (data: EventData) => {
-        const event = JSON.parse(data.eventData)
-        if (!filter || filter(event)) {
-          stream.cancel()
-          resolve(event)
-        }
-      })
-    })
-  }
-
   listenEvent(serviceID: string, event: string): Stream<EventData> {
     this.debug(`Listenning to events ${event} from ${serviceID}`)
     const stream = this.mesg.listenEvent({
