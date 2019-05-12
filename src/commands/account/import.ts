@@ -4,6 +4,10 @@ import services from '../../services'
 export default class AccountImport extends Command {
   static description = 'Import a account'
 
+  static flags = {
+    ...Command.flags,
+  }
+
   static args = [{
     name: 'ACCOUNT',
     description: 'Account saved from a previous account',
