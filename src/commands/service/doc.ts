@@ -5,7 +5,7 @@ import {join} from 'path'
 
 import Command from '../../service-command'
 
-export default class ServiceGenDoc extends Command {
+export default class ServiceDoc extends Command {
   static description = 'Generate the documentation for the service in a README.md file'
 
   static aliases = ['service:doc', 'service:docs']
@@ -21,7 +21,7 @@ export default class ServiceGenDoc extends Command {
   }]
 
   async run(): Promise<string> {
-    const {args} = this.parse(ServiceGenDoc)
+    const {args} = this.parse(ServiceDoc)
     const definition = safeLoad(readFileSync(join(args.SERVICE_PATH, 'mesg.yml')).toString())
     const markdown = this.generateTemplate(definition)
     this.log(markdown)
