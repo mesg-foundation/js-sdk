@@ -13,10 +13,6 @@ const ipfsClient = require('ipfs-http-client')
 export default class MarketplacePublish extends Command {
   static description = 'Publish a service on the MESG Marketplace'
 
-  static flags = {
-    ...Command.flags
-  }
-
   static args = [{
     name: 'SERVICE_PATH',
     description: 'Path of the service',
@@ -24,7 +20,7 @@ export default class MarketplacePublish extends Command {
     default: './'
   }]
 
-  private readonly IPFS = ipfsClient('ipfs.infura.io', '5001', {protocol: 'https'})
+  private readonly IPFS = ipfsClient('ipfs.app.mesg.com', '5001', {protocol: 'http'})
 
   async run() {
     const {args} = this.parse(MarketplacePublish)

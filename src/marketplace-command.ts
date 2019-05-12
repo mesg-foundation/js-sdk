@@ -47,7 +47,7 @@ export default abstract class MarketplaceCommand extends Command {
       return flags.account
     }
     const list = await this.executeAndCaptureError(services.account.id, services.account.tasks.list)
-    this.require(list.data.addresses.length === 0, 'You need to create an account first.')
+    this.require(list.data.addresses.length > 0, 'You need to create an account first.')
     if (list.data.addresses.length === 1) {
       return list.data.addresses[0]
     }

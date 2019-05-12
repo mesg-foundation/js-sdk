@@ -4,10 +4,6 @@ import services from '../../services'
 export default class AccountExport extends Command {
   static description = 'Export an existing account'
 
-  static flags = {
-    ...Command.flags
-  }
-
   static args = [{
     name: 'ADDRESS',
     required: true

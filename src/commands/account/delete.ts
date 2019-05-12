@@ -6,10 +6,6 @@ export default class AccountDelete extends Command {
 
   static aliases = ['account:rm', 'account:destroy']
 
-  static flags = {
-    ...Command.flags
-  }
-
   static args = [{
     name: 'ADDRESS',
     required: true

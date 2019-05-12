@@ -4,10 +4,6 @@ import services from '../../services'
 export default class AccountImportPK extends Command {
   static description = 'Import a account from a private key'
 
-  static flags = {
-    ...Command.flags
-  }
-
   static args = [{
     name: 'PRIVATE_KEY',
     description: 'Private key for your account',
