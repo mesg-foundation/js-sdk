@@ -14,15 +14,12 @@ export default {
   marketplace: {
     id: 'marketplace',
     tasks: {
-      createVersion: 'publishServiceVersion',
-      sendSignedTransaction: 'sendSignedTransaction',
-      purchase: 'purchase',
-      createOffer: 'createServiceOffer',
-    },
-    events: {
-      serviceVersionCreated: 'serviceVersionCreated',
-      serviceOfferCreated: 'serviceOfferCreated',
-      servicePurchased: 'servicePurchased',
+      prepareCreateVersion: 'preparePublishServiceVersion',
+      publishCreateVersion: 'publishPublishServiceVersion',
+      preparePurchase: 'preparePurchase',
+      publishPurchase: 'publishPurchase',
+      prepareCreateOffer: 'prepareCreateServiceOffer',
+      publishCreateOffer: 'publishCreateServiceOffer',
     }
   }
 }

@@ -1,4 +1,4 @@
-import Command, {Service} from '../../service-command'
+import Command, {ServiceID} from '../../service-command'
 
 import ServiceDelete from './delete'
 import ServiceDeploy from './deploy'
@@ -28,8 +28,8 @@ export default class ServiceDev extends Command {
       '--env',
       value
     ], [] as string[])
-    const services = await ServiceDeploy.run([args.SERVICE_PATH, ...envs])
-    const hashes = services.map((x: Service) => x.hash)
+    const services = (await ServiceDeploy.run([args.SERVICE_PATH, ...envs])) as ServiceID[]
+    const hashes = services.map(x => x.hash)
     await ServiceStart.run(hashes)
     const stream = await ServiceLog.run(hashes)
 

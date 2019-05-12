@@ -3,9 +3,8 @@ import {readdirSync} from 'fs'
 import {Readable, Writable} from 'stream'
 import tar from 'tar'
 
-import Command, {Service} from '../../service-command'
-
 import deployer from '../../deployer'
+import Command, {ServiceID} from '../../service-command'
 
 export default class ServiceDeploy extends Command {
   static description = 'Deploy a service'
@@ -27,17 +26,17 @@ export default class ServiceDeploy extends Command {
     default: './'
   }]
 
-  async run(): Promise<Service[]> {
+  async run(): Promise<ServiceID[]> {
     const {argv, flags} = this.parse(ServiceDeploy)
 
     this.spinner.start('Deploy service')
-    let deployed: Service[] = []
+    let deployed: ServiceID[] = []
     for (const arg of argv) {
       this.spinner.status = 'Download sources'
       const path = await deployer(arg)
 
       try {
-        deployed.push(await new Promise((resolve: (value: Service) => void, reject: (reason: Error) => void) => {
+        deployed.push(await new Promise((resolve: (value: ServiceID) => void, reject: (reason: Error) => void) => {
           const stream = this.mesg.api.DeployService()
           stream.on('error', (error: Error) => {
             throw error
@@ -88,7 +87,7 @@ export default class ServiceDeploy extends Command {
     stream.write({env})
   }
 
-  handleDeploymentResponse(x: any, resolve: (value: Service) => void, reject: (reason: Error) => void) {
+  handleDeploymentResponse(x: any, resolve: (value: ServiceID) => void, reject: (reason: Error) => void) {
     if (x.status) {
       this.spinner.status = x.status.message
       return

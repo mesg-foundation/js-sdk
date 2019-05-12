@@ -2,7 +2,7 @@ import {flags} from '@oclif/command'
 import {readFileSync} from 'fs'
 import {ResultData} from 'mesg-js/lib/application'
 
-import Command, {SERVICE_PARAMETER_TYPE} from '../../service-command'
+import Command, {Service, SERVICE_PARAMETER_TYPE} from '../../service-command'
 
 import Detail from './detail'
 
@@ -35,9 +35,9 @@ export default class ServiceExecute extends Command {
   async run(): Promise<ResultData | null> {
     const {args, flags} = this.parse(ServiceExecute)
 
-    const service = (await Detail.run([args.SERVICE, '--silent']))[0]
+    const service = (await Detail.run([args.SERVICE, '--silent']))[0] as Service
 
-    const task = service.tasks.find((x: any) => x.key === args.TASK)
+    const task = service.definition.tasks.find((x: any) => x.key === args.TASK)
     if (!task) {
       this.error(`The task ${args.TASK} does not exists in the service ${args.SERVICE}`)
       return null
@@ -45,7 +45,7 @@ export default class ServiceExecute extends Command {
     const inputs = this.convertValue(task.inputs, this.dataFromFlags(flags))
 
     const result = await this.mesg.executeTaskAndWaitResult({
-      serviceID: service.hash,
+      serviceID: service.definition.hash,
       taskKey: args.TASK,
       inputData: JSON.stringify(inputs),
       executionTags: [],

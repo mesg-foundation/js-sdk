@@ -30,20 +30,17 @@ export default class MarketplaceCreateOffer extends Command {
     const account = await this.getAccount()
     const passphrase = await this.getPassphrase()
     this.spinner.start('Creating offer')
-    const {data} = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.createOffer, {
-      sid: args.SERVICE_ID,
+    const prepareOffer = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.prepareCreateOffer, {
+      sid: args.SID,
       price: flags.price,
       duration: flags.duration,
       from: account,
     })
-    await this.signAndBroadcast(account, data, passphrase)
-    this.spinner.stop('Service purchased')
-    const offer = await this.listenEventOnce(
-      services.marketplace.id,
-      services.marketplace.events.serviceOfferCreated,
-      (data: any) => data.sid === args.SERVICE_ID,
-    )
-    this.styledJSON(offer)
-    return offer
+    const signedTx = await this.sign(account, prepareOffer.data, passphrase)
+    const offer = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.publishCreateOffer, signedTx)
+    this.spinner.stop('Offer created')
+
+    this.styledJSON(offer.data)
+    return offer.data
   }
 }

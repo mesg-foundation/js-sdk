@@ -1,4 +1,4 @@
-import Command, {Service} from '../../service-command'
+import Command, {ServiceID} from '../../service-command'
 
 import ServiceDelete from './delete'
 import ServiceDeploy from './deploy'
@@ -25,8 +25,8 @@ export default class ServiceValidate extends Command {
       '--env',
       value
     ], [] as string[])
-    const services = await ServiceDeploy.run([args.SERVICE_PATH, ...envs, '--silent'])
-    const hashes = services.map((x: Service) => x.hash)
+    const services = (await ServiceDeploy.run([args.SERVICE_PATH, ...envs, '--silent'])) as ServiceID[]
+    const hashes = services.map(x => x.hash)
     await ServiceDelete.run([...hashes, '--keep-data', '--confirm', '--silent'])
   }
 }

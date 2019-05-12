@@ -17,14 +17,11 @@ export default class ServiceList extends Command {
     const services = (await this.unaryCall('ListServices')).services as Service[]
     if (!services) return []
     cli.table(services, {
-      hash: {header: 'HASH'},
-      sid: {header: 'SID'},
-      name: {header: 'NAME'},
+      hash: {header: 'HASH', get: x => x.definition.hash},
+      sid: {header: 'SID', get: x => x.definition.sid},
+      name: {header: 'NAME', get: x => x.definition.name},
       status: {header: 'STATUS', get: x => this.status(x.status)}
-    }, {
-      printLine: this.log,
-      ...flags,
-    })
+    }, {printLine: this.log, ...flags})
     return services
   }
 }

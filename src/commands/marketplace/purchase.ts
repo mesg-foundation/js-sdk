@@ -4,6 +4,10 @@ import services from '../../services'
 export default class MarketplacePurchase extends Command {
   static description = 'Purchase a service on the MESG Marketplace'
 
+  static flags = {
+    ...Command.flags,
+  }
+
   static args = [{
     name: 'SERVICE_ID',
     description: 'ID of the service on the MESG Marketplace',
@@ -19,7 +23,7 @@ export default class MarketplacePurchase extends Command {
 
     const account = await this.getAccount()
     this.spinner.start('Verifying offer')
-    const {data} = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.purchase, {
+    const preparePurchase = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.preparePurchase, {
       sid: args.SERVICE_ID,
       offerIndex: args.OFFER_ID,
       from: account,
@@ -27,16 +31,15 @@ export default class MarketplacePurchase extends Command {
     this.spinner.stop()
     const passphrase = await this.getPassphrase()
     this.spinner.start('Purchasing offer')
-    for (const tx of data.transactions) {
-      await this.signAndBroadcast(account, tx, passphrase)
+    const signedTxs = []
+    for (const tx of preparePurchase.data.transactions) {
+      signedTxs.push(await this.sign(account, tx, passphrase))
     }
-    const purchase = await this.listenEventOnce(
-      services.marketplace.id,
-      services.marketplace.events.servicePurchased,
-      (data: any) => data.sid === args.SERVICE_ID && data.purchaser.toLowerCase() === account.toLowerCase(),
-    )
+    const purchase = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.publishPurchase, {
+      signedTransactions: signedTxs.map(x => x.signedTransaction)
+    })
     this.spinner.stop()
-    this.styledJSON(purchase)
-    return purchase
+    this.styledJSON(purchase.data)
+    return purchase.data
   }
 }

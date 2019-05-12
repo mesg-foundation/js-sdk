@@ -1,9 +1,17 @@
 import Command from './root-command'
 
-export interface Service {
+export interface ServiceID {
   sid: string
   hash: string
-  name: string
+}
+
+export interface Service {
+  definition: {
+    sid: string
+    hash: string
+    name: string
+    tasks: any[]
+  }
   status: number
 }
 

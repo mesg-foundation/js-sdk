@@ -1,17 +1,21 @@
 import {cli} from 'cli-ux'
 import {readdirSync, readFileSync} from 'fs'
-import {safeLoad} from 'js-yaml'
 import {join} from 'path'
 
 import Command from '../../marketplace-command'
-import {Service} from '../../service-command'
+import {Service, ServiceID} from '../../service-command'
 import services from '../../services'
 import ServiceDeploy from '../service/deploy'
+import ServiceDetail from '../service/detail'
 
 const ipfsClient = require('ipfs-http-client')
 
 export default class MarketplacePublish extends Command {
   static description = 'Publish a service on the MESG Marketplace'
+
+  static flags = {
+    ...Command.flags
+  }
 
   static args = [{
     name: 'SERVICE_PATH',
@@ -20,7 +24,7 @@ export default class MarketplacePublish extends Command {
     default: './'
   }]
 
-  private IPFS = ipfsClient('ipfs.infura.io', '5001', {protocol: 'https'})
+  private readonly IPFS = ipfsClient('ipfs.infura.io', '5001', {protocol: 'https'})
 
   async run() {
     const {args} = this.parse(MarketplacePublish)
@@ -29,17 +33,19 @@ export default class MarketplacePublish extends Command {
     const account = await this.getAccount()
 
     this.spinner.start('Deploy service')
-    const [service] = (await ServiceDeploy.run([path, '--silent'])) as Service[]
-    this.require(service, 'Deployed service issue')
+    const [deployedService] = (await ServiceDeploy.run([path, '--silent'])) as ServiceID[]
+    this.require(deployedService, 'Deployed service issue')
+
+    const [service] = (await ServiceDetail.run([deployedService.hash, '--silent'])) as Service[]
 
     this.spinner.status = 'Upload sources'
     const sources = await this.deploySources(path)
 
     this.spinner.status = 'Preparing service'
     const serviceTx = await this.preparePublishService({
-      definition: safeLoad(readFileSync(join(path, 'mesg.yml')).toString()),
+      definition: service.definition,
       readme: this.lookupReadme(path),
-      hash: service.hash,
+      hash: service.definition.hash,
       hashVersion: '1',
       deployment: {
         type: 'ipfs',
@@ -54,12 +60,9 @@ export default class MarketplacePublish extends Command {
 
     this.spinner.start('Publish service')
 
-    const transaction = this.waitForTransaction()
-    await this.signAndBroadcast(account, serviceTx, passphrase)
-    this.spinner.status = 'Waiting transaction to be mined'
-    const result = await transaction
-    this.styledJSON(result)
-    return result
+    const marketplaceService = await this.publishService(account, serviceTx, passphrase)
+    this.styledJSON(marketplaceService)
+    return marketplaceService
   }
 
   async deploySources(path: string): Promise<string> {
@@ -70,16 +73,22 @@ export default class MarketplacePublish extends Command {
         .on('data', (data: any) => buffer.push(...data))
         .once('error', reject)
         .on('end', async () => resolve(await this.upload(Buffer.from(buffer)))
-      )
+        )
     })
   }
 
   async preparePublishService(service: any, account: string): Promise<any> {
-    const publishTx = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.createVersion, {
+    const publishTx = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.prepareCreateVersion, {
       service,
       from: account
     })
     return publishTx.data
+  }
+
+  async publishService(account: string, serviceTx: any, passphrase: string): Promise<any> {
+    const signedTx = await this.sign(account, serviceTx, passphrase)
+    const service = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.publishCreateVersion, signedTx)
+    return service.data
   }
 
   private lookupReadme(path: string): string {
@@ -97,13 +106,5 @@ export default class MarketplacePublish extends Command {
       throw new Error('Error with the generation of your manifest')
     }
     return res[0].hash
-  }
-
-  private async waitForTransaction(): Promise<any> {
-    return this.listenEventOnce(
-      services.marketplace.id,
-      services.marketplace.events.serviceVersionCreated,
-      () => true
-    )
   }
 }

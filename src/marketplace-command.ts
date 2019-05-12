@@ -32,13 +32,13 @@ export default abstract class MarketplaceCommand extends Command {
     })
   }
 
-  async signAndBroadcast(account: string, data: any, passphrase: string) {
+  async sign(account: string, data: any, passphrase: string) {
     const res = await this.executeAndCaptureError(services.account.id, services.account.tasks.sign, {
       passphrase,
       address: account,
       transaction: data,
     })
-    return this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.sendSignedTransaction, res.data)
+    return res.data
   }
 
   async getAccount(): Promise<string> {
