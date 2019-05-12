@@ -4,9 +4,8 @@ import {renameSync} from 'fs'
 import {prompt} from 'inquirer'
 import {join} from 'path'
 
-import Command from '../../service-command'
-
 import deployer from '../../deployer'
+import Command from '../../service-command'
 
 const templatesURL = 'https://raw.githubusercontent.com/mesg-foundation/awesome/master/templates.json'
 
@@ -39,7 +38,9 @@ export default class ServiceInit extends Command {
   }
 
   async getTemplateUrl(template: string | undefined) {
-    if (template) { return template }
+    if (template) {
+      return template
+    }
     this.spinner.start('Fetch the list of templates available')
     const templates = await this.fetchTemplates()
     this.spinner.stop()

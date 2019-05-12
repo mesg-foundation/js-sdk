@@ -49,7 +49,9 @@ export default abstract class extends Command {
   log(message?: string, ...args: any[]): void {
     if (this.parse) {
       const {flags} = this.parse()
-      if (flags.silent) { return }
+      if (flags.silent) {
+        return
+      }
     }
     message = typeof message === 'string' ? message : inspect(message)
     process.stdout.write(format(message, ...args) + '\n')

@@ -18,10 +18,7 @@ export default class AccountList extends Command {
     const {data} = await this.executeAndCaptureError(services.account.id, services.account.tasks.list)
     cli.table(data.addresses, {
       address: {header: 'ADDRESS', get: (x: any) => x},
-    }, {
-      printLine: this.log,
-      ...flags,
-    })
+    }, {printLine: this.log, ...flags})
     return data
   }
 }

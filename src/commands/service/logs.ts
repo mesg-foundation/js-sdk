@@ -55,7 +55,9 @@ export default class ServiceLog extends Command {
       const dependency = response.dependency
       this.log(chalk.yellow(dependency + ' | '), response.data.toString().replace('\n', ''))
     })
-    stream.on('error', (error: Error) => { throw error })
+    stream.on('error', (error: Error) => {
+      throw error
+    })
 
     if (!flags['no-results']) {
       const outputs = flags.output || []
@@ -66,7 +68,9 @@ export default class ServiceLog extends Command {
           if (tasks.length > 0 && !tasks.includes(data.taskKey)) return
           this.log(this.formatResult(data))
         })
-        .on('error', (error: Error) => { throw error })
+        .on('error', (error: Error) => {
+          throw error
+        })
     }
 
     if (!flags['no-events']) {
@@ -76,7 +80,9 @@ export default class ServiceLog extends Command {
           if (events.length > 0 && !events.includes(data.evenKey)) return
           this.log(this.formatEvent(data))
         })
-        .on('error', (error: Error) => { throw error })
+        .on('error', (error: Error) => {
+          throw error
+        })
     }
 
     return stream

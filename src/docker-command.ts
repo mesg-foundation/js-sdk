@@ -39,7 +39,7 @@ export default abstract class extends Command {
     }),
   }
 
-  private docker: Docker = new Docker(null)
+  private readonly docker: Docker = new Docker(null)
 
   async listServices(options: ListOption) {
     return this.docker.service.list({

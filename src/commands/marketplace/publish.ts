@@ -85,7 +85,9 @@ export default class MarketplacePublish extends Command {
   private lookupReadme(path: string): string {
     const readmeRegexp = /^readme(.md)?$/i
     const readme = readdirSync(path).find(x => !!x.match(readmeRegexp))
-    if (!readme) { return '' }
+    if (!readme) {
+      return ''
+    }
     return readFileSync(join(path, readme)).toString()
   }
 

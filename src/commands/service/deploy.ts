@@ -39,13 +39,17 @@ export default class ServiceDeploy extends Command {
       try {
         deployed.push(await new Promise((resolve: (value: Service) => void, reject: (reason: Error) => void) => {
           const stream = this.mesg.api.DeployService()
-          stream.on('error', (error: Error) => { throw error })
+          stream.on('error', (error: Error) => {
+            throw error
+          })
           stream.on('data', (data: any) => this.handleDeploymentResponse(data, resolve, reject))
           this.writeEnv(stream, flags.env)
 
           this.createTar(path)
             .on('end', () => stream.end(''))
-            .on('error', (error: Error) => { throw error })
+            .on('error', (error: Error) => {
+              throw error
+            })
             .on('data', (chunk: Buffer) => {
               if (chunk.length > 0) stream.write({chunk})
             })
@@ -67,7 +71,9 @@ export default class ServiceDeploy extends Command {
       gzip: true,
       portable: true,
     }, readdirSync(path))
-      .on('error', (error: Error) => { throw error })
+      .on('error', (error: Error) => {
+        throw error
+      })
   }
 
   writeEnv(stream: Writable, envList: string[]) {

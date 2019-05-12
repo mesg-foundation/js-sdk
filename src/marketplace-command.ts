@@ -43,10 +43,14 @@ export default abstract class MarketplaceCommand extends Command {
 
   async getAccount(): Promise<string> {
     const {flags} = this.parse()
-    if (flags.account) { return flags.account }
+    if (flags.account) {
+      return flags.account
+    }
     const list = await this.executeAndCaptureError(services.account.id, services.account.tasks.list)
-    if (list.data.addresses.length === 0) { throw new Error('You need to create an account first.') }
-    if (list.data.addresses.length === 1) { return list.data.addresses[0] }
+    this.require(list.data.addresses.length === 0, 'You need to create an account first.')
+    if (list.data.addresses.length === 1) {
+      return list.data.addresses[0]
+    }
     const {account} = (await prompt({
       type: 'list',
       name: 'account',
@@ -58,7 +62,9 @@ export default abstract class MarketplaceCommand extends Command {
 
   async getPassphrase(): Promise<string> {
     const {flags} = this.parse()
-    if (flags.passphrase) { return flags.passphrase }
+    if (flags.passphrase) {
+      return flags.passphrase
+    }
     return cli.prompt('Type your passphrase', {type: 'hide'})
   }
 }
