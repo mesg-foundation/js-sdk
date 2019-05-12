@@ -21,7 +21,7 @@ $ npm install -g mesg-cli
 $ mesg-cli COMMAND
 running command...
 $ mesg-cli (-v|--version|version)
-mesg-cli/0.0.0 darwin-x64 node-v10.8.0
+mesg-cli/0.0.0 darwin-x64 node-v11.14.0
 $ mesg-cli --help [COMMAND]
 USAGE
   $ mesg-cli COMMAND
@@ -34,7 +34,7 @@ USAGE
 * [`mesg-cli account:delete ADDRESS`](#mesg-cli-accountdelete-address)
 * [`mesg-cli account:export ADDRESS`](#mesg-cli-accountexport-address)
 * [`mesg-cli account:import ACCOUNT`](#mesg-cli-accountimport-account)
-* [`mesg-cli account:import-private-key PRIVATE_KEY`](#mesg-cli-accountimport-private-key-private-key)
+* [`mesg-cli account:import-private-key PRIVATE_KEY`](#mesg-cli-accountimport-private-key-private_key)
 * [`mesg-cli account:list`](#mesg-cli-accountlist)
 * [`mesg-cli autocomplete [SHELL]`](#mesg-cli-autocomplete-shell)
 * [`mesg-cli daemon:logs`](#mesg-cli-daemonlogs)
@@ -42,19 +42,21 @@ USAGE
 * [`mesg-cli daemon:status`](#mesg-cli-daemonstatus)
 * [`mesg-cli daemon:stop`](#mesg-cli-daemonstop)
 * [`mesg-cli help [COMMAND]`](#mesg-cli-help-command)
-* [`mesg-cli marketplace:publish SERVICE_PATH`](#mesg-cli-marketplacepublish-service-path)
+* [`mesg-cli marketplace:create-offer SID`](#mesg-cli-marketplacecreate-offer-sid)
+* [`mesg-cli marketplace:publish SERVICE_PATH`](#mesg-cli-marketplacepublish-service_path)
+* [`mesg-cli marketplace:purchase SERVICE_ID OFFER_ID`](#mesg-cli-marketplacepurchase-service_id-offer_id)
 * [`mesg-cli service:delete SERVICE`](#mesg-cli-servicedelete-service)
-* [`mesg-cli service:deploy [SERVICE_PATH_OR_URL]`](#mesg-cli-servicedeploy-service-path-or-url)
+* [`mesg-cli service:deploy [SERVICE_PATH_OR_URL]`](#mesg-cli-servicedeploy-service_path_or_url)
 * [`mesg-cli service:detail SERVICE`](#mesg-cli-servicedetail-service)
-* [`mesg-cli service:dev [SERVICE_PATH]`](#mesg-cli-servicedev-service-path)
+* [`mesg-cli service:dev [SERVICE_PATH]`](#mesg-cli-servicedev-service_path)
+* [`mesg-cli service:doc [SERVICE_PATH]`](#mesg-cli-servicedoc-service_path)
 * [`mesg-cli service:execute SERVICE TASK`](#mesg-cli-serviceexecute-service-task)
-* [`mesg-cli service:gen-doc [SERVICE_PATH]`](#mesg-cli-servicegen-doc-service-path)
 * [`mesg-cli service:init DIR`](#mesg-cli-serviceinit-dir)
 * [`mesg-cli service:list`](#mesg-cli-servicelist)
 * [`mesg-cli service:logs SERVICE`](#mesg-cli-servicelogs-service)
 * [`mesg-cli service:start SERVICE`](#mesg-cli-servicestart-service)
 * [`mesg-cli service:stop SERVICE`](#mesg-cli-servicestop-service)
-* [`mesg-cli service:validate [SERVICE_PATH]`](#mesg-cli-servicevalidate-service-path)
+* [`mesg-cli service:validate [SERVICE_PATH]`](#mesg-cli-servicevalidate-service_path)
 
 ## `mesg-cli account:create`
 
@@ -290,6 +292,29 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.1.6/src/commands/help.ts)_
 
+## `mesg-cli marketplace:create-offer SID`
+
+Create a new offer on a service on the MESG Marketplace
+
+```
+USAGE
+  $ mesg-cli marketplace:create-offer SID
+
+ARGUMENTS
+  SID  SID of the service on the MESG Marketplace
+
+OPTIONS
+  -a, --account=account        Account to use
+  -h, --help                   show CLI help
+  -p, --passphrase=passphrase  Passphrase to unlock your account
+  -q, --quiet
+  --duration=duration          (required) Duration (in second) of the offer to create
+  --price=price                (required) Price (in MESG token) of the offer to create
+  --silent
+```
+
+_See code: [src/commands/marketplace/create-offer.ts](https://github.com/mesg-foundation/cli/blob/v0.0.0/src/commands/marketplace/create-offer.ts)_
+
 ## `mesg-cli marketplace:publish SERVICE_PATH`
 
 Publish a service on the MESG Marketplace
@@ -304,12 +329,34 @@ ARGUMENTS
 OPTIONS
   -a, --account=account        Account to use
   -h, --help                   show CLI help
-  -p, --passphrase=passphrase  (required) Passphrase to unlock your account
+  -p, --passphrase=passphrase  Passphrase to unlock your account
   -q, --quiet
   --silent
 ```
 
 _See code: [src/commands/marketplace/publish.ts](https://github.com/mesg-foundation/cli/blob/v0.0.0/src/commands/marketplace/publish.ts)_
+
+## `mesg-cli marketplace:purchase SERVICE_ID OFFER_ID`
+
+Purchase a service on the MESG Marketplace
+
+```
+USAGE
+  $ mesg-cli marketplace:purchase SERVICE_ID OFFER_ID
+
+ARGUMENTS
+  SERVICE_ID  ID of the service on the MESG Marketplace
+  OFFER_ID    ID of the offer on the MESG Marketplace
+
+OPTIONS
+  -a, --account=account        Account to use
+  -h, --help                   show CLI help
+  -p, --passphrase=passphrase  Passphrase to unlock your account
+  -q, --quiet
+  --silent
+```
+
+_See code: [src/commands/marketplace/purchase.ts](https://github.com/mesg-foundation/cli/blob/v0.0.0/src/commands/marketplace/purchase.ts)_
 
 ## `mesg-cli service:delete SERVICE`
 
@@ -404,6 +451,29 @@ OPTIONS
 
 _See code: [src/commands/service/dev.ts](https://github.com/mesg-foundation/cli/blob/v0.0.0/src/commands/service/dev.ts)_
 
+## `mesg-cli service:doc [SERVICE_PATH]`
+
+Generate the documentation for the service in a README.md file
+
+```
+USAGE
+  $ mesg-cli service:doc [SERVICE_PATH]
+
+ARGUMENTS
+  SERVICE_PATH  [default: ./] Path of the service
+
+OPTIONS
+  -h, --help   show CLI help
+  -q, --quiet
+  --silent
+
+ALIASES
+  $ mesg-cli service:doc
+  $ mesg-cli service:docs
+```
+
+_See code: [src/commands/service/doc.ts](https://github.com/mesg-foundation/cli/blob/v0.0.0/src/commands/service/doc.ts)_
+
 ## `mesg-cli service:execute SERVICE TASK`
 
 describe the command here
@@ -428,29 +498,6 @@ ALIASES
 ```
 
 _See code: [src/commands/service/execute.ts](https://github.com/mesg-foundation/cli/blob/v0.0.0/src/commands/service/execute.ts)_
-
-## `mesg-cli service:gen-doc [SERVICE_PATH]`
-
-Generate the documentation for the service in a README.md file
-
-```
-USAGE
-  $ mesg-cli service:gen-doc [SERVICE_PATH]
-
-ARGUMENTS
-  SERVICE_PATH  [default: ./] Path of the service
-
-OPTIONS
-  -h, --help   show CLI help
-  -q, --quiet
-  --silent
-
-ALIASES
-  $ mesg-cli service:doc
-  $ mesg-cli service:docs
-```
-
-_See code: [src/commands/service/gen-doc.ts](https://github.com/mesg-foundation/cli/blob/v0.0.0/src/commands/service/gen-doc.ts)_
 
 ## `mesg-cli service:init DIR`
 
