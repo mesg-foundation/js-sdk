@@ -1,7 +1,7 @@
 import {Command, flags} from '@oclif/command'
 import {cli} from 'cli-ux'
 import {application} from 'mesg-js'
-import {EventData, Stream} from 'mesg-js/lib/application'
+import {Application, EventData, Stream} from 'mesg-js/lib/application'
 import {checkStreamReady, errNoStatus} from 'mesg-js/lib/util/grpc'
 import {format, inspect} from 'util'
 
@@ -24,9 +24,19 @@ export default abstract class extends Command {
     silent: flags.boolean(),
   }
 
-  protected mesg = application({
-    endpoint: 'localhost:50052'
-  })
+  private _mesg: Application | null = null
+
+  get mesg() {
+    if (!this._mesg) {
+      const host = process.env.DOCKER_HOST
+        ? new URL(process.env.DOCKER_HOST).hostname
+        : 'localhost'
+      this._mesg = application({
+        endpoint: `${host}:50052`
+      })
+    }
+    return this._mesg
+  }
 
   get spinner() {
     const {flags} = this.parse()
