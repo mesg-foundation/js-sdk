@@ -1,5 +1,4 @@
-<!-- MESG_GENERATED_DOC -->
-# {{name}}
+# {{name}} {{#if sid}}(ID: {{sid}}){{/if}}
 
 {{description}}
 
@@ -7,7 +6,7 @@
 
 - [Installation](#Installation)
   - [MESG Core](#MESG-Core)
-  - [Service](#Service)
+  - [Deploy the Service](#Service)
 - [Definitions](#Definitions)
   {{#if events}}
   - [Events](#Events)
@@ -34,17 +33,9 @@ You can install MESG Core by running the following command or [follow the instal
 bash <(curl -fsSL https://mesg.com/install)
 ```
 
-### Service
+### Deploy the Service
 
-{{#if repository}}To deploy this service, run the following command:
-```bash
-mesg-core service deploy {{repository}}
-```
-{{else}}Download the source code of this service, and then in the service's directory, run the following command:
-```bash
-mesg-core service deploy
-```
-{{/if}}
+To deploy this service, go to [this service page](https://marketplace.mesg.com/services/{{sid}}) on the [MESG Marketplace](https://marketplace.mesg.com) and click the button "get/buy this service".
 
 ## Definitions
 
@@ -108,4 +99,3 @@ Output key: `{{@key}}`
     {{/if}}
   {{/each}}
 {{/if}}
-<!-- /MESG_GENERATED_DOC -->
