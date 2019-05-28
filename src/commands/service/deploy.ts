@@ -31,9 +31,28 @@ export default class ServiceDeploy extends Command {
 
     this.spinner.start('Deploy service')
     let deployed: ServiceID[] = []
-    for (const arg of argv) {
+    for (let url of argv) {
       this.spinner.status = 'Download sources'
-      const path = await deployer(arg)
+
+      // handle marketplace urls
+      const marketplaceUrl = url.split('mesg://marketplace/service/')
+      if (marketplaceUrl.length === 2) {
+        const versionHash = marketplaceUrl[1]
+        const serviceInfo = await this.getAuthorizedServiceInfo('', versionHash)
+        switch (serviceInfo.type) {
+        case 'http':
+        case 'https':
+          url = serviceInfo.source
+          break
+        case 'ipfs':
+          url = `http://ipfs.app.mesg.com:8080/ipfs/${serviceInfo.source}`
+          break
+        default:
+          throw new Error(`unknown protocol '${serviceInfo.type}'`)
+        }
+      }
+
+      const path = await deployer(url)
 
       try {
         deployed.push(await new Promise((resolve: (value: ServiceID) => void, reject: (reason: Error) => void) => {
