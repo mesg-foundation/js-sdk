@@ -20,6 +20,7 @@ export default {
       publishPurchase: 'publishPurchase',
       prepareCreateOffer: 'prepareCreateServiceOffer',
       publishCreateOffer: 'publishCreateServiceOffer',
+      isAuthorized: 'isAuthorized',
     }
   }
 }
