@@ -1,5 +1,5 @@
 import {flags} from '@oclif/command'
-import {readFileSync, readdirSync, writeFile} from 'fs'
+import {readFileSync, readdirSync, writeFileSync} from 'fs'
 import {compile, registerHelper} from 'handlebars'
 import {safeLoad} from 'js-yaml'
 import {join} from 'path'
@@ -13,7 +13,7 @@ export default class ServiceDoc extends Command {
 
   static flags = {
     ...Command.flags,
-    save: flags.string({char: 's', description: 'Save to specified file or allow to overwrite the default readme file when used as empty or create a new one if not exists'}),
+    save: flags.boolean({char: 's', description: 'Save to default readme file'}),
   }
 
   static args = [{
@@ -36,22 +36,15 @@ export default class ServiceDoc extends Command {
     return compile(template)(data)
   }
 
-  async saveReadme(servicePath: string, saveFileName: string, markdown: string) {
-    if (saveFileName === undefined) {
-      console.log(markdown)
+  async saveReadme(servicePath: string, shouldSave: boolean, markdown: string) {
+    if (!shouldSave) {
+      this.log(markdown)
       return
     }
-    let readmeFileName = saveFileName || 'README.md'
-    if (!saveFileName) {
-      let defaultReadmeFileName = readdirSync(servicePath).find(file => {
-        return /^readme(?:.(?:md|txt)+)?$/i.test(file)
-      })
-      if (defaultReadmeFileName) {
-        readmeFileName = defaultReadmeFileName
-      }
-    }
-    writeFile(join(servicePath, readmeFileName), markdown, (err) => {
-      if(err) throw err
+    let defaultReadmeFileName = readdirSync(servicePath).find(file => {
+      return /^readme(?:.(?:md|txt)+)?$/i.test(file)
     })
+    let readmeFileName = defaultReadmeFileName || 'README.md'
+    writeFileSync(join(servicePath, readmeFileName), markdown)
   }
 }
