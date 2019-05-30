@@ -3,7 +3,7 @@ import yaml from 'js-yaml'
 import {join} from 'path'
 
 import deployer from '../../deployer'
-import Command from '../../service-command'
+import Command, {Definition} from '../../service-command'
 import MarketplacePublish from '../marketplace/publish'
 
 export default class ServiceCompile extends Command {
@@ -25,16 +25,15 @@ export default class ServiceCompile extends Command {
     const {args} = this.parse(ServiceCompile)
     this.spinner.status = 'Download sources'
     const path = await deployer(await this.processUrl(args.SERVICE_PATH_OR_URL))
-    const definition = this.parseYml(readFileSync(join(path, 'mesg.yml')))
     const source = await new MarketplacePublish(this.argv, this.config).deploySources(path)
-    const partialManifestData = {service: {definition, source}}
+    const partialManifestData = this.parseYml(readFileSync(join(path, 'mesg.yml')), source)
     const dump = JSON.stringify(partialManifestData)
     this.log(dump)
     this.spinner.stop()
     return dump
   }
 
-  parseYml(content: string): Definition {
+  parseYml(content: string, source: string): Definition {
     const o = yaml.safeLoad(content)
     const parseParams = params => Object.keys(params).map((key: string) => {
       const {name, description, type, repeated, optional, object} = params[key]
@@ -54,7 +53,8 @@ export default class ServiceCompile extends Command {
       }),
       dependencies: Object.keys(o.dependencies || {}).map((key: string) => ({key, ...o.dependencies[key]})),
       configuration: o.configuration,
-      repository: o.repository
+      repository: o.repository,
+      source
     }
   }
 
@@ -70,50 +70,4 @@ export default class ServiceCompile extends Command {
     }
     return url
   }
-}
-
-export interface Definition {
-  sid: string
-  name: string
-  description: string
-  tasks: Task[]
-  events: Event[]
-  dependencies: Dependency[]
-  configuration: Dependency
-  repository: string
-}
-
-export interface Task {
-  key: string
-  name: string
-  description: string
-  inputs: Parameter[]
-  outputs: Parameter[]
-}
-
-export interface Event {
-  key: string
-  name: string
-  description: string
-  data: Parameter[]
-}
-
-export interface Dependency {
-  key: string
-  image: string
-  volumes: string[]
-  volumesFrom: string[]
-  ports: string[]
-  command: string
-  args: string[]
-  env: string[]
-}
-
-export interface Parameter {
-  name: string
-  description: string
-  type: string
-  optional: boolean
-  repeated: boolean
-  object: Parameter[]
 }

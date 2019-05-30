@@ -7,13 +7,55 @@ export interface ServiceID {
 }
 
 export interface Service {
-  definition: {
-    sid: string
-    hash: string
-    name: string
-    tasks: any[]
-  }
+  definition: Definition
   status: number
+}
+
+export interface Definition {
+  sid: string
+  name: string
+  description: string
+  tasks: Task[]
+  events: Event[]
+  dependencies: Dependency[]
+  configuration: Dependency
+  repository: string
+  source: string
+}
+
+export interface Task {
+  key: string
+  name: string
+  description: string
+  inputs: Parameter[]
+  outputs: Parameter[]
+}
+
+export interface Event {
+  key: string
+  name: string
+  description: string
+  data: Parameter[]
+}
+
+export interface Dependency {
+  key: string
+  image: string
+  volumes: string[]
+  volumesFrom: string[]
+  ports: string[]
+  command: string
+  args: string[]
+  env: string[]
+}
+
+export interface Parameter {
+  name: string
+  description: string
+  type: string
+  optional: boolean
+  repeated: boolean
+  object: Parameter[]
 }
 
 export type SERVICE_PARAMETER_TYPE = 'String' | 'Number' | 'Boolean' | 'Object' | 'Any'
