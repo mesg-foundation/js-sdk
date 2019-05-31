@@ -26,7 +26,11 @@ export default class ServiceDoc extends Command {
     const {args, flags} = this.parse(ServiceDoc)
     const definition = safeLoad(readFileSync(join(args.SERVICE_PATH, 'mesg.yml')).toString())
     const markdown = this.generateTemplate(definition)
-    await this.saveReadme(args.SERVICE_PATH, flags.save, markdown)
+    if (flags.save) {
+      this.saveReadme(args.SERVICE_PATH, markdown)
+    } else {
+      this.log(markdown)
+    }
     return markdown
   }
 
@@ -36,15 +40,11 @@ export default class ServiceDoc extends Command {
     return compile(template)(data)
   }
 
-  async saveReadme(servicePath: string, shouldSave: boolean, markdown: string) {
-    if (!shouldSave) {
-      this.log(markdown)
-      return
-    }
-    let defaultReadmeFileName = readdirSync(servicePath).find(file => {
+  saveReadme(servicePath: string, markdown: string) {
+    const defaultReadmeFileName = readdirSync(servicePath).find(file => {
       return /^readme(?:.(?:md|txt)+)?$/i.test(file)
     })
-    let readmeFileName = defaultReadmeFileName || 'README.md'
+    const readmeFileName = defaultReadmeFileName || 'README.md'
     writeFileSync(join(servicePath, readmeFileName), markdown)
   }
 }
