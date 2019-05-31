@@ -13,7 +13,6 @@ export default class ServiceCompile extends Command {
     ...Command.flags
   }
 
-  static strict = false
 
   static args = [{
     name: 'SERVICE_PATH_OR_URL',
