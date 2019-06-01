@@ -11,7 +11,7 @@ export interface Service {
   status: number
 }
 
-export interface Definition {
+export interface CompiledDefinition {
   sid: string
   name: string
   description: string
@@ -21,6 +21,10 @@ export interface Definition {
   configuration: Dependency
   repository: string
   source: string
+}
+
+export interface Definition extends CompiledDefinition {
+  hash: string
 }
 
 export interface Task {
@@ -75,7 +79,7 @@ export default abstract class extends Command {
     return ['unknown', 'stopped', 'starting', 'partial', 'running'][s]
   }
 
-  async getAuthorizedServiceInfo(id: string, versionHash: string): ServiceInfo {
+  async getAuthorizedServiceInfo(id: string, versionHash: string): Promise<ServiceInfo> {
     const list = await this.executeAndCaptureError(services.account.id, services.account.tasks.list)
     const {addresses} = list.data
     this.require(addresses.length > 0, 'you have no accounts. please add an authorized account in order to deploy this service')
