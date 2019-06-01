@@ -33,7 +33,7 @@ export default class ServiceCompile extends Command {
 
   parseYml(content: string, source: string): CompiledDefinition {
     const o = yaml.safeLoad(content)
-    const parseParams = (params: any): Parameter[] => Object.keys(params)
+    const parseParams = (params: any): Parameter[] => Object.keys(params || {})
       .map((key: string) => {
         const {name, description, type, repeated, optional, object} = params[key]
         return {key, name, description, type, repeated, optional, object: parseParams(object || {})}
