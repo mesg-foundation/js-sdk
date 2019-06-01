@@ -64,7 +64,7 @@ export default class ServiceCompile extends Command {
       const versionHash = marketplaceUrl[1]
       const {type, source} = await this.getAuthorizedServiceInfo('', versionHash)
       if (type === 'ipfs') {
-        return `http://ipfs.app.mesg.com:8080/ipfs/${source}`
+        return `http://ipfs.app.mesg.com:8080/ipfs/${source}` // tslint:disable-line:no-http-string
       }
       throw new Error(`unknown protocol '${type}'`)
     }
