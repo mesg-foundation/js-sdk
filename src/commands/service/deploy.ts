@@ -95,7 +95,7 @@ export default class ServiceDeploy extends Command {
     return x.service ? resolve(x.service) : reject(x.validationError)
   }
 
-  async processUrl(url: string): string {
+  async processUrl(url: string): Promise<string> {
     const marketplaceUrl = url.split('mesg://marketplace/service/')
     if (marketplaceUrl.length === 2) {
       const versionHash = marketplaceUrl[1]
