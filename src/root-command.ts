@@ -1,4 +1,7 @@
 import {Command, flags} from '@oclif/command'
+import {join} from 'path'
+import * as grpc from 'grpc'
+import * as protoLoader from '@grpc/proto-loader'
 import {cli} from 'cli-ux'
 import {application} from 'mesg-js'
 import {Application, EventData, Stream} from 'mesg-js/lib/application'
@@ -25,17 +28,36 @@ export default abstract class extends Command {
   }
 
   private _mesg: Application | null = null
+  private _serviceSDK: any
+
+  get engineEndpoint(): string {
+    const host = process.env.DOCKER_HOST
+      ? new URL(process.env.DOCKER_HOST).hostname
+      : 'localhost'
+    return `${host}:50052`
+  }
 
   get mesg() {
     if (!this._mesg) {
-      const host = process.env.DOCKER_HOST
-        ? new URL(process.env.DOCKER_HOST).hostname
-        : 'localhost'
-      this._mesg = application({
-        endpoint: `${host}:50052`
-      })
+      this._mesg = application({endpoint: this.engineEndpoint})
     }
     return this._mesg
+  }
+
+  get serviceSDK() {
+    if (!this._serviceSDK) {
+      this._serviceSDK = this.createClient('Service', 'service', 'service.proto', this.engineEndpoint)
+    }
+    return this._serviceSDK
+  }
+
+  createClient(serviceName: string, dir: string, file: string, endpoint: string) {
+    const packageDefinition = protoLoader.loadSync(join(__dirname, './protobuf', dir, file), {
+      includeDirs: [__dirname]
+    })
+    const packageObject = grpc.loadPackageDefinition(packageDefinition)
+    const clientConstructor = packageObject[dir][serviceName]
+    return new clientConstructor(endpoint, grpc.credentials.createInsecure())
   }
 
   get spinner() {
@@ -129,3 +151,4 @@ export default abstract class extends Command {
       })
   }
 }
+
