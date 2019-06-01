@@ -3,7 +3,7 @@ import yaml from 'js-yaml'
 import {join} from 'path'
 
 import deployer from '../../deployer'
-import Command, {Definition, Parameter} from '../../service-command'
+import Command, {CompiledDefinition, Parameter} from '../../service-command'
 import MarketplacePublish from '../marketplace/publish'
 
 export default class ServiceCompile extends Command {
@@ -21,7 +21,7 @@ export default class ServiceCompile extends Command {
     default: './'
   }]
 
-  async run(): Promise<Definition> {
+  async run(): Promise<CompiledDefinition> {
     const {args} = this.parse(ServiceCompile)
     this.spinner.status = 'Download sources'
     const path = await deployer(await this.processUrl(args.SERVICE_PATH_OR_URL))
@@ -32,7 +32,7 @@ export default class ServiceCompile extends Command {
     return definition
   }
 
-  parseYml(content: string, source: string): Definition {
+  parseYml(content: string, source: string): CompiledDefinition {
     const o = yaml.safeLoad(content)
     const parseParams = (params: any): Parameter[] => Object.keys(params)
       .map((key: string) => {
