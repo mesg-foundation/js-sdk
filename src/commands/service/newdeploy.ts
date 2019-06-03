@@ -13,6 +13,8 @@ export default class ServiceDeployNew extends Command {
     description: 'Service\'s definition. Use service:compile first to build service definition'
   }]
 
+  static hidden = true
+
   async run(): Promise<string> {
     const {args} = this.parse(ServiceDeployNew)
     this.spinner.start('Deploy service')
