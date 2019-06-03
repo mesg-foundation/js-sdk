@@ -28,7 +28,7 @@ export default abstract class extends Command {
   }
 
   private _mesg: Application | null = null
-  private _serviceSDK: any
+  private _serviceAPI: any
 
   get engineEndpoint(): string {
     const host = process.env.DOCKER_HOST
@@ -44,11 +44,11 @@ export default abstract class extends Command {
     return this._mesg
   }
 
-  get serviceSDK() {
-    if (!this._serviceSDK) {
-      this._serviceSDK = this.createClient('Service', 'service', 'service.proto', this.engineEndpoint)
+  get serviceAPI() {
+    if (!this._serviceAPI) {
+      this._serviceAPI = this.createClient('ServiceX', 'api', 'service.proto', this.engineEndpoint)
     }
-    return this._serviceSDK
+    return this._serviceAPI
   }
 
   createClient(serviceName: string, dir: string, file: string, endpoint: string) {
