@@ -95,13 +95,13 @@ export default class ServiceDeploy extends Command {
     return x.service ? resolve(x.service) : reject(x.validationError)
   }
 
-  async processUrl(url: string): string {
+  async processUrl(url: string): Promise<string> {
     const marketplaceUrl = url.split('mesg://marketplace/service/')
     if (marketplaceUrl.length === 2) {
       const versionHash = marketplaceUrl[1]
       const {type, source} = await this.getAuthorizedServiceInfo('', versionHash)
       if (type === 'ipfs') {
-        return `http://ipfs.app.mesg.com:8080/ipfs/${source}`
+        return `http://ipfs.app.mesg.com:8080/ipfs/${source}` // tslint:disable-line:no-http-string
       }
       throw new Error(`unknown protocol '${type}'`)
     }

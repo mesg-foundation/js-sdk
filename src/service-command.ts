@@ -7,13 +7,59 @@ export interface ServiceID {
 }
 
 export interface Service {
-  definition: {
-    sid: string
-    hash: string
-    name: string
-    tasks: any[]
-  }
+  definition: Definition
   status: number
+}
+
+export interface CompiledDefinition {
+  sid: string
+  name: string
+  description: string
+  tasks: Task[]
+  events: Event[]
+  dependencies: Dependency[]
+  configuration: Dependency
+  repository: string
+  source: string
+}
+
+export interface Definition extends CompiledDefinition {
+  hash: string
+}
+
+export interface Task {
+  key: string
+  name: string
+  description: string
+  inputs: Parameter[]
+  outputs: Parameter[]
+}
+
+export interface Event {
+  key: string
+  name: string
+  description: string
+  data: Parameter[]
+}
+
+export interface Dependency {
+  key: string
+  image: string
+  volumes: string[]
+  volumesFrom: string[]
+  ports: string[]
+  command: string
+  args: string[]
+  env: string[]
+}
+
+export interface Parameter {
+  name: string
+  description: string
+  type: string
+  optional: boolean
+  repeated: boolean
+  object: Parameter[]
 }
 
 export type SERVICE_PARAMETER_TYPE = 'String' | 'Number' | 'Boolean' | 'Object' | 'Any'
@@ -33,7 +79,7 @@ export default abstract class extends Command {
     return ['unknown', 'stopped', 'starting', 'partial', 'running'][s]
   }
 
-  async getAuthorizedServiceInfo(id: string, versionHash: string): ServiceInfo {
+  async getAuthorizedServiceInfo(id: string, versionHash: string): Promise<ServiceInfo> {
     const list = await this.executeAndCaptureError(services.account.id, services.account.tasks.list)
     const {addresses} = list.data
     this.require(addresses.length > 0, 'you have no accounts. please add an authorized account in order to deploy this service')
