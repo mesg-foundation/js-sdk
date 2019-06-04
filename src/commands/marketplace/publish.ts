@@ -97,7 +97,7 @@ export default class MarketplacePublish extends Command {
   }
 
   private async upload(buffer: Buffer): Promise<string> {
-    const res = await this.IPFS.add(Buffer.from(buffer), {pin: false})
+    const res = await this.IPFS.add(Buffer.from(buffer), {pin: true})
     if (!res.length) {
       throw new Error('Error with the generation of your manifest')
     }
