@@ -1,7 +1,7 @@
 mesg-core
 =========
 
-MESG Core CLI
+MESG Engine CLI
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/mesg-core.svg)](https://npmjs.org/package/mesg-core)
@@ -222,7 +222,7 @@ _See code: [src/commands/daemon/logs.ts](https://github.com/mesg-foundation/cli/
 
 ## `mesg-cli daemon:start`
 
-Start the MESG Core's daemon
+Start the MESG Engine's daemon
 
 ```
 USAGE
@@ -260,7 +260,7 @@ _See code: [src/commands/daemon/status.ts](https://github.com/mesg-foundation/cl
 
 ## `mesg-cli daemon:stop`
 
-Stop the MESG Core's daemon
+Stop the MESG Engine's daemon
 
 ```
 USAGE

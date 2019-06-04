@@ -81,7 +81,7 @@ export default abstract class extends Command {
   }
 
   async createService(network: Network, options: ServiceOption) {
-    const image = `mesg/core:${options.version}`
+    const image = `mesg/engine:${options.version}`
     return this.docker.service.create({
       Name: options.name,
       Labels: {

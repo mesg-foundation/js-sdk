@@ -3,7 +3,7 @@ import Command from '../../docker-command'
 import Status, {ServiceStatus} from './status'
 
 export default class Stop extends Command {
-  static description = 'Stop the MESG Core\'s daemon'
+  static description = 'Stop the MESG Engine\'s daemon'
 
   static flags = {
     ...Command.flags
@@ -16,7 +16,7 @@ export default class Stop extends Command {
     if (status === ServiceStatus.STOPPED) {
       return false
     }
-    this.spinner.start('MESG Core')
+    this.spinner.start('MESG Engine')
     this.spinner.status = 'Fetching services'
     const services = await this.listServices({name: flags.name})
     if (services.length === 0) return
