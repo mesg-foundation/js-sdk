@@ -13,7 +13,6 @@ type UNARY_METHODS = 'DeleteService'
   | 'Info'
 
 export interface ExecutionResult {
-  output: string
   data: any
 }
 
@@ -73,32 +72,28 @@ export default abstract class extends Command {
     cli.styledJSON(data)
   }
 
-  async execute(serviceID: string, taskKey: string, data: object = {}): Promise<ExecutionResult> {
+  async execute(serviceID: string, taskKey: string, data: object = {}, tags: string[] = []): Promise<ExecutionResult> {
     this.debug(`Execute task ${taskKey} from ${serviceID} with ${JSON.stringify(data)}`)
     const result = await this.mesg.executeTaskAndWaitResult({
       serviceID,
       taskKey,
       inputData: JSON.stringify(data),
-      executionTags: ['cli']
+      executionTags: [...tags, 'cli']
     })
-    if (result.error) {
-      this.error(result.error)
-      throw result.error
-    }
-    this.debug(`Receiving result of ${result.executionID}, ${result.outputKey} ${result.taskKey} => ${result.outputData}`)
+    this.debug(`Receiving result of ${result.executionID}, ${result.taskKey} => ${result.outputData}`)
     return {
-      data: JSON.parse(result.outputData),
-      output: result.outputKey,
+      data: JSON.parse(result.outputData)
     }
   }
 
   async executeAndCaptureError(serviceID: string, taskKey: string, data: object = {}): Promise<ExecutionResult> {
-    const result = await this.execute(serviceID, taskKey, data)
-    if (result.output === 'error') {
-      this.error(result.data.message)
-      throw new Error(result.data.message)
+    try {
+      const result = await this.execute(serviceID, taskKey, data)
+      return result
+    } catch (e) {
+      this.error(e.message)
+      throw new Error(e.message)
     }
-    return result
   }
 
   async unaryCall(method: UNARY_METHODS, data: object = {}): Promise<any> {
