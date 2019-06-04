@@ -85,7 +85,7 @@
         "description": "Manage MESG Services"
       },
       "daemon": {
-        "description": "Manage MESG Core"
+        "description": "Manage MESG Engine"
       },
       "marketplace": {
         "description": "Let you interact with the MESG Marketplace"

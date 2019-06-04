@@ -102,7 +102,7 @@ export default abstract class extends Command {
   }
 
   async unaryCall(method: UNARY_METHODS, data: object = {}): Promise<any> {
-    this.debug(`Call MESG Core API ${method} with ${JSON.stringify(data)}`)
+    this.debug(`Call MESG Engine API ${method} with ${JSON.stringify(data)}`)
     return new Promise((resolve, reject) => this.mesg.api[method](data, (error: Error, res: any) => error
       ? reject(error)
       : resolve(res)))

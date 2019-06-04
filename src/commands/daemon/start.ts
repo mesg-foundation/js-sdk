@@ -5,7 +5,7 @@ import Command from '../../docker-command'
 import Status, {ServiceStatus} from './status'
 
 export default class Start extends Command {
-  static description = 'Start the MESG Core\'s daemon'
+  static description = 'Start the MESG Engine\'s daemon'
 
   static flags = {
     ...Command.flags,
@@ -37,7 +37,7 @@ export default class Start extends Command {
     if (status === ServiceStatus.STARTED) {
       return false
     }
-    this.spinner.start('MESG Core')
+    this.spinner.start('MESG Engine')
     const eventPromise = this.waitForEvent(({Action, Type, from}) =>
       Type === 'container' &&
       Action === 'start' &&
