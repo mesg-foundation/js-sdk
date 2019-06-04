@@ -109,7 +109,7 @@ export default abstract class extends Command {
   }
 
   listenEvent(serviceID: string, event: string): Stream<EventData> {
-    this.debug(`Listenning to events ${event} from ${serviceID}`)
+    this.debug(`Listening to events ${event} from ${serviceID}`)
     const stream = this.mesg.listenEvent({
       eventFilter: event,
       serviceID
