@@ -41,7 +41,7 @@ export default class Start extends Command {
     const eventPromise = this.waitForEvent(({Action, Type, from}) =>
       Type === 'container' &&
       Action === 'start' &&
-      from === `mesg/core:${flags.version}`
+      from === `mesg/engine:${flags.version}`
     )
     this.spinner.status = 'Creating network'
     const network = await this.getOrCreateNetwork({name: flags.name})
