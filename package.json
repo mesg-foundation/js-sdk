@@ -8,6 +8,7 @@
   },
   "bugs": "https://github.com/mesg-foundation/cli/issues",
   "dependencies": {
+    "@grpc/proto-loader": "^0.5.1",
     "@oclif/command": "^1.5.13",
     "@oclif/config": "^1.13.0",
     "@oclif/errors": "^1.2.2",
@@ -22,6 +23,7 @@
     "cli-ux": "^5.2.1",
     "download-tarball": "^2.0.0",
     "git-clone": "^0.1.0",
+    "grpc": "^1.21.1",
     "handlebars": "^4.1.2",
     "hosted-git-info": "^2.7.1",
     "inquirer": "^6.3.1",
