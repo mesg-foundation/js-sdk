@@ -1,11 +1,11 @@
 import {flags} from '@oclif/command'
-import {readdirSync, readFileSync, existsSync} from 'fs'
+import {existsSync, readdirSync, readFileSync} from 'fs'
+import {join} from 'path'
 import {Readable, Writable} from 'stream'
 import tar from 'tar'
 
 import deployer from '../../deployer'
 import Command, {ServiceID} from '../../service-command'
-import {join} from 'path';
 
 export default class ServiceDeploy extends Command {
   static description = 'Deploy a service'

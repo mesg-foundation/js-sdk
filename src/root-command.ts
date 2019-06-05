@@ -1,11 +1,11 @@
-import {Command, flags} from '@oclif/command'
-import {join} from 'path'
-import * as grpc from 'grpc'
 import * as protoLoader from '@grpc/proto-loader'
+import {Command, flags} from '@oclif/command'
 import {cli} from 'cli-ux'
+import * as grpc from 'grpc'
 import {application} from 'mesg-js'
 import {Application, EventData, Stream} from 'mesg-js/lib/application'
 import {checkStreamReady, errNoStatus} from 'mesg-js/lib/util/grpc'
+import {join} from 'path'
 import {format, inspect} from 'util'
 
 type UNARY_METHODS = 'DeleteService'
@@ -146,4 +146,3 @@ export default abstract class extends Command {
       })
   }
 }
-
