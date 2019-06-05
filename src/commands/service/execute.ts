@@ -1,8 +1,8 @@
 import {flags} from '@oclif/command'
 import {readFileSync} from 'fs'
 
+import {ExecutionResult} from '../../root-command'
 import Command, {Service, SERVICE_PARAMETER_TYPE} from '../../service-command'
-import { ExecutionResult } from '../../root-command';
 
 import Detail from './detail'
 

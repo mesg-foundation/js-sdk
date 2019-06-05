@@ -1,5 +1,5 @@
 import {flags} from '@oclif/command'
-import {readFileSync, readdirSync, writeFileSync} from 'fs'
+import {readdirSync, readFileSync, writeFileSync} from 'fs'
 import {compile, registerHelper} from 'handlebars'
 import {safeLoad} from 'js-yaml'
 import {join} from 'path'
