@@ -18,7 +18,7 @@ export default class AccountExport extends Command {
       address: args.ADDRESS,
     })
     if (!data) {
-      this.error("account not found or passphrase does not match")
+      this.error('account not found or passphrase does not match')
     }
     this.spinner.stop()
     this.styledJSON(data)
