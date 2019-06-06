@@ -111,7 +111,10 @@ export default abstract class extends Command {
           }],
         },
         Networks: [
-          {Target: network.id, Alias: 'core'},
+          {
+            Target: network.id,
+            Alias: options.name,
+          },
         ]
       },
       EndpointSpec: {
