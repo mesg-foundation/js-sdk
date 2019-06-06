@@ -24,6 +24,6 @@ export default class ServiceValidate extends Command {
     const services = (await ServiceDeploy.run([args.SERVICE_PATH, ...envs, '--silent'])) as ServiceID[]
     const hashes = services.map(x => x.hash)
     await ServiceDelete.run([...hashes, '--keep-data', '--confirm', '--silent'])
-    this.spinner.stop("service is valid")
+    this.spinner.stop('service is valid')
   }
 }
