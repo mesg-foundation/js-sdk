@@ -19,14 +19,11 @@ export default class ServiceValidate extends Command {
 
   async run() {
     const {args, flags} = this.parse(ServiceValidate)
-
-    const envs = (flags.env || []).reduce((prev, value) => [
-      ...prev,
-      '--env',
-      value
-    ], [] as string[])
+    this.spinner.start('Validate service')
+    const envs = (flags.env || []).reduce((prev, value) => [...prev, '--env', value], [] as string[])
     const services = (await ServiceDeploy.run([args.SERVICE_PATH, ...envs, '--silent'])) as ServiceID[]
     const hashes = services.map(x => x.hash)
     await ServiceDelete.run([...hashes, '--keep-data', '--confirm', '--silent'])
+    this.spinner.stop('service is valid')
   }
 }
