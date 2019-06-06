@@ -95,12 +95,10 @@ export default abstract class extends Command {
             'com.docker.stack.namespace': options.name
           },
           Env: [
-            'MESG_SERVER_ADDRESS=:50052',
             `MESG_LOG_FORMAT=${options.format}`,
             `MESG_LOG_LEVEL=${options.level}`,
             `MESG_LOG_FORCECOLORS=${options.colors}`,
-            `MESG_CORE_NAME=${options.name}`,
-            'MESG_CORE_PATH=/mesg',
+            `MESG_NAME=${options.name}`,
           ],
           Mounts: [{
             Source: '/var/run/docker.sock',
