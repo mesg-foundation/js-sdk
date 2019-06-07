@@ -29,10 +29,6 @@ export default class ServiceLog extends Command {
       description: 'Filter specific events in the logs',
       multiple: true
     }),
-    output: flags.string({
-      description: 'Filter specific outputs in the logs',
-      multiple: true
-    }),
     task: flags.string({
       description: 'Filter specific task results in the logs',
       multiple: true
@@ -60,11 +56,9 @@ export default class ServiceLog extends Command {
     })
 
     if (!flags['no-results']) {
-      const outputs = flags.output || []
       const tasks = flags.task || []
       this.mesg.api.ListenResult({serviceID: args.SERVICE})
         .on('data', (data: any) => {
-          if (outputs.length > 0 && !outputs.includes(data.outputKey)) return
           if (tasks.length > 0 && !tasks.includes(data.taskKey)) return
           this.log(this.formatResult(data))
         })
@@ -92,6 +86,9 @@ export default class ServiceLog extends Command {
     return `EVENT[${event.eventKey}]: ` + chalk.gray(event.eventData)
   }
   formatResult(result: any) {
-    return `RESULT[${result.taskKey}][${result.outputKey}]: ` + chalk.gray(result.outputData)
+    if (result.error) {
+      return `RESULT[${result.taskKey}]: ` + chalk.red('ERROR:', result.error)
+    }
+    return `RESULT[${result.taskKey}]: ` + chalk.gray(result.outputData)
   }
 }
