@@ -21,7 +21,7 @@ $ npm install -g mesg-cli
 $ mesg-cli COMMAND
 running command...
 $ mesg-cli (-v|--version|version)
-mesg-cli/0.0.0 darwin-x64 node-v11.14.0
+mesg-cli/0.0.0 darwin-x64 node-v12.3.1
 $ mesg-cli --help [COMMAND]
 USAGE
   $ mesg-cli COMMAND
@@ -36,7 +36,6 @@ USAGE
 * [`mesg-cli account:import ACCOUNT`](#mesg-cli-accountimport-account)
 * [`mesg-cli account:import-private-key PRIVATE_KEY`](#mesg-cli-accountimport-private-key-private_key)
 * [`mesg-cli account:list`](#mesg-cli-accountlist)
-* [`mesg-cli autocomplete [SHELL]`](#mesg-cli-autocomplete-shell)
 * [`mesg-cli daemon:logs`](#mesg-cli-daemonlogs)
 * [`mesg-cli daemon:start`](#mesg-cli-daemonstart)
 * [`mesg-cli daemon:status`](#mesg-cli-daemonstatus)
@@ -45,6 +44,7 @@ USAGE
 * [`mesg-cli marketplace:create-offer SID`](#mesg-cli-marketplacecreate-offer-sid)
 * [`mesg-cli marketplace:publish SERVICE_PATH`](#mesg-cli-marketplacepublish-service_path)
 * [`mesg-cli marketplace:purchase SERVICE_ID OFFER_ID`](#mesg-cli-marketplacepurchase-service_id-offer_id)
+* [`mesg-cli service:compile [SERVICE_PATH_OR_URL]`](#mesg-cli-servicecompile-service_path_or_url)
 * [`mesg-cli service:delete SERVICE`](#mesg-cli-servicedelete-service)
 * [`mesg-cli service:deploy [SERVICE_PATH_OR_URL]`](#mesg-cli-servicedeploy-service_path_or_url)
 * [`mesg-cli service:detail SERVICE`](#mesg-cli-servicedetail-service)
@@ -179,32 +179,9 @@ ALIASES
 
 _See code: [src/commands/account/list.ts](https://github.com/mesg-foundation/cli/blob/v0.0.0/src/commands/account/list.ts)_
 
-## `mesg-cli autocomplete [SHELL]`
-
-display autocomplete installation instructions
-
-```
-USAGE
-  $ mesg-cli autocomplete [SHELL]
-
-ARGUMENTS
-  SHELL  shell type
-
-OPTIONS
-  -r, --refresh-cache  Refresh cache (ignores displaying instructions)
-
-EXAMPLES
-  $ mesg-cli autocomplete
-  $ mesg-cli autocomplete bash
-  $ mesg-cli autocomplete zsh
-  $ mesg-cli autocomplete --refresh-cache
-```
-
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v0.1.0/src/commands/autocomplete/index.ts)_
-
 ## `mesg-cli daemon:logs`
 
-Show the Core's logs
+Show the Engine's logs
 
 ```
 USAGE
@@ -213,7 +190,7 @@ USAGE
 OPTIONS
   -h, --help   show CLI help
   -q, --quiet
-  --name=name  (required) [default: core] name of the service running the core
+  --name=name  (required) [default: engine] name of the service running the engine
   --silent
   --tail=tail  [default: -1] Output specified number of lines at the end of logs
 ```
@@ -234,16 +211,16 @@ OPTIONS
   --log-force-colors                               log force colors
   --log-format=(text|json)                         [default: text] log format
   --log-level=(debug|info|warn|error|fatal|panic)  [default: info] log level
-  --name=name                                      (required) [default: core] name of the service running the core
+  --name=name                                      (required) [default: engine] name of the service running the engine
   --silent
-  --version=version                                (required) [default: latest] Version of the core to run
+  --version=version                                (required) [default: latest] Version of the engine to run
 ```
 
 _See code: [src/commands/daemon/start.ts](https://github.com/mesg-foundation/cli/blob/v0.0.0/src/commands/daemon/start.ts)_
 
 ## `mesg-cli daemon:status`
 
-Get the Core's status
+Get the Engine's status
 
 ```
 USAGE
@@ -252,7 +229,7 @@ USAGE
 OPTIONS
   -h, --help   show CLI help
   -q, --quiet
-  --name=name  (required) [default: core] name of the service running the core
+  --name=name  (required) [default: engine] name of the service running the engine
   --silent
 ```
 
@@ -269,7 +246,7 @@ USAGE
 OPTIONS
   -h, --help   show CLI help
   -q, --quiet
-  --name=name  (required) [default: core] name of the service running the core
+  --name=name  (required) [default: engine] name of the service running the engine
   --silent
 ```
 
@@ -357,6 +334,25 @@ OPTIONS
 ```
 
 _See code: [src/commands/marketplace/purchase.ts](https://github.com/mesg-foundation/cli/blob/v0.0.0/src/commands/marketplace/purchase.ts)_
+
+## `mesg-cli service:compile [SERVICE_PATH_OR_URL]`
+
+Compile a service and upload its source to IPFS
+
+```
+USAGE
+  $ mesg-cli service:compile [SERVICE_PATH_OR_URL]
+
+ARGUMENTS
+  SERVICE_PATH_OR_URL  [default: ./] Path of the service or url to access it
+
+OPTIONS
+  -h, --help   show CLI help
+  -q, --quiet
+  --silent
+```
+
+_See code: [src/commands/service/compile.ts](https://github.com/mesg-foundation/cli/blob/v0.0.0/src/commands/service/compile.ts)_
 
 ## `mesg-cli service:delete SERVICE`
 
@@ -465,6 +461,7 @@ ARGUMENTS
 OPTIONS
   -h, --help   show CLI help
   -q, --quiet
+  -s, --save   Save to default readme file
   --silent
 
 ALIASES
