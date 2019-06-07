@@ -106,7 +106,7 @@ export default abstract class extends Command {
             Type: 'bind',
           }, {
             Source: join(homedir(), '.mesg'),
-            Target: '/mesg',
+            Target: '/home/root/.mesg',
             Type: 'bind',
           }],
         },
