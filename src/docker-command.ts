@@ -95,12 +95,10 @@ export default abstract class extends Command {
             'com.docker.stack.namespace': options.name
           },
           Env: [
-            'MESG_SERVER_ADDRESS=:50052',
             `MESG_LOG_FORMAT=${options.format}`,
             `MESG_LOG_LEVEL=${options.level}`,
             `MESG_LOG_FORCECOLORS=${options.colors}`,
-            `MESG_CORE_NAME=${options.name}`,
-            'MESG_CORE_PATH=/mesg',
+            `MESG_NAME=${options.name}`,
           ],
           Mounts: [{
             Source: '/var/run/docker.sock',
@@ -108,12 +106,15 @@ export default abstract class extends Command {
             Type: 'bind',
           }, {
             Source: join(homedir(), '.mesg'),
-            Target: '/mesg',
+            Target: '/root/.mesg',
             Type: 'bind',
           }],
         },
         Networks: [
-          {Target: network.id, Alias: 'core'},
+          {
+            Target: network.id,
+            Alias: options.name,
+          },
         ]
       },
       EndpointSpec: {
