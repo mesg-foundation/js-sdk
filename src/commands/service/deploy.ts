@@ -1,9 +1,9 @@
 import {flags} from '@oclif/command'
 import {existsSync, readdirSync, readFileSync} from 'fs'
+import ignore from 'ignore'
 import {join} from 'path'
 import {Readable, Writable} from 'stream'
 import tar from 'tar'
-import ignore from 'ignore'
 
 import deployer from '../../deployer'
 import Command, {ServiceID} from '../../service-command'
