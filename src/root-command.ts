@@ -94,24 +94,22 @@ export default abstract class extends Command {
     cli.styledJSON(data)
   }
 
-  async execute(serviceID: string, taskKey: string, data: object = {}, tags: string[] = []): Promise<ExecutionResult> {
+  async executeAndCaptureError(serviceID: string, taskKey: string, data: object = {}, tags: string[] = []): Promise<ExecutionResult> {
     this.debug(`Execute task ${taskKey} from ${serviceID} with ${JSON.stringify(data)}`)
-    const result = await this.mesg.executeTaskAndWaitResult({
-      serviceID,
-      taskKey,
-      inputData: JSON.stringify(data),
-      executionTags: [...tags, 'cli']
-    })
-    this.debug(`Receiving result of ${result.executionID}, ${result.taskKey} => ${result.outputData}`)
-    return {
-      data: JSON.parse(result.outputData)
-    }
-  }
-
-  async executeAndCaptureError(serviceID: string, taskKey: string, data: object = {}): Promise<ExecutionResult> {
     try {
-      const result = await this.execute(serviceID, taskKey, data)
-      return result
+      const result = await this.mesg.executeTaskAndWaitResult({
+        serviceID,
+        taskKey,
+        inputData: JSON.stringify(data),
+        executionTags: [...tags, 'cli']
+      })
+      this.debug(`Receiving result of ${result.executionID}, ${result.taskKey} => ${result.outputData}`)
+      if (result.error) {
+        throw new Error(result.error)
+      }
+      return {
+        data: JSON.parse(result.outputData)
+      }
     } catch (e) {
       this.error(e.message)
       throw new Error(e.message)
