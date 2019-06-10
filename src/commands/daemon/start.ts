@@ -10,7 +10,7 @@ export default class Start extends Command {
   static flags = {
     ...Command.flags,
     version: flags.string({
-      description: 'Version of the core to run',
+      description: 'Version of the engine to run',
       required: true,
       default: 'latest'
     }),

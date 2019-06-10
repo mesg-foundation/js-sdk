@@ -6,7 +6,7 @@ export const enum ServiceStatus {
 }
 
 export default class Status extends Command {
-  static description = 'Get the Core\'s status'
+  static description = 'Get the Engine\'s status'
 
   static flags = {
     ...Command.flags

@@ -3,7 +3,7 @@ import {flags} from '@oclif/command'
 import Command from '../../docker-command'
 
 export default class Logs extends Command {
-  static description = 'Show the Core\'s logs'
+  static description = 'Show the Engine\'s logs'
 
   static flags = {
     ...Command.flags,
