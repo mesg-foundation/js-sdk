@@ -12,7 +12,7 @@ export default class Start extends Command {
     version: flags.string({
       description: 'Version of the engine to run',
       required: true,
-      default: 'latest'
+      default: 'v0.10.0'
     }),
     'log-force-colors': flags.boolean({
       description: 'log force colors',
