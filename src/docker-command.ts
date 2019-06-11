@@ -128,10 +128,9 @@ export default abstract class extends Command {
     })
   }
 
-  // https://github.com/portainer/portainer/blob/61c285bd2e3b16538b455c653a3be0749d46ce5f/app/docker/helpers/logHelper.js
   parseLog(buffer: Buffer): string {
     return buffer.toString()
-      .substring(8)
-      .replace(/\n(.{8})/g, '\n\r')
+      .substring(8) // Skip the 8 caracters that docker put in front of its logs
+      .replace(/\n/g, '')
   }
 }
