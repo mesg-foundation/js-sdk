@@ -11,13 +11,13 @@
   {{#if events}}
   - [Events](#Events)
     {{#each events}}
-    - [{{or name @key}}](#{{or name @key}})
+    - [{{or name @key}}](#{{@key}})
     {{/each}}
   {{/if}}
   {{#if tasks}}
   - [Tasks](#Tasks)
   {{#each tasks}}
-    - [{{or name @key}}](#{{or name @key}})
+    - [{{or name @key}}](#{{@key}})
   {{/each}}
 {{/if}}
 
@@ -43,7 +43,7 @@ To deploy this service, go to [this service page](https://marketplace.mesg.com/s
 ### Events
 
   {{#each events}}
-#### {{or name @key}}
+<h4 id="{{@key}}">{{or name @key}}</h4>
 
 Event key: `{{@key}}`
 
@@ -63,7 +63,7 @@ Event key: `{{@key}}`
 ### Tasks
 
   {{#each tasks}}
-#### {{or name @key}}
+<h4 id="{{@key}}">{{or name @key}}</h4>
 
 Task key: `{{@key}}`
 
@@ -82,19 +82,10 @@ Task key: `{{@key}}`
     {{#if outputs}}
 ##### Outputs
 
-      {{#each outputs}}
-###### {{or name @key}}
-
-Output key: `{{@key}}`
-
-{{description}}
-
 | **Name** | **Key** | **Type** | **Description** |
 | --- | --- | --- | --- |
-        {{#each data}}
+      {{#each outputs}}
 | **{{or name @key}}** | `{{@key}}` | `{{type}}` | {{#if optional}}**`optional`** {{/if}}{{description}} |
-        {{/each}}
-
       {{/each}}
     {{/if}}
   {{/each}}
