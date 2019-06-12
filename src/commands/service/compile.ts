@@ -19,6 +19,8 @@ export default class ServiceCompile extends Command {
     default: './'
   }]
 
+  static hidden = true
+
   async run(): Promise<CompiledDefinition> {
     const {args} = this.parse(ServiceCompile)
     this.spinner.status = 'Download sources'
