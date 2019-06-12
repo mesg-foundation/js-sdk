@@ -44,7 +44,7 @@ export default class ServiceExecute extends Command {
     }
     const inputs = this.convertValue(task.inputs, this.dataFromFlags(flags))
 
-    const result = await this.execute(service.definition.hash, args.TASK, inputs)
+    const result = await this.executeAndCaptureError(service.definition.hash, args.TASK, inputs)
     this.log(`Result of task ${args.TASK}`)
     this.styledJSON(result.data)
     return result
