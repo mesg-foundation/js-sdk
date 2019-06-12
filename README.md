@@ -5,8 +5,6 @@ MESG Engine CLI
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/mesg-cli.svg)](https://npmjs.org/package/mesg-cli)
-[![CircleCI](https://circleci.com/gh/mesg-foundation/cli/tree/master.svg?style=shield)](https://circleci.com/gh/mesg-foundation/cli/tree/master)
-[![Codecov](https://codecov.io/gh/mesg-foundation/cli/branch/master/graph/badge.svg)](https://codecov.io/gh/mesg-foundation/cli)
 [![Downloads/week](https://img.shields.io/npm/dw/mesg-cli.svg)](https://npmjs.org/package/mesg-cli)
 [![License](https://img.shields.io/npm/l/mesg-cli.svg)](https://github.com/mesg-foundation/cli/blob/master/package.json)
 
