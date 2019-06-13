@@ -54,7 +54,7 @@ export default abstract class extends Command {
     const packageDefinition = protoLoader.loadSync(join(__dirname, './protobuf', dir, file), {
       includeDirs: [__dirname]
     })
-    const packageObject = grpc.loadPackageDefinition(packageDefinition)
+    const packageObject = grpc.loadPackageDefinition(packageDefinition) as any
     const clientConstructor = packageObject[dir][serviceName]
     return new clientConstructor(endpoint, grpc.credentials.createInsecure())
   }
@@ -103,7 +103,7 @@ export default abstract class extends Command {
         inputData: JSON.stringify(data),
         executionTags: [...tags, 'cli']
       })
-      this.debug(`Receiving result of ${result.executionID}, ${result.taskKey} => ${result.outputData}`)
+      this.debug(`Receiving result of ${result.executionHash}, ${result.taskKey} => ${result.outputData}`)
       if (result.error) {
         throw new Error(result.error)
       }

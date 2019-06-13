@@ -19,7 +19,7 @@ export default class ServiceDeployNew extends Command {
     const {args} = this.parse(ServiceDeployNew)
     this.spinner.start('Deploy service')
     return new Promise<string>((resolve, reject) => {
-      this.serviceAPI.Create({definition: JSON.parse(args.SERVICE)}, (err, resp) => {
+      this.serviceAPI.Create({definition: JSON.parse(args.SERVICE)}, (err: any, resp: any) => {
         if (err) {
           reject(err)
           this.spinner.stop(err)
