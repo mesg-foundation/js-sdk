@@ -1,4 +1,5 @@
 import {flags} from '@oclif/command'
+import {existsSync, mkdirSync} from 'fs'
 import {Docker} from 'node-docker-api'
 import {Network} from 'node-docker-api/lib/network'
 import {homedir} from 'os'
@@ -82,6 +83,10 @@ export default abstract class extends Command {
 
   async createService(network: Network, options: ServiceOption) {
     const image = `mesg/engine:${options.version}`
+    const sourcePath = join(homedir(), '.mesg')
+    if (!existsSync(sourcePath)) {
+      mkdirSync(sourcePath)
+    }
     return this.docker.service.create({
       Name: options.name,
       Labels: {
@@ -105,7 +110,7 @@ export default abstract class extends Command {
             Target: '/var/run/docker.sock',
             Type: 'bind',
           }, {
-            Source: join(homedir(), '.mesg'),
+            Source: sourcePath,
             Target: '/root/.mesg',
             Type: 'bind',
           }],
