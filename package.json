@@ -1,7 +1,7 @@
 {
   "name": "mesg-cli",
   "description": "MESG CLI",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Anthony ESTEBE @antho1404",
   "bin": {
     "mesg-cli": "./bin/run"
