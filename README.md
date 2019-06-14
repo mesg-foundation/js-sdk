@@ -210,7 +210,7 @@ OPTIONS
   --log-level=(debug|info|warn|error|fatal|panic)  [default: info] log level
   --name=name                                      (required) [default: engine] name of the service running the engine
   --silent
-  --version=version                                (required) [default: v0.10.0] Version of the engine to run
+  --version=version                                (required) [default: v0.10.1] Version of the engine to run
 ```
 
 _See code: [src/commands/daemon/start.ts](https://github.com/mesg-foundation/cli/blob/v1.0.3/src/commands/daemon/start.ts)_

@@ -1,6 +1,7 @@
 import {flags} from '@oclif/command'
 
 import Command from '../../docker-command'
+import version from '../../version';
 
 import Status, {ServiceStatus} from './status'
 
@@ -12,7 +13,7 @@ export default class Start extends Command {
     version: flags.string({
       description: 'Version of the engine to run',
       required: true,
-      default: 'v0.10.0'
+      default: version.engine
     }),
     'log-force-colors': flags.boolean({
       description: 'log force colors',
