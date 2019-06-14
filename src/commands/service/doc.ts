@@ -36,7 +36,7 @@ export default class ServiceDoc extends Command {
 
   generateTemplate(data: any) {
     registerHelper('or', (a: any, b: any) => a ? a : b)
-    const template = readFileSync(join(__dirname, '..', '..', 'doc.md')).toString()
+    const template = readFileSync(join(__dirname, '..', '..', '..', 'assets', 'doc.md')).toString()
     return compile(template)(data)
   }
 
