@@ -86,6 +86,12 @@
       "service": {
         "description": "Manage MESG Services"
       },
+      "instance": {
+        "description": "Manage MESG Instances"
+      },
+      "execution": {
+        "description": "Manage MESG Executions"
+      },
       "daemon": {
         "description": "Manage MESG Engine"
       },
