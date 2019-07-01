@@ -1,10 +1,10 @@
-import {flags} from '@oclif/command'
-import {readdirSync, readFileSync, writeFileSync} from 'fs'
-import {compile, registerHelper} from 'handlebars'
-import {safeLoad} from 'js-yaml'
-import {join} from 'path'
+import { flags } from '@oclif/command'
+import { readdirSync, readFileSync, writeFileSync } from 'fs'
+import { compile, registerHelper } from 'handlebars'
+import { safeLoad } from 'js-yaml'
+import { join } from 'path'
 
-import Command from '../../service-command'
+import Command from '../../root-command'
 
 export default class ServiceDoc extends Command {
   static description = 'Generate the documentation for the service in a README.md file'
@@ -13,7 +13,7 @@ export default class ServiceDoc extends Command {
 
   static flags = {
     ...Command.flags,
-    save: flags.boolean({char: 's', description: 'Save to default readme file'}),
+    save: flags.boolean({ char: 's', description: 'Save to default readme file' }),
   }
 
   static args = [{
@@ -23,7 +23,7 @@ export default class ServiceDoc extends Command {
   }]
 
   async run(): Promise<string> {
-    const {args, flags} = this.parse(ServiceDoc)
+    const { args, flags } = this.parse(ServiceDoc)
     const definition = safeLoad(readFileSync(join(args.SERVICE_PATH, 'mesg.yml')).toString())
     const markdown = this.generateTemplate(definition)
     if (flags.save) {

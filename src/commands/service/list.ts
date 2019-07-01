@@ -1,11 +1,10 @@
 import cli from 'cli-ux'
 
-import Command, {Service} from '../../service-command'
+import Command from '../../root-command'
+import { Service } from 'mesg-js/lib/api';
 
 export default class ServiceList extends Command {
-  static description = 'List all deployed services'
-
-  static aliases = ['service:ls']
+  static description = 'List all services'
 
   static flags = {
     ...Command.flags,
@@ -13,15 +12,14 @@ export default class ServiceList extends Command {
   }
 
   async run(): Promise<Service[]> {
-    const {flags} = this.parse(ServiceList)
-    const services = (await this.unaryCall('ListServices')).services as Service[]
+    const { flags } = this.parse(ServiceList)
+    const { services } = await this.api.service.list({})
     if (!services) return []
     cli.table(services, {
-      hash: {header: 'HASH', get: x => x.definition.hash},
-      sid: {header: 'SID', get: x => x.definition.sid},
-      name: {header: 'NAME', get: x => x.definition.name},
-      status: {header: 'STATUS', get: x => this.status(x.status)}
-    }, {printLine: this.log, ...flags})
+      hash: { header: 'HASH', get: x => x.hash },
+      sid: { header: 'SID', get: x => x.sid },
+      name: { header: 'NAME', get: x => x.name },
+    }, { printLine: this.log, ...flags })
     return services
   }
 }
