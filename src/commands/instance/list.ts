@@ -14,10 +14,18 @@ export default class InstanceList extends Command {
   async run(): Promise<Instance[]> {
     const {flags} = this.parse(InstanceList)
     const {instances} = await this.api.instance.list({})
+    const {services} = await this.api.service.list({})
     if (!instances) return []
     cli.table(instances, {
       hash: {header: 'HASH', get: x => x.hash},
-      sid: {header: 'SERVICE', get: x => x.serviceHash},
+      serviceHash: {header: 'SERVICE_HASH', get: x => x.serviceHash},
+      service: {
+        header: 'SERVICE',
+        get: x => {
+          const service = (services || []).find(y => y.hash === x.serviceHash)
+          return service ? service.name : ''
+        }
+      }
     }, {printLine: this.log, ...flags})
     return instances
   }
