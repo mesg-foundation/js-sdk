@@ -72,7 +72,7 @@ export default class InstanceLogs extends Command {
       })
       logs
         .on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => this.log(x)))
-        .on('error', (error: Error) => { console.log('error') })
+        .on('error', (error: Error) => { throw error })
     }
 
     if (flags.results) {
