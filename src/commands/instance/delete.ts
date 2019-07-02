@@ -22,7 +22,7 @@ export default class InstanceDelete extends Command {
   async run(): Promise<string[]> {
     const {argv, flags} = this.parse(InstanceDelete)
     if (!flags['keep-data']) {
-      cli.warn('This will delete all data associated to this service')
+      cli.warn('This will delete all data associated to this instance')
     }
     if (!flags.confirm && !await cli.confirm('Are you sure?')) return []
     this.spinner.start('Delete instance')
