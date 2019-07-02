@@ -38,7 +38,7 @@ export default class InstanceLogs extends Command {
       description: 'Only display specific tasks' results'
     }),
     tail: flags.integer({
-      description: 'Output specified number of lines at the end of logs',
+      description: 'Output only specified number of lines',
       default: -1
     }),
     follow: flags.boolean({
