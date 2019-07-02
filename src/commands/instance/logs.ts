@@ -1,8 +1,10 @@
 import { flags } from '@oclif/command'
+import { Docker } from 'node-docker-api'
 import chalk from 'chalk'
 
 import Command from '../../root-command'
 import { ExecutionStatus, Execution, Event } from 'mesg-js/lib/api';
+import { parseLog } from '../../utils/docker';
 
 export interface Log {
   dependency: string
@@ -34,6 +36,15 @@ export default class InstanceLogs extends Command {
     }),
     task: flags.string({
       description: 'Filter specific task results in the logs'
+    }),
+    tail: flags.integer({
+      description: 'Output specified number of lines at the end of logs',
+      default: -1
+    }),
+    follow: flags.boolean({
+      description: 'Follow logs',
+      allowNo: true,
+      default: true
     })
   }
 
@@ -42,19 +53,27 @@ export default class InstanceLogs extends Command {
     required: true,
   }]
 
+  private readonly docker: Docker = new Docker(null)
+
   async run() {
     const { args, flags } = this.parse(InstanceLogs)
-    // const stream = this.mesg.api.ServiceLogs({
-    //   serviceID: args.HASH,
-    //   dependencies: flags.dependency,
-    // }) as Stream<Log>
-    // stream.on('data', response => {
-    //   const dependency = response.dependency
-    //   this.log(chalk.yellow(dependency + ' | '), response.data.toString().replace('\n', ''))
-    // })
-    // stream.on('error', (error: Error) => {
-    //   throw error
-    // })
+
+    const dockerServices = await this.docker.service.list({
+      filters: {
+        label: [`mesg.hash=${args.HASH}`]
+      }
+    })
+    for (const service of dockerServices) {
+      const logs = await service.logs({
+        stderr: true,
+        stdout: true,
+        follow: flags.follow,
+        tail: flags.tail && flags.tail >= 0 ? flags.tail : 'all'
+      })
+      logs
+        .on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => this.log(x)))
+        .on('error', (error: Error) => { console.log('error') })
+    }
 
     if (flags.results) {
       this.api.execution.stream({
