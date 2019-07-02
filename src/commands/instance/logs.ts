@@ -42,7 +42,7 @@ export default class InstanceLogs extends Command {
       default: -1
     }),
     follow: flags.boolean({
-      description: 'Follow logs',
+      description: 'Continuously display logs',
       allowNo: true,
       default: true
     })
