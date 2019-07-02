@@ -1,5 +1,4 @@
 import Command from '../../marketplace-command'
-import services from '../../services'
 
 export default class MarketplacePurchase extends Command {
   static description = 'Purchase a service on the MESG Marketplace'

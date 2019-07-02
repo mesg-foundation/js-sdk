@@ -3,7 +3,6 @@ import { readdirSync, readFileSync } from 'fs'
 import { join } from 'path'
 
 import Command from '../../marketplace-command'
-import services from '../../services'
 import { createTar } from '../../deployer'
 import ServiceCreate from '../service/create'
 import ServiceGet from '../service/get'

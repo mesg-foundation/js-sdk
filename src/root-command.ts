@@ -1,7 +1,7 @@
 import { Command, flags } from '@oclif/command'
 import { cli } from 'cli-ux'
 import { application } from 'mesg-js'
-import createApi, { API, ExecutionCreateInputs, ExecutionGetOutputs } from 'mesg-js/lib/api'
+import createApi, { API, ExecutionCreateInputs, ExecutionGetOutputs, InfoOutputs } from 'mesg-js/lib/api'
 import { format, inspect } from 'util'
 import { IConfig } from '@oclif/config';
 import { Application } from 'mesg-js/lib/application';
@@ -65,5 +65,18 @@ export default abstract class extends Command {
   async execute(request: ExecutionCreateInputs): Promise<any> {
     const exec = await this._app.executeTaskAndWaitResult(request)
     return JSON.parse(exec.outputs || '')
+  }
+
+  async info(): InfoOutputs {
+    return this.api.core.info()
+  }
+
+  async engineServiceInstance(key: string) {
+    const info = await this.info()
+    const service = info.services.find((x: any) => x.key === key)
+    if (!service) {
+      throw new Error(`Cannot find service ${key}`)
+    }
+    return service.hash
   }
 }
