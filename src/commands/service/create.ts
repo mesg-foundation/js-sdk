@@ -17,7 +17,7 @@ export default class ServiceCreate extends Command {
   async run(): ServiceCreateOutputs {
     const { args } = this.parse(ServiceCreate)
     this.spinner.start('Create service')
-    const resp = await this.api.service.create({ definition: JSON.parse(args.DEFINITION) })
+    const resp = await this.api.service.create(JSON.parse(args.DEFINITION))
     this.spinner.stop(resp.hash)
     return resp
   }
