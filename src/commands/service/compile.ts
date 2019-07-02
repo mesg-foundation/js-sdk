@@ -6,6 +6,8 @@ import deployer from '../../utils/deployer'
 import Command from '../../root-command'
 import MarketplacePublish from '../marketplace/publish'
 import { Service } from 'mesg-js/lib/api';
+import { WithoutPassphrase } from '../../account-command';
+import MarketplaceCommand from '../../marketplace-command';
 
 export default class ServiceCompile extends Command {
   static description = 'Compile a service and upload its source to IPFS'
@@ -57,32 +59,37 @@ export default class ServiceCompile extends Command {
     }
   }
 
-  // async getAuthorizedServiceInfo(id: string, versionHash: string): Promise<ServiceInfo> {
-  //   const list = await this.executeAndCaptureError(services.account.id, services.account.tasks.list)
-  //   const { addresses } = list.data
-  //   this.require(addresses.length > 0, 'you have no accounts. please add an authorized account in order to deploy this service')
-  //   const res = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.isAuthorized, {
-  //     id,
-  //     versionHash,
-  //     addresses
-  //   })
-  //   const { authorized, sid, source, type } = res.data
-  //   this.require(authorized, 'you have no authorized accounts. please add an authorized account in order to deploy this service')
-  //   return { sid, source, type }
-  // }
+  async getAuthorizedServiceInfo(id: string, versionHash: string): Promise<{ sid: string, source: string, type: string }> {
+    const { addresses } = await this.execute({
+      instanceHash: await this.engineServiceInstance(WithoutPassphrase.SERVICE_NAME),
+      taskKey: 'list',
+      inputs: JSON.stringify({})
+    })
+    this.require(addresses.length > 0, 'you have no accounts. please add an authorized account in order to deploy this service')
+
+    const { authorized, sid, source, type } = await this.execute({
+      instanceHash: await this.engineServiceInstance(MarketplaceCommand.SERVICE_NAME),
+      taskKey: 'isAuthorized',
+      inputs: JSON.stringify({
+        id,
+        versionHash,
+        addresses
+      })
+    })
+    this.require(authorized, 'you have no authorized accounts. please add an authorized account in order to deploy this service')
+    return { sid, source, type }
+  }
 
   async processUrl(url: string): Promise<string> {
+    const marketplaceUrl = url.split('mesg://marketplace/service/')
+    if (marketplaceUrl.length === 2) {
+      const versionHash = marketplaceUrl[1]
+      const { type, source } = await this.getAuthorizedServiceInfo('', versionHash)
+      if (type === 'ipfs') {
+        return `http://ipfs.app.mesg.com:8080/ipfs/${source}` // tslint:disable-line:no-http-string
+      }
+      throw new Error(`unknown protocol '${type}'`)
+    }
     return url
-
-    //   const marketplaceUrl = url.split('mesg://marketplace/service/')
-    //   if (marketplaceUrl.length === 2) {
-    //     const versionHash = marketplaceUrl[1]
-    //     const {type, source} = await this.getAuthorizedServiceInfo('', versionHash)
-    //     if (type === 'ipfs') {
-    //       return `http://ipfs.app.mesg.com:8080/ipfs/${source}` // tslint:disable-line:no-http-string
-    //     }
-    //     throw new Error(`unknown protocol '${type}'`)
-    //   }
-    //   return url
   }
 }
