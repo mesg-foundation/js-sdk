@@ -19,11 +19,15 @@ export default class InstanceLogs extends Command {
     //   description: 'Name of the dependency to show the logs from',
     //   multiple: true
     // }),
-    'no-events': flags.boolean({
-      description: 'Remove events from the logs'
+    events: flags.boolean({
+      description: 'Remove events from the logs',
+      allowNo: true,
+      default: true
     }),
-    'no-results': flags.boolean({
-      description: 'Remove results from the logs'
+    results: flags.boolean({
+      description: 'Remove results from the logs',
+      allowNo: true,
+      default: true
     }),
     event: flags.string({
       description: 'Filter specific events in the logs'
@@ -52,7 +56,7 @@ export default class InstanceLogs extends Command {
     //   throw error
     // })
 
-    if (!flags['no-results']) {
+    if (flags.results) {
       this.api.execution.stream({
         filter: {
           instanceHash: args.HASH,
@@ -67,7 +71,7 @@ export default class InstanceLogs extends Command {
         .on('error', (error: Error) => { throw error })
     }
 
-    if (!flags['no-events']) {
+    if (flags.events) {
       this.api.event.stream({
         filter: {
           instanceHash: args.HASH,
