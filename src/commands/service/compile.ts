@@ -2,7 +2,7 @@ import { readFileSync } from 'fs'
 import yaml from 'js-yaml'
 import { join } from 'path'
 
-import deployer from '../../deployer'
+import deployer from '../../utils/deployer'
 import Command from '../../root-command'
 import MarketplacePublish from '../marketplace/publish'
 import { Service } from 'mesg-js/lib/api';

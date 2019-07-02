@@ -4,7 +4,7 @@ import { renameSync } from 'fs'
 import { prompt } from 'inquirer'
 import { join } from 'path'
 
-import deployer from '../../deployer'
+import deployer from '../../utils/deployer'
 import Command from '../../root-command'
 
 const templatesURL = 'https://raw.githubusercontent.com/mesg-foundation/awesome/master/templates.json'
