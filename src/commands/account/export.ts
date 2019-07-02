@@ -1,5 +1,4 @@
-import {WithPassphrase as Command} from '../../account-command'
-import services from '../../services'
+import { WithPassphrase as Command } from '../../account-command'
 
 export default class AccountExport extends Command {
   static description = 'Export an existing account'
@@ -10,16 +9,17 @@ export default class AccountExport extends Command {
   }]
 
   async run() {
-    const {args} = this.parse(AccountExport)
+    const { args } = this.parse(AccountExport)
 
     this.spinner.start('Export account')
-    const {data} = await this.executeAndCaptureError(services.account.id, services.account.tasks.export, {
-      passphrase: await this.getPassphrase(),
-      address: args.ADDRESS,
+    const data = await this.execute({
+      instanceHash: await this.walletInstance(),
+      taskKey: 'export',
+      inputs: JSON.stringify({
+        passphrase: await this.getPassphrase(),
+        address: args.ADDRESS,
+      })
     })
-    if (!data) {
-      this.error('account not found or passphrase does not match')
-    }
     this.spinner.stop()
     this.styledJSON(data)
     return data
