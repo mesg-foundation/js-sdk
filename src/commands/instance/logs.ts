@@ -22,7 +22,7 @@ export default class InstanceLogs extends Command {
     //   multiple: true
     // }),
     events: flags.boolean({
-      description: 'Remove events from the logs',
+      description: 'Don\'t display events',
       allowNo: true,
       default: true
     }),
