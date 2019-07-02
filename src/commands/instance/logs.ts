@@ -27,7 +27,7 @@ export default class InstanceLogs extends Command {
       default: true
     }),
     results: flags.boolean({
-      description: 'Remove results from the logs',
+      description: 'Don\'t display results',
       allowNo: true,
       default: true
     }),
