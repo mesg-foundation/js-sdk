@@ -17,7 +17,7 @@ export default class InstanceList extends Command {
     if (!instances) return []
     cli.table(instances, {
       hash: { header: 'HASH', get: x => x.hash },
-      sid: { header: 'SERVICE HASH', get: x => x.serviceHash },
+      sid: { header: 'SERVICE', get: x => x.serviceHash },
     }, { printLine: this.log, ...flags })
     return instances
   }
