@@ -8,7 +8,10 @@ export default class InstanceDelete extends Command {
 
   static flags = {
     ...Command.flags,
-    'keep-data': flags.boolean({description: 'Do not delete services\' persistent data'}),
+    'delete-data': flags.boolean({
+      description: 'Delete instances\' persistent data',
+      default: false,
+    }),
     confirm: flags.boolean({description: 'Confirm delete', default: false})
   }
 
@@ -21,14 +24,14 @@ export default class InstanceDelete extends Command {
 
   async run(): Promise<string[]> {
     const {argv, flags} = this.parse(InstanceDelete)
-    if (!flags['keep-data']) {
+    if (flags['delete-data']) {
       cli.warn('This will delete all data associated to this instance')
     }
     if (!flags.confirm && !await cli.confirm('Are you sure?')) return []
     this.spinner.start('Delete instance')
     for (const hash of argv) {
       this.spinner.status = hash
-      await this.api.instance.delete({hash, deleteData: !flags['keep-data']})
+      await this.api.instance.delete({hash, deleteData: flags['delete-data']})
     }
     this.spinner.stop(argv.join(', '))
     return argv
