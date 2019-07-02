@@ -1,7 +1,7 @@
 import cli from 'cli-ux'
+import {Instance} from 'mesg-js/lib/api'
 
 import Command from '../../root-command'
-import { Instance } from 'mesg-js/lib/api';
 
 export default class InstanceList extends Command {
   static description = 'List all instances'
@@ -12,13 +12,13 @@ export default class InstanceList extends Command {
   }
 
   async run(): Promise<Instance[]> {
-    const { flags } = this.parse(InstanceList)
-    const { instances } = await this.api.instance.list({})
+    const {flags} = this.parse(InstanceList)
+    const {instances} = await this.api.instance.list({})
     if (!instances) return []
     cli.table(instances, {
-      hash: { header: 'HASH', get: x => x.hash },
-      sid: { header: 'SERVICE', get: x => x.serviceHash },
-    }, { printLine: this.log, ...flags })
+      hash: {header: 'HASH', get: x => x.hash},
+      sid: {header: 'SERVICE', get: x => x.serviceHash},
+    }, {printLine: this.log, ...flags})
     return instances
   }
 }

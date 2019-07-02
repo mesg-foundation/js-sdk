@@ -1,9 +1,9 @@
-import { cli } from 'cli-ux'
-import { readdirSync, readFileSync } from 'fs'
-import { join } from 'path'
+import {cli} from 'cli-ux'
+import {readdirSync, readFileSync} from 'fs'
+import {join} from 'path'
 
 import Command from '../../marketplace-command'
-import { createTar } from '../../utils/deployer'
+import {createTar} from '../../utils/deployer'
 import ServiceCreate from '../service/create'
 import ServiceGet from '../service/get'
 
@@ -19,10 +19,10 @@ export default class MarketplacePublish extends Command {
     default: './'
   }]
 
-  private readonly IPFS = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
+  private readonly IPFS = ipfsClient('ipfs.app.mesg.com', '5001', {protocol: 'http'})
 
   async run() {
-    const { args } = this.parse(MarketplacePublish)
+    const {args} = this.parse(MarketplacePublish)
     const path = args.SERVICE_PATH
 
     const account = await this.getAccount()
@@ -103,7 +103,7 @@ export default class MarketplacePublish extends Command {
   }
 
   private async upload(buffer: Buffer): Promise<string> {
-    const res = await this.IPFS.add(Buffer.from(buffer), { pin: true })
+    const res = await this.IPFS.add(Buffer.from(buffer), {pin: true})
     if (!res.length) {
       throw new Error('Error with the generation of your manifest')
     }

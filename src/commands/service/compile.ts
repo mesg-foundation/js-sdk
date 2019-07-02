@@ -1,13 +1,13 @@
-import { readFileSync } from 'fs'
+import {readFileSync} from 'fs'
 import yaml from 'js-yaml'
-import { join } from 'path'
+import {Service} from 'mesg-js/lib/api'
+import {join} from 'path'
 
-import deployer from '../../utils/deployer'
+import {WithoutPassphrase} from '../../account-command'
+import MarketplaceCommand from '../../marketplace-command'
 import Command from '../../root-command'
+import deployer from '../../utils/deployer'
 import MarketplacePublish from '../marketplace/publish'
-import { Service } from 'mesg-js/lib/api';
-import { WithoutPassphrase } from '../../account-command';
-import MarketplaceCommand from '../../marketplace-command';
 
 export default class ServiceCompile extends Command {
   static description = 'Compile a service and upload its source to IPFS'
@@ -23,7 +23,7 @@ export default class ServiceCompile extends Command {
   }]
 
   async run(): Promise<Service> {
-    const { args } = this.parse(ServiceCompile)
+    const {args} = this.parse(ServiceCompile)
     this.spinner.status = 'Download sources'
     const path = await deployer(await this.processUrl(args.SERVICE_PATH_OR_URL))
     const source = await new MarketplacePublish(this.argv, this.config).deploySources(path)
@@ -37,22 +37,22 @@ export default class ServiceCompile extends Command {
     const o = yaml.safeLoad(content)
     const parseParams = (params: any): any => Object.keys(params || {})
       .map((key: string) => {
-        const { name, description, type, repeated, optional, object } = params[key]
-        return { key, name, description, type, repeated, optional, object: parseParams(object || {}) }
+        const {name, description, type, repeated, optional, object} = params[key]
+        return {key, name, description, type, repeated, optional, object: parseParams(object || {})}
       })
     return {
       sid: o.sid,
       name: o.name,
       description: o.description,
       tasks: Object.keys(o.tasks || {}).map((key: string) => {
-        const { name, description, inputs, outputs } = o.tasks[key]
-        return { key, name, description, inputs: parseParams(inputs), outputs: parseParams(outputs) }
+        const {name, description, inputs, outputs} = o.tasks[key]
+        return {key, name, description, inputs: parseParams(inputs), outputs: parseParams(outputs)}
       }),
       events: Object.keys(o.events || {}).map((key: string) => {
-        const { name, description, data } = o.events[key]
-        return { key, name, description, data: parseParams(data) }
+        const {name, description, data} = o.events[key]
+        return {key, name, description, data: parseParams(data)}
       }),
-      dependencies: Object.keys(o.dependencies || {}).map((key: string) => ({ key, ...o.dependencies[key] })),
+      dependencies: Object.keys(o.dependencies || {}).map((key: string) => ({key, ...o.dependencies[key]})),
       configuration: o.configuration,
       repository: o.repository,
       source
@@ -60,14 +60,14 @@ export default class ServiceCompile extends Command {
   }
 
   async getAuthorizedServiceInfo(id: string, versionHash: string): Promise<{ sid: string, source: string, type: string }> {
-    const { addresses } = await this.execute({
+    const {addresses} = await this.execute({
       instanceHash: await this.engineServiceInstance(WithoutPassphrase.SERVICE_NAME),
       taskKey: 'list',
       inputs: JSON.stringify({})
     })
     this.require(addresses.length > 0, 'you have no accounts. please add an authorized account in order to deploy this service')
 
-    const { authorized, sid, source, type } = await this.execute({
+    const {authorized, sid, source, type} = await this.execute({
       instanceHash: await this.engineServiceInstance(MarketplaceCommand.SERVICE_NAME),
       taskKey: 'isAuthorized',
       inputs: JSON.stringify({
@@ -77,14 +77,14 @@ export default class ServiceCompile extends Command {
       })
     })
     this.require(authorized, 'you have no authorized accounts. please add an authorized account in order to deploy this service')
-    return { sid, source, type }
+    return {sid, source, type}
   }
 
   async processUrl(url: string): Promise<string> {
     const marketplaceUrl = url.split('mesg://marketplace/service/')
     if (marketplaceUrl.length === 2) {
       const versionHash = marketplaceUrl[1]
-      const { type, source } = await this.getAuthorizedServiceInfo('', versionHash)
+      const {type, source} = await this.getAuthorizedServiceInfo('', versionHash)
       if (type === 'ipfs') {
         return `http://ipfs.app.mesg.com:8080/ipfs/${source}` // tslint:disable-line:no-http-string
       }

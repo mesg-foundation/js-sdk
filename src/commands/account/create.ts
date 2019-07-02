@@ -1,4 +1,4 @@
-import { WithPassphrase as Command } from '../../account-command'
+import {WithPassphrase as Command} from '../../account-command'
 
 export default class AccountCreate extends Command {
   static description = 'Create a new account'

@@ -1,18 +1,17 @@
-import { flags } from '@oclif/command'
-import { readFileSync } from 'fs'
+import {flags} from '@oclif/command'
+import {readFileSync} from 'fs'
+import {ExecutionCreateOutputs} from 'mesg-js/lib/api'
 
 import Command from '../../root-command'
-
-import ServiceGet from '../service/get'
 import InstanceGet from '../instance/get'
-import { ExecutionCreateOutputs } from 'mesg-js/lib/api';
+import ServiceGet from '../service/get'
 
 export default class ExecutionCreate extends Command {
   static description = 'describe the command here'
 
   static flags = {
     ...Command.flags,
-    json: flags.string({ char: 'j', description: 'Path to a JSON file containing the data required to run the task' }),
+    json: flags.string({char: 'j', description: 'Path to a JSON file containing the data required to run the task'}),
     data: flags.string({
       char: 'd',
       description: 'data required to run the task',
@@ -32,7 +31,7 @@ export default class ExecutionCreate extends Command {
   }]
 
   async run(): ExecutionCreateOutputs {
-    const { args, flags } = this.parse(ExecutionCreate)
+    const {args, flags} = this.parse(ExecutionCreate)
 
     const instance = await InstanceGet.run([args.INSTANCE, '--silent'])
     const service = await ServiceGet.run([instance.serviceHash, '--silent'])

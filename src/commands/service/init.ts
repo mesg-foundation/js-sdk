@@ -1,11 +1,11 @@
-import { flags } from '@oclif/command'
+import {flags} from '@oclif/command'
 import axios from 'axios'
-import { renameSync } from 'fs'
-import { prompt } from 'inquirer'
-import { join } from 'path'
+import {renameSync} from 'fs'
+import {prompt} from 'inquirer'
+import {join} from 'path'
 
-import deployer from '../../utils/deployer'
 import Command from '../../root-command'
+import deployer from '../../utils/deployer'
 
 const templatesURL = 'https://raw.githubusercontent.com/mesg-foundation/awesome/master/templates.json'
 
@@ -19,7 +19,7 @@ export default class ServiceInit extends Command {
 
   static flags = {
     ...Command.flags,
-    template: flags.string({ char: 't', description: 'Specify the template URL to use' }),
+    template: flags.string({char: 't', description: 'Specify the template URL to use'}),
   }
 
   static args = [{
@@ -29,7 +29,7 @@ export default class ServiceInit extends Command {
   }]
 
   async run(): Promise<string> {
-    const { args, flags } = this.parse(ServiceInit)
+    const {args, flags} = this.parse(ServiceInit)
     const templateUrl = await this.getTemplateUrl(flags.template)
     this.spinner.start('Initialize your project')
     await this.downloadTemplate(args.DIR, templateUrl)
@@ -44,7 +44,7 @@ export default class ServiceInit extends Command {
     this.spinner.start('Fetch the list of templates available')
     const templates = await this.fetchTemplates()
     this.spinner.stop()
-    const { value } = (await prompt({
+    const {value} = (await prompt({
       type: 'list',
       name: 'value',
       message: 'Choose the template you want to use',

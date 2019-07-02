@@ -1,4 +1,4 @@
-import { WithPassphrase as Command } from '../../account-command'
+import {WithPassphrase as Command} from '../../account-command'
 
 export default class AccountDelete extends Command {
   static description = 'Delete an existing account'
@@ -9,7 +9,7 @@ export default class AccountDelete extends Command {
   }]
 
   async run() {
-    const { args } = this.parse(AccountDelete)
+    const {args} = this.parse(AccountDelete)
 
     this.spinner.start('Delete account')
     const data = await this.execute({

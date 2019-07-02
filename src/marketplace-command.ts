@@ -1,9 +1,9 @@
-import { flags } from '@oclif/command'
-import { cli } from 'cli-ux'
-import { prompt } from 'inquirer'
+import {flags} from '@oclif/command'
+import {cli} from 'cli-ux'
+import {prompt} from 'inquirer'
 
+import {WithoutPassphrase} from './account-command'
 import Command from './root-command'
-import { WithoutPassphrase } from './account-command';
 
 export interface Manifest {
   version: 1
@@ -48,7 +48,7 @@ export default abstract class MarketplaceCommand extends Command {
   }
 
   async getAccount(): Promise<string> {
-    const { flags } = this.parse()
+    const {flags} = this.parse()
     if (flags.account) {
       return flags.account
     }
@@ -61,7 +61,7 @@ export default abstract class MarketplaceCommand extends Command {
     if (list.data.addresses.length === 1) {
       return list.data.addresses[0]
     }
-    const { account } = (await prompt({
+    const {account} = (await prompt({
       type: 'list',
       name: 'account',
       message: 'Choose the account to use to publish your service',
@@ -71,10 +71,10 @@ export default abstract class MarketplaceCommand extends Command {
   }
 
   async getPassphrase(): Promise<string> {
-    const { flags } = this.parse()
+    const {flags} = this.parse()
     if (flags.passphrase) {
       return flags.passphrase
     }
-    return cli.prompt('Type your passphrase', { type: 'hide' })
+    return cli.prompt('Type your passphrase', {type: 'hide'})
   }
 }

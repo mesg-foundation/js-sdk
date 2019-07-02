@@ -18,7 +18,7 @@ export default class MarketplacePurchase extends Command {
   }]
 
   async run() {
-    const { args } = this.parse(MarketplacePurchase)
+    const {args} = this.parse(MarketplacePurchase)
 
     const account = await this.getAccount()
     this.spinner.start('Verifying offer')

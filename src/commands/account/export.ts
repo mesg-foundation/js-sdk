@@ -1,4 +1,4 @@
-import { WithPassphrase as Command } from '../../account-command'
+import {WithPassphrase as Command} from '../../account-command'
 
 export default class AccountExport extends Command {
   static description = 'Export an existing account'
@@ -9,7 +9,7 @@ export default class AccountExport extends Command {
   }]
 
   async run() {
-    const { args } = this.parse(AccountExport)
+    const {args} = this.parse(AccountExport)
 
     this.spinner.start('Export account')
     const data = await this.execute({

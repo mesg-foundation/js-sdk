@@ -1,14 +1,14 @@
-import { lstatSync, readdirSync, readFileSync, existsSync } from 'fs'
-import { fromUrl } from 'hosted-git-info'
-import isGitUrl from 'is-git-url'
-import { tmpdir } from 'os'
-import { join } from 'path'
-import { sync as rimraf } from 'rimraf'
-import { v4 as uuid } from 'uuid'
-import { isURL } from 'validator'
-import { Readable, Writable } from 'stream'
+import {existsSync, lstatSync, readdirSync, readFileSync} from 'fs'
+import {fromUrl} from 'hosted-git-info'
 import ignore from 'ignore'
+import isGitUrl from 'is-git-url'
+import {tmpdir} from 'os'
+import {join} from 'path'
+import {sync as rimraf} from 'rimraf'
+import {Readable} from 'stream'
 import tar from 'tar'
+import {v4 as uuid} from 'uuid'
+import {isURL} from 'validator'
 
 const downloadTarball = require('download-tarball')
 const gitclone = require('git-clone')
@@ -18,7 +18,7 @@ const downloadSrc = async (url: string): Promise<string> => {
   if (fromUrl(url)) {
     return clone(url, dir)
   }
-  await downloadTarball({ url, dir })
+  await downloadTarball({url, dir})
   return dir
 }
 

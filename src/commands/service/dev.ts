@@ -1,11 +1,11 @@
 import Command from '../../root-command'
+import InstanceCreate from '../instance/create'
+import InstanceDelete from '../instance/delete'
+import InstanceLog from '../instance/logs'
 
-import ServiceDelete from './delete'
 import ServiceCompile from './compile'
-import ServiceCreate from './create';
-import InstanceLog, { Log } from '../instance/logs'
-import InstanceDelete from '../instance/delete';
-import InstanceCreate from '../instance/create';
+import ServiceCreate from './create'
+import ServiceDelete from './delete'
 
 export default class ServiceDev extends Command {
   static description = 'Run your service in development mode'
@@ -23,7 +23,7 @@ export default class ServiceDev extends Command {
   }]
 
   async run() {
-    const { args, flags } = this.parse(ServiceDev)
+    const {args, flags} = this.parse(ServiceDev)
 
     const definition = await ServiceCompile.run([args.SERVICE_PATH, '--silent'])
     const service = await ServiceCreate.run([JSON.stringify(definition)])

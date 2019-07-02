@@ -1,6 +1,7 @@
+import {flags} from '@oclif/command'
+import {InstanceCreateOutputs} from 'mesg-js/lib/api'
+
 import Command from '../../root-command'
-import { InstanceCreateOutputs } from 'mesg-js/lib/api';
-import { flags } from '@oclif/command';
 
 export default class InstanceCreate extends Command {
   static description = 'Create an instance of a service'
@@ -20,7 +21,7 @@ export default class InstanceCreate extends Command {
   }]
 
   async run(): InstanceCreateOutputs {
-    const { args, flags } = this.parse(InstanceCreate)
+    const {args, flags} = this.parse(InstanceCreate)
     this.spinner.start('Create instance')
     const instance = await this.api.instance.create({
       serviceHash: args.SERVICE_HASH,

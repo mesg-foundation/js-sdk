@@ -1,4 +1,4 @@
-import { WithPassphrase as Command } from '../../account-command'
+import {WithPassphrase as Command} from '../../account-command'
 
 export default class AccountImportPK extends Command {
   static description = 'Import a account from a private key'
@@ -10,7 +10,7 @@ export default class AccountImportPK extends Command {
   }]
 
   async run() {
-    const { args } = this.parse(AccountImportPK)
+    const {args} = this.parse(AccountImportPK)
 
     this.spinner.start('Import account')
     const data = await this.execute({

@@ -1,7 +1,7 @@
-import { flags } from '@oclif/command'
+import {flags} from '@oclif/command'
 
 import Command from '../../docker-command'
-import { parseLog } from '../../utils/docker';
+import {parseLog} from '../../utils/docker'
 
 export default class Logs extends Command {
   static description = 'Show the Engine\'s logs'
@@ -20,7 +20,7 @@ export default class Logs extends Command {
   }
 
   async run() {
-    const { flags } = this.parse(Logs)
+    const {flags} = this.parse(Logs)
     const services = await this.listServices({
       name: flags.name
     })

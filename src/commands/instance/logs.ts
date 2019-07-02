@@ -1,10 +1,10 @@
-import { flags } from '@oclif/command'
-import { Docker } from 'node-docker-api'
+import {flags} from '@oclif/command'
 import chalk from 'chalk'
+import {Event, Execution, ExecutionStatus} from 'mesg-js/lib/api'
+import {Docker} from 'node-docker-api'
 
 import Command from '../../root-command'
-import { ExecutionStatus, Execution, Event } from 'mesg-js/lib/api';
-import { parseLog } from '../../utils/docker';
+import {parseLog} from '../../utils/docker'
 
 export interface Log {
   dependency: string
@@ -56,7 +56,7 @@ export default class InstanceLogs extends Command {
   private readonly docker: Docker = new Docker(null)
 
   async run() {
-    const { args, flags } = this.parse(InstanceLogs)
+    const {args, flags} = this.parse(InstanceLogs)
 
     const dockerServices = await this.docker.service.list({
       filters: {

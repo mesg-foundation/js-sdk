@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import {flags} from '@oclif/command'
 
 import Command from '../../marketplace-command'
 
@@ -24,7 +24,7 @@ export default class MarketplaceCreateOffer extends Command {
   }]
 
   async run() {
-    const { args, flags } = this.parse(MarketplaceCreateOffer)
+    const {args, flags} = this.parse(MarketplaceCreateOffer)
 
     const account = await this.getAccount()
     const passphrase = await this.getPassphrase()
