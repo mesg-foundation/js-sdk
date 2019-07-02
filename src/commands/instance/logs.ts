@@ -32,7 +32,7 @@ export default class InstanceLogs extends Command {
       default: true
     }),
     event: flags.string({
-      description: 'Filter specific events in the logs'
+      description: 'Only display specific events'
     }),
     task: flags.string({
       description: 'Filter specific task results in the logs'
