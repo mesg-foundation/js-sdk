@@ -14,7 +14,7 @@ export default class AccountImportPK extends Command {
 
     this.spinner.start('Import account')
     const data = await this.execute({
-      instanceHash: await this.walletInstance(),
+      instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'importFromPrivateKey',
       inputs: JSON.stringify({
         passphrase: await this.getPassphrase(),

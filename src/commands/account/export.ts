@@ -13,7 +13,7 @@ export default class AccountExport extends Command {
 
     this.spinner.start('Export account')
     const data = await this.execute({
-      instanceHash: await this.walletInstance(),
+      instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'export',
       inputs: JSON.stringify({
         passphrase: await this.getPassphrase(),

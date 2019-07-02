@@ -6,7 +6,7 @@ export default class AccountCreate extends Command {
   async run() {
     this.spinner.start('Create account')
     const data = await this.execute({
-      instanceHash: await this.walletInstance(),
+      instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'create',
       inputs: JSON.stringify({
         passphrase: await this.getPassphrase(),

@@ -13,7 +13,7 @@ export default class AccountDelete extends Command {
 
     this.spinner.start('Delete account')
     const data = await this.execute({
-      instanceHash: await this.walletInstance(),
+      instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'delete',
       inputs: JSON.stringify({
         passphrase: await this.getPassphrase(),
