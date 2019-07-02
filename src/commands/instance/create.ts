@@ -20,11 +20,11 @@ export default class InstanceCreate extends Command {
   }]
 
   async run(): InstanceCreateOutputs {
-    const { args } = this.parse(InstanceCreate)
+    const { args, flags } = this.parse(InstanceCreate)
     this.spinner.start('Create instance')
     const instance = await this.api.instance.create({
       serviceHash: args.SERVICE_HASH,
-      env: args.env
+      env: flags.env
     })
     this.spinner.stop(instance.hash)
     return instance
