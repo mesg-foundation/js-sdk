@@ -8,7 +8,7 @@ export abstract class WithoutPassphrase extends Command {
     ...Command.flags
   }
 
-  static SERVICE_NAME = 'Wallet'
+  static SERVICE_NAME = 'EthWallet'
 }
 
 export abstract class WithPassphrase extends WithoutPassphrase {
