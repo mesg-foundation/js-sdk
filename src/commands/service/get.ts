@@ -10,13 +10,13 @@ export default class ServiceGet extends Command {
   }
 
   static args = [{
-    name: 'HASH',
+    name: 'SERVICE_HASH',
     required: true
   }]
 
   async run(): ServiceGetOutputs {
     const {args} = this.parse(ServiceGet)
-    const response = await this.api.service.get({hash: args.HASH})
+    const response = await this.api.service.get({hash: args.SERVICE_HASH})
     this.styledJSON(response)
     return response
   }
