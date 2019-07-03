@@ -38,13 +38,7 @@ USAGE
 * [`mesg-cli daemon:start`](#mesg-cli-daemonstart)
 * [`mesg-cli daemon:status`](#mesg-cli-daemonstatus)
 * [`mesg-cli daemon:stop`](#mesg-cli-daemonstop)
-* [`mesg-cli execution:create INSTANCE TASK`](#mesg-cli-executioncreate-instance-task)
 * [`mesg-cli help [COMMAND]`](#mesg-cli-help-command)
-* [`mesg-cli instance:create SERVICE_HASH`](#mesg-cli-instancecreate-service_hash)
-* [`mesg-cli instance:delete HASH`](#mesg-cli-instancedelete-hash)
-* [`mesg-cli instance:get HASH`](#mesg-cli-instanceget-hash)
-* [`mesg-cli instance:list`](#mesg-cli-instancelist)
-* [`mesg-cli instance:logs HASH`](#mesg-cli-instancelogs-hash)
 * [`mesg-cli marketplace:create-offer SID`](#mesg-cli-marketplacecreate-offer-sid)
 * [`mesg-cli marketplace:publish SERVICE_PATH`](#mesg-cli-marketplacepublish-service_path)
 * [`mesg-cli marketplace:purchase SERVICE_ID OFFER_ID`](#mesg-cli-marketplacepurchase-service_id-offer_id)
@@ -53,9 +47,13 @@ USAGE
 * [`mesg-cli service:delete HASH`](#mesg-cli-servicedelete-hash)
 * [`mesg-cli service:dev [SERVICE_PATH]`](#mesg-cli-servicedev-service_path)
 * [`mesg-cli service:doc [SERVICE_PATH]`](#mesg-cli-servicedoc-service_path)
+* [`mesg-cli service:execute INSTANCE_HASH TASK`](#mesg-cli-serviceexecute-instance_hash-task)
 * [`mesg-cli service:get HASH`](#mesg-cli-serviceget-hash)
 * [`mesg-cli service:init DIR`](#mesg-cli-serviceinit-dir)
 * [`mesg-cli service:list`](#mesg-cli-servicelist)
+* [`mesg-cli service:logs INSTANCE_HASH`](#mesg-cli-servicelogs-instance_hash)
+* [`mesg-cli service:start SERVICE_HASH`](#mesg-cli-servicestart-service_hash)
+* [`mesg-cli service:stop INSTANCE_HASH`](#mesg-cli-servicestop-instance_hash)
 
 ## `mesg-cli account:create`
 
@@ -183,11 +181,12 @@ USAGE
   $ mesg-cli daemon:logs
 
 OPTIONS
-  -h, --help   show CLI help
+  -h, --help     show CLI help
   -q, --quiet
-  --name=name  (required) [default: engine] name of the service running the engine
+  --[no-]follow  Follow logs
+  --name=name    (required) [default: engine] name of the service running the engine
   --silent
-  --tail=tail  [default: -1] Output specified number of lines at the end of logs
+  --tail=tail    [default: -1] Output specified number of lines at the end of logs
 ```
 
 _See code: [src/commands/daemon/logs.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/daemon/logs.ts)_
@@ -247,28 +246,6 @@ OPTIONS
 
 _See code: [src/commands/daemon/stop.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/daemon/stop.ts)_
 
-## `mesg-cli execution:create INSTANCE TASK`
-
-describe the command here
-
-```
-USAGE
-  $ mesg-cli execution:create INSTANCE TASK
-
-ARGUMENTS
-  INSTANCE  Hash or Sid
-  TASK      Task key
-
-OPTIONS
-  -d, --data=key=value  data required to run the task
-  -h, --help            show CLI help
-  -j, --json=json       Path to a JSON file containing the data required to run the task
-  -q, --quiet
-  --silent
-```
-
-_See code: [src/commands/execution/create.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/execution/create.ts)_
-
 ## `mesg-cli help [COMMAND]`
 
 display help for mesg-cli
@@ -285,100 +262,6 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.1.6/src/commands/help.ts)_
-
-## `mesg-cli instance:create SERVICE_HASH`
-
-Create an instance of a service
-
-```
-USAGE
-  $ mesg-cli instance:create SERVICE_HASH
-
-OPTIONS
-  -h, --help     show CLI help
-  -q, --quiet
-  --env=FOO=BAR  set env defined in mesg.yml (configuration.env)
-  --silent
-```
-
-_See code: [src/commands/instance/create.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/instance/create.ts)_
-
-## `mesg-cli instance:delete HASH`
-
-Delete an instance
-
-```
-USAGE
-  $ mesg-cli instance:delete HASH
-
-OPTIONS
-  -h, --help   show CLI help
-  -q, --quiet
-  --confirm    Confirm delete
-  --keep-data  Do not delete services' persistent data
-  --silent
-```
-
-_See code: [src/commands/instance/delete.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/instance/delete.ts)_
-
-## `mesg-cli instance:get HASH`
-
-Show details of an instance
-
-```
-USAGE
-  $ mesg-cli instance:get HASH
-
-OPTIONS
-  -h, --help   show CLI help
-  -q, --quiet
-  --silent
-```
-
-_See code: [src/commands/instance/get.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/instance/get.ts)_
-
-## `mesg-cli instance:list`
-
-List all instances
-
-```
-USAGE
-  $ mesg-cli instance:list
-
-OPTIONS
-  -h, --help         show CLI help
-  -q, --quiet
-  -x, --extended     show extra columns
-  --columns=columns  only show provided columns (comma-separated)
-  --csv              output is csv format
-  --filter=filter    filter property by partial string matching, ex: name=foo
-  --no-header        hide table header from output
-  --no-truncate      do not truncate output to fit screen
-  --silent
-  --sort=sort        property to sort by (prepend '-' for descending)
-```
-
-_See code: [src/commands/instance/list.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/instance/list.ts)_
-
-## `mesg-cli instance:logs HASH`
-
-Show logs of a service
-
-```
-USAGE
-  $ mesg-cli instance:logs HASH
-
-OPTIONS
-  -h, --help      show CLI help
-  -q, --quiet
-  --event=event   Filter specific events in the logs
-  --[no-]events   Remove events from the logs
-  --[no-]results  Remove results from the logs
-  --silent
-  --task=task     Filter specific task results in the logs
-```
-
-_See code: [src/commands/instance/logs.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/instance/logs.ts)_
 
 ## `mesg-cli marketplace:create-offer SID`
 
@@ -549,6 +432,28 @@ ALIASES
 
 _See code: [src/commands/service/doc.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/service/doc.ts)_
 
+## `mesg-cli service:execute INSTANCE_HASH TASK`
+
+Execute a task on a specific service's instance
+
+```
+USAGE
+  $ mesg-cli service:execute INSTANCE_HASH TASK
+
+ARGUMENTS
+  INSTANCE_HASH
+  TASK           Task key
+
+OPTIONS
+  -d, --data=key=value  data required to run the task
+  -h, --help            show CLI help
+  -j, --json=json       Path to a JSON file containing the data required to run the task
+  -q, --quiet
+  --silent
+```
+
+_See code: [src/commands/service/execute.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/service/execute.ts)_
+
 ## `mesg-cli service:get HASH`
 
 Show details of a service
@@ -587,7 +492,7 @@ _See code: [src/commands/service/init.ts](https://github.com/mesg-foundation/cli
 
 ## `mesg-cli service:list`
 
-List all services
+List all instances
 
 ```
 USAGE
@@ -607,4 +512,61 @@ OPTIONS
 ```
 
 _See code: [src/commands/service/list.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/service/list.ts)_
+
+## `mesg-cli service:logs INSTANCE_HASH`
+
+Show logs of a service
+
+```
+USAGE
+  $ mesg-cli service:logs INSTANCE_HASH
+
+OPTIONS
+  -h, --help      show CLI help
+  -q, --quiet
+  --event=event   Only display a specific event
+  --[no-]events   Don't display events
+  --[no-]follow   Continuously display logs
+  --[no-]results  Don't display results
+  --silent
+  --tail=tail     [default: -1] Output only specified number of lines
+  --task=task     Only display a specific task results
+```
+
+_See code: [src/commands/service/logs.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/service/logs.ts)_
+
+## `mesg-cli service:start SERVICE_HASH`
+
+Start a service by creating a new instance
+
+```
+USAGE
+  $ mesg-cli service:start SERVICE_HASH
+
+OPTIONS
+  -h, --help     show CLI help
+  -q, --quiet
+  --env=FOO=BAR  set env defined in mesg.yml (configuration.env)
+  --silent
+```
+
+_See code: [src/commands/service/start.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/service/start.ts)_
+
+## `mesg-cli service:stop INSTANCE_HASH`
+
+Stop a service by deleting a specific instance
+
+```
+USAGE
+  $ mesg-cli service:stop INSTANCE_HASH
+
+OPTIONS
+  -h, --help     show CLI help
+  -q, --quiet
+  --confirm      Confirm delete
+  --delete-data  Delete instances' persistent data
+  --silent
+```
+
+_See code: [src/commands/service/stop.ts](https://github.com/mesg-foundation/cli/blob/v1.0.4/src/commands/service/stop.ts)_
 <!-- commandsstop -->
