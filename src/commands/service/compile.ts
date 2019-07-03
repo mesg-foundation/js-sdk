@@ -65,7 +65,9 @@ export default class ServiceCompile extends Command {
       taskKey: 'list',
       inputs: JSON.stringify({})
     })
-    this.require(addresses.length > 0, 'you have no accounts. please add an authorized account in order to deploy this service')
+    if (!addresses.length) {
+      throw new Error('you have no accounts. please add an authorized account in order to deploy this service')
+    }
 
     const {authorized, sid, source, type} = await this.execute({
       instanceHash: await this.engineServiceInstance(MarketplaceCommand.SERVICE_NAME),
@@ -76,7 +78,9 @@ export default class ServiceCompile extends Command {
         addresses
       })
     })
-    this.require(authorized, 'you have no authorized accounts. please add an authorized account in order to deploy this service')
+    if (!authorized) {
+      throw new Error('you have no authorized accounts. please add an authorized account in order to deploy this service')
+    }
     return {sid, source, type}
   }
 

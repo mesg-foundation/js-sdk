@@ -29,7 +29,9 @@ export default class MarketplacePublish extends Command {
 
     this.spinner.start('Deploy service')
     const deployedService = await ServiceCreate.run([path, '--silent'])
-    this.require(deployedService, 'Deployed service issue')
+    if (!deployedService) {
+      throw new Error('Deployed service issue')
+    }
 
     const service = await ServiceGet.run([deployedService.hash, '--silent'])
 

@@ -39,12 +39,6 @@ export default abstract class extends Command {
     return cli.action
   }
 
-  require(condition: any, errorMessage: string) {
-    if (!condition) {
-      throw new Error(errorMessage)
-    }
-  }
-
   log(message?: string, ...args: any[]): void {
     if (this.parse) {
       const {flags} = this.parse()

@@ -57,7 +57,9 @@ export default abstract class MarketplaceCommand extends Command {
       taskKey: 'list',
       inputs: JSON.stringify({})
     })
-    this.require(list.data.addresses.length > 0, 'You need to create an account first.')
+    if (!list.data.addresses.length) {
+      throw new Error('You need to create an account first.')
+    }
     if (list.data.addresses.length === 1) {
       return list.data.addresses[0]
     }
