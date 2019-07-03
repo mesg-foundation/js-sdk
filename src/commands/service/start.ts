@@ -3,8 +3,8 @@ import {InstanceCreateOutputs} from 'mesg-js/lib/api'
 
 import Command from '../../root-command'
 
-export default class InstanceCreate extends Command {
-  static description = 'Create an instance of a service'
+export default class ServiceStart extends Command {
+  static description = 'Start a service by creating a new instance'
 
   static flags = {
     ...Command.flags,
@@ -21,8 +21,8 @@ export default class InstanceCreate extends Command {
   }]
 
   async run(): InstanceCreateOutputs {
-    const {args, flags} = this.parse(InstanceCreate)
-    this.spinner.start('Create instance')
+    const {args, flags} = this.parse(ServiceStart)
+    this.spinner.start('Start service')
     const instance = await this.api.instance.create({
       serviceHash: args.SERVICE_HASH,
       env: flags.env

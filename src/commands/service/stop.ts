@@ -3,8 +3,8 @@ import cli from 'cli-ux'
 
 import Command from '../../root-command'
 
-export default class InstanceDelete extends Command {
-  static description = 'Delete an instance'
+export default class ServiceStop extends Command {
+  static description = 'Stop a service by deleting a specific instance'
 
   static flags = {
     ...Command.flags,
@@ -18,12 +18,12 @@ export default class InstanceDelete extends Command {
   static strict = false
 
   static args = [{
-    name: 'HASH',
+    name: 'INSTANCE_HASH',
     required: true,
   }]
 
   async run(): Promise<string[]> {
-    const {argv, flags} = this.parse(InstanceDelete)
+    const {argv, flags} = this.parse(ServiceStop)
     if (flags['delete-data']) {
       cli.warn('This will delete all data associated to this instance')
     }

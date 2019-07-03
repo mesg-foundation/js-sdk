@@ -3,11 +3,11 @@ import {readFileSync} from 'fs'
 import {ExecutionCreateOutputs} from 'mesg-js/lib/api'
 
 import Command from '../../root-command'
-import InstanceGet from '../instance/get'
-import ServiceGet from '../service/get'
 
-export default class ExecutionCreate extends Command {
-  static description = 'describe the command here'
+import ServiceGet from './get'
+
+export default class ServiceExecute extends Command {
+  static description = 'Execute a task on a specific service\'s instance'
 
   static flags = {
     ...Command.flags,
@@ -21,9 +21,8 @@ export default class ExecutionCreate extends Command {
   }
 
   static args = [{
-    name: 'INSTANCE',
+    name: 'INSTANCE_HASH',
     required: true,
-    description: 'Hash or Sid'
   }, {
     name: 'TASK',
     required: true,
@@ -31,24 +30,23 @@ export default class ExecutionCreate extends Command {
   }]
 
   async run(): ExecutionCreateOutputs {
-    const {args, flags} = this.parse(ExecutionCreate)
+    const {args, flags} = this.parse(ServiceExecute)
 
-    const instance = await InstanceGet.run([args.INSTANCE, '--silent'])
+    const instance = await this.api.instance.get({hash: args.INSTANCE_HASH})
     const service = await ServiceGet.run([instance.serviceHash, '--silent'])
 
     const task = service.tasks.find((x: any) => x.key === args.TASK)
     if (!task) {
-      throw new Error(`The task ${args.TASK} does not exists in the instance ${args.INSTANCE}`)
+      throw new Error(`The task ${args.TASK} does not exists in the instance ${args.INSTANCE_HASH}`)
     }
     const inputs = this.convertValue(task.inputs, this.dataFromFlags(flags))
 
     const result = await this.execute({
       inputs: JSON.stringify(inputs),
-      instanceHash: args.INSTANCE,
+      instanceHash: args.INSTANCE_HASH,
       tags: ['CLI'],
       taskKey: args.TASK
     })
-    this.log(`Result of task ${args.TASK}`)
     this.styledJSON(result)
     return result
   }

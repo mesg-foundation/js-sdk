@@ -11,7 +11,7 @@ export interface Log {
   data: Buffer
 }
 
-export default class InstanceLogs extends Command {
+export default class ServiceLogs extends Command {
   static description = 'Show logs of a service'
 
   static flags = {
@@ -49,27 +49,27 @@ export default class InstanceLogs extends Command {
   }
 
   static args = [{
-    name: 'HASH',
+    name: 'INSTANCE_HASH',
     required: true,
   }]
 
   private readonly docker: Docker = new Docker(null)
 
   async run() {
-    const {args, flags} = this.parse(InstanceLogs)
+    const {args, flags} = this.parse(ServiceLogs)
 
     const dockerServices = await this.docker.service.list({
       filters: {
-        label: [`mesg.hash=${args.HASH}`]
+        label: [`mesg.hash=${args.INSTANCE_HASH}`]
       }
     })
     for (const service of dockerServices) {
-      const logs = await service.logs({
+      const logs = (await service.logs({
         stderr: true,
         stdout: true,
         follow: flags.follow,
         tail: flags.tail && flags.tail >= 0 ? flags.tail : 'all'
-      })
+      }) as any)
       logs
         .on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => this.log(x)))
         .on('error', (error: Error) => { throw error })
@@ -78,7 +78,7 @@ export default class InstanceLogs extends Command {
     if (flags.results) {
       this.api.execution.stream({
         filter: {
-          instanceHash: args.HASH,
+          instanceHash: args.INSTANCE_HASH,
           statuses: [
             ExecutionStatus.COMPLETED,
             ExecutionStatus.FAILED,
@@ -93,7 +93,7 @@ export default class InstanceLogs extends Command {
     if (flags.events) {
       this.api.event.stream({
         filter: {
-          instanceHash: args.HASH,
+          instanceHash: args.INSTANCE_HASH,
           key: flags.event,
         }
       })
