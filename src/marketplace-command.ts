@@ -35,7 +35,7 @@ export default abstract class MarketplaceCommand extends Command {
   static SERVICE_NAME = 'Marketplace'
 
   async sign(account: string, data: any, passphrase: string) {
-    const res = await this.execute({
+    return this.execute({
       instanceHash: await this.engineServiceInstance(WithoutPassphrase.SERVICE_NAME),
       taskKey: 'sign',
       inputs: JSON.stringify({
@@ -44,7 +44,6 @@ export default abstract class MarketplaceCommand extends Command {
         transaction: data,
       })
     })
-    return res.data
   }
 
   async getAccount(): Promise<string> {
@@ -52,22 +51,22 @@ export default abstract class MarketplaceCommand extends Command {
     if (flags.account) {
       return flags.account
     }
-    const list = await this.execute({
+    const {addresses} = await this.execute({
       instanceHash: await this.engineServiceInstance(WithoutPassphrase.SERVICE_NAME),
       taskKey: 'list',
       inputs: JSON.stringify({})
     })
-    if (!list.data.addresses.length) {
+    if (!addresses.length) {
       throw new Error('You need to create an account first.')
     }
-    if (list.data.addresses.length === 1) {
-      return list.data.addresses[0]
+    if (addresses.length === 1) {
+      return addresses[0]
     }
     const {account} = (await prompt({
       type: 'list',
       name: 'account',
       message: 'Choose the account to use to publish your service',
-      choices: list.data.addresses
+      choices: addresses
     })) as { account: string }
     return account
   }

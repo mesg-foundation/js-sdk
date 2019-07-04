@@ -31,7 +31,7 @@ export default class MarketplaceCreateOffer extends Command {
     this.spinner.start('Creating offer')
     const prepareOffer = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
-      taskKey: 'preparePublishServiceVersion',
+      taskKey: 'prepareCreateServiceOffer',
       inputs: JSON.stringify({
         sid: args.SID,
         price: flags.price,
@@ -39,7 +39,7 @@ export default class MarketplaceCreateOffer extends Command {
         from: account,
       })
     })
-    const signedTx = await this.sign(account, prepareOffer.data, passphrase)
+    const signedTx = await this.sign(account, prepareOffer, passphrase)
     const offer = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'publishCreateServiceOffer',
@@ -47,7 +47,7 @@ export default class MarketplaceCreateOffer extends Command {
     })
     this.spinner.stop('Offer created')
 
-    this.styledJSON(offer.data)
-    return offer.data
+    this.styledJSON(offer)
+    return offer
   }
 }

@@ -3,11 +3,9 @@ import {readdirSync, readFileSync} from 'fs'
 import {join} from 'path'
 
 import Command from '../../marketplace-command'
-import {createTar} from '../../utils/deployer'
+import ServiceCompile from '../service/compile'
 import ServiceCreate from '../service/create'
 import ServiceGet from '../service/get'
-
-const ipfsClient = require('ipfs-http-client')
 
 export default class MarketplacePublish extends Command {
   static description = 'Publish a service on the MESG Marketplace'
@@ -19,34 +17,27 @@ export default class MarketplacePublish extends Command {
     default: './'
   }]
 
-  private readonly IPFS = ipfsClient('ipfs.app.mesg.com', '5001', {protocol: 'http'})
-
   async run() {
     const {args} = this.parse(MarketplacePublish)
     const path = args.SERVICE_PATH
 
     const account = await this.getAccount()
 
-    this.spinner.start('Deploy service')
-    const deployedService = await ServiceCreate.run([path, '--silent'])
-    if (!deployedService) {
-      throw new Error('Deployed service issue')
-    }
+    this.spinner.start('Compile service')
+    const compiledService = await ServiceCompile.run([path, '--silent'])
 
-    const service = await ServiceGet.run([deployedService.hash, '--silent'])
-
-    this.spinner.status = 'Upload sources'
-    const sources = await this.deploySources(path)
+    const createResponse = await ServiceCreate.run([JSON.stringify(compiledService), '--silent'])
+    const definition = await ServiceGet.run([createResponse.hash, '--silent'])
 
     this.spinner.status = 'Preparing service'
     const serviceTx = await this.preparePublishService({
-      definition: service.definition,
+      definition,
       readme: this.lookupReadme(path),
-      hash: service.definition.hash,
+      hash: definition.hash,
       hashVersion: '1',
       deployment: {
         type: 'ipfs',
-        source: sources
+        source: definition.source
       }
     }, account)
     this.spinner.stop('ready')
@@ -62,37 +53,24 @@ export default class MarketplacePublish extends Command {
     return marketplaceService
   }
 
-  async deploySources(path: string): Promise<string> {
-    const buffer: any[] = []
-    return new Promise<string>((resolve, reject) => {
-      createTar(join(path))
-        .on('data', (data: any) => buffer.push(...data))
-        .once('error', reject)
-        .on('end', async () => resolve(await this.upload(Buffer.from(buffer)))
-        )
-    })
-  }
-
   async preparePublishService(service: any, account: string): Promise<any> {
-    const publishTx = await this.execute({
+    return this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
-      taskKey: 'prepareCreateVersion',
+      taskKey: 'preparePublishServiceVersion',
       inputs: JSON.stringify({
         service,
         from: account
       })
     })
-    return publishTx.data
   }
 
   async publishService(account: string, serviceTx: any, passphrase: string): Promise<any> {
     const signedTx = await this.sign(account, serviceTx, passphrase)
-    const service = await this.execute({
+    return this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
-      taskKey: 'publishCreateVersion',
+      taskKey: 'publishPublishServiceVersion',
       inputs: JSON.stringify(signedTx)
     })
-    return service.data
   }
 
   private lookupReadme(path: string): string {
@@ -102,13 +80,5 @@ export default class MarketplacePublish extends Command {
       return ''
     }
     return readFileSync(join(path, readme)).toString()
-  }
-
-  private async upload(buffer: Buffer): Promise<string> {
-    const res = await this.IPFS.add(Buffer.from(buffer), {pin: true})
-    if (!res.length) {
-      throw new Error('Error with the generation of your manifest')
-    }
-    return res[0].hash
   }
 }
