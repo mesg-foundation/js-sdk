@@ -1,27 +1,32 @@
 import cli from 'cli-ux'
+import {Instance} from 'mesg-js/lib/api'
 
-import Command, {Service} from '../../service-command'
+import Command from '../../root-command'
 
 export default class ServiceList extends Command {
-  static description = 'List all deployed services'
-
-  static aliases = ['service:ls']
+  static description = 'List all instances'
 
   static flags = {
     ...Command.flags,
     ...cli.table.flags()
   }
 
-  async run(): Promise<Service[]> {
+  async run(): Promise<Instance[]> {
     const {flags} = this.parse(ServiceList)
-    const services = (await this.unaryCall('ListServices')).services as Service[]
+    const {services} = await this.api.service.list({})
+    const {instances} = await this.api.instance.list({})
     if (!services) return []
     cli.table(services, {
-      hash: {header: 'HASH', get: x => x.definition.hash},
-      sid: {header: 'SID', get: x => x.definition.sid},
-      name: {header: 'NAME', get: x => x.definition.name},
-      status: {header: 'STATUS', get: x => this.status(x.status)}
+      hash: {header: 'HASH', get: x => x.hash},
+      sid: {header: 'SID', get: x => x.sid},
+      instances: {
+        header: 'INSTANCES',
+        get: x => (instances || [])
+          .filter(y => y.serviceHash === x.hash)
+          .map(x => x.hash)
+          .join('\n')
+      }
     }, {printLine: this.log, ...flags})
-    return services
+    return instances
   }
 }

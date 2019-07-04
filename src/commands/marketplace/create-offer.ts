@@ -1,7 +1,6 @@
 import {flags} from '@oclif/command'
 
 import Command from '../../marketplace-command'
-import services from '../../services'
 
 export default class MarketplaceCreateOffer extends Command {
   static description = 'Create a new offer on a service on the MESG Marketplace'
@@ -30,14 +29,22 @@ export default class MarketplaceCreateOffer extends Command {
     const account = await this.getAccount()
     const passphrase = await this.getPassphrase()
     this.spinner.start('Creating offer')
-    const prepareOffer = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.prepareCreateOffer, {
-      sid: args.SID,
-      price: flags.price,
-      duration: flags.duration,
-      from: account,
+    const prepareOffer = await this.execute({
+      instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
+      taskKey: 'preparePublishServiceVersion',
+      inputs: JSON.stringify({
+        sid: args.SID,
+        price: flags.price,
+        duration: flags.duration,
+        from: account,
+      })
     })
     const signedTx = await this.sign(account, prepareOffer.data, passphrase)
-    const offer = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.publishCreateOffer, signedTx)
+    const offer = await this.execute({
+      instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
+      taskKey: 'publishCreateServiceOffer',
+      inputs: JSON.stringify(signedTx)
+    })
     this.spinner.stop('Offer created')
 
     this.styledJSON(offer.data)

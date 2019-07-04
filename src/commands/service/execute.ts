@@ -1,15 +1,13 @@
 import {flags} from '@oclif/command'
 import {readFileSync} from 'fs'
+import {ExecutionCreateOutputs} from 'mesg-js/lib/api'
 
-import {ExecutionResult} from '../../root-command'
-import Command, {Service, SERVICE_PARAMETER_TYPE} from '../../service-command'
+import Command from '../../root-command'
 
-import Detail from './detail'
+import ServiceGet from './get'
 
 export default class ServiceExecute extends Command {
-  static description = 'describe the command here'
-
-  static aliases = ['service:exec']
+  static description = 'Execute a task on a specific service\'s instance'
 
   static flags = {
     ...Command.flags,
@@ -18,39 +16,42 @@ export default class ServiceExecute extends Command {
       char: 'd',
       description: 'data required to run the task',
       multiple: true,
-      helpValue: 'FOO=BAR'
+      helpValue: 'key=value'
     }),
   }
 
   static args = [{
-    name: 'SERVICE',
+    name: 'INSTANCE_HASH',
     required: true,
-    description: 'Hash or Sid'
   }, {
     name: 'TASK',
     required: true,
     description: 'Task key'
   }]
 
-  async run(): Promise<ExecutionResult | null> {
+  async run(): ExecutionCreateOutputs {
     const {args, flags} = this.parse(ServiceExecute)
 
-    const service = (await Detail.run([args.SERVICE, '--silent']))[0] as Service
+    const instance = await this.api.instance.get({hash: args.INSTANCE_HASH})
+    const service = await ServiceGet.run([instance.serviceHash, '--silent'])
 
-    const task = service.definition.tasks.find((x: any) => x.key === args.TASK)
+    const task = service.tasks.find((x: any) => x.key === args.TASK)
     if (!task) {
-      this.error(`The task ${args.TASK} does not exists in the service ${args.SERVICE}`)
-      return null
+      throw new Error(`The task ${args.TASK} does not exists in the instance ${args.INSTANCE_HASH}`)
     }
     const inputs = this.convertValue(task.inputs, this.dataFromFlags(flags))
 
-    const result = await this.executeAndCaptureError(service.definition.hash, args.TASK, inputs)
-    this.log(`Result of task ${args.TASK}`)
-    this.styledJSON(result.data)
+    const result = await this.execute({
+      inputs: JSON.stringify(inputs),
+      instanceHash: args.INSTANCE_HASH,
+      tags: ['CLI'],
+      taskKey: args.TASK
+    })
+    this.styledJSON(result)
     return result
   }
 
-  dataFromFlags(flags: {data: string[], json: string | undefined}): any {
+  dataFromFlags(flags: { data: string[], json: string | undefined }): any {
     if (flags.json) {
       return JSON.parse(readFileSync(flags.json).toString())
     }
@@ -73,7 +74,7 @@ export default class ServiceExecute extends Command {
       }), {})
   }
 
-  convert(type: SERVICE_PARAMETER_TYPE, value: string | any): any {
+  convert(type: 'Object' | 'String' | 'Boolean' | 'Number' | 'Any', value: string | any): any {
     try {
       return {
         Object: (x: string | any) => typeof x === 'string' ? JSON.parse(x) : x,

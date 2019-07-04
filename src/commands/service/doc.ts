@@ -4,7 +4,7 @@ import {compile, registerHelper} from 'handlebars'
 import {safeLoad} from 'js-yaml'
 import {join} from 'path'
 
-import Command from '../../service-command'
+import Command from '../../root-command'
 
 export default class ServiceDoc extends Command {
   static description = 'Generate the documentation for the service in a README.md file'

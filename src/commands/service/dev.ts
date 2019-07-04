@@ -1,17 +1,19 @@
-import Command, {ServiceID} from '../../service-command'
+import Command from '../../root-command'
 
+import ServiceCompile from './compile'
+import ServiceCreate from './create'
 import ServiceDelete from './delete'
-import ServiceDeploy from './deploy'
-import ServiceLog, {Log} from './logs'
+import InstanceLog from './logs'
 import ServiceStart from './start'
+import ServiceStop from './stop'
 
 export default class ServiceDev extends Command {
   static description = 'Run your service in development mode'
 
   static flags = {
     ...Command.flags,
-    ...ServiceLog.flags,
-    ...ServiceDeploy.flags
+    ...ServiceCreate.flags,
+    ...ServiceStart.flags,
   }
 
   static args = [{
@@ -20,22 +22,19 @@ export default class ServiceDev extends Command {
     default: './'
   }]
 
-  async run(): Promise<Log> {
+  async run() {
     const {args, flags} = this.parse(ServiceDev)
 
-    const envs = (flags.env || []).reduce((prev, value) => [
-      ...prev,
-      '--env',
-      value
-    ], [] as string[])
-    const services = (await ServiceDeploy.run([args.SERVICE_PATH, ...envs])) as ServiceID[]
-    const hashes = services.map(x => x.hash)
-    await ServiceStart.run(hashes)
-    const stream = await ServiceLog.run(hashes)
+    const definition = await ServiceCompile.run([args.SERVICE_PATH, '--silent'])
+    const service = await ServiceCreate.run([JSON.stringify(definition)])
+    const envs = (flags.env || []).reduce((prev, value) => [...prev, '--env', value], [] as string[])
+    const instance = await ServiceStart.run([service.hash, ...envs])
+    const stream = await InstanceLog.run([instance.hash])
 
     process.on('SIGINT', async () => {
       try {
-        await ServiceDelete.run([...hashes, '--keep-data', '--confirm'])
+        await ServiceStop.run([instance.hash, '--keep-data', '--confirm'])
+        await ServiceDelete.run([service.hash, '--confirm'])
       } finally {
         process.exit(0)
       }

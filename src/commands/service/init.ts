@@ -4,8 +4,8 @@ import {renameSync} from 'fs'
 import {prompt} from 'inquirer'
 import {join} from 'path'
 
-import deployer from '../../deployer'
-import Command from '../../service-command'
+import Command from '../../root-command'
+import deployer from '../../utils/deployer'
 
 const templatesURL = 'https://raw.githubusercontent.com/mesg-foundation/awesome/master/templates.json'
 
@@ -54,7 +54,7 @@ export default class ServiceInit extends Command {
         value: x.name,
         short: x.name
       }))
-    })) as {value: string}
+    })) as { value: string }
 
     const selectedTemplate = templates.find(x => x.name === value)
     if (!selectedTemplate) {

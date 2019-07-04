@@ -132,11 +132,4 @@ export default abstract class extends Command {
       }
     })
   }
-
-  parseLog(buffer: Buffer): string[] {
-    return buffer.toString()
-      .split('\n')
-      .map(x => x.substring(8)) // Skip the 8 caracters that docker put in front of its logs
-      .filter(x => x)
-  }
 }

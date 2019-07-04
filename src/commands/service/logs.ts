@@ -1,94 +1,116 @@
 import {flags} from '@oclif/command'
 import chalk from 'chalk'
-import {Stream} from 'mesg-js/lib/service'
+import {Event, Execution, ExecutionStatus} from 'mesg-js/lib/api'
+import {Docker} from 'node-docker-api'
 
-import Command from '../../service-command'
+import Command from '../../root-command'
+import {parseLog} from '../../utils/docker'
 
 export interface Log {
   dependency: string
   data: Buffer
 }
 
-export default class ServiceLog extends Command {
+export default class ServiceLogs extends Command {
   static description = 'Show logs of a service'
 
   static flags = {
     ...Command.flags,
-    dependency: flags.string({
-      char: 'd',
-      description: 'Name of the dependency to show the logs from',
-      multiple: true
+    // dependency: flags.string({
+    //   char: 'd',
+    //   description: 'Name of the dependency to show the logs from',
+    //   multiple: true
+    // }),
+    events: flags.boolean({
+      description: 'Don\'t display events',
+      allowNo: true,
+      default: true
     }),
-    'no-events': flags.boolean({
-      description: 'Remove events from the logs'
-    }),
-    'no-results': flags.boolean({
-      description: 'Remove results from the logs'
+    results: flags.boolean({
+      description: 'Don\'t display results',
+      allowNo: true,
+      default: true
     }),
     event: flags.string({
-      description: 'Filter specific events in the logs',
-      multiple: true
+      description: 'Only display a specific event'
     }),
     task: flags.string({
-      description: 'Filter specific task results in the logs',
-      multiple: true
+      description: 'Only display a specific task results'
+    }),
+    tail: flags.integer({
+      description: 'Output only specified number of lines',
+      default: -1
+    }),
+    follow: flags.boolean({
+      description: 'Continuously display logs',
+      allowNo: true,
+      default: true
     })
   }
 
   static args = [{
-    name: 'SERVICE',
+    name: 'INSTANCE_HASH',
     required: true,
-    description: 'Hash or Sid'
   }]
 
-  async run(): Promise<Stream<Log>> {
-    const {args, flags} = this.parse(ServiceLog)
-    const stream = this.mesg.api.ServiceLogs({
-      serviceID: args.SERVICE,
-      dependencies: flags.dependency,
-    }) as Stream<Log>
-    stream.on('data', response => {
-      const dependency = response.dependency
-      this.log(chalk.yellow(dependency + ' | '), response.data.toString().replace('\n', ''))
-    })
-    stream.on('error', (error: Error) => {
-      throw error
-    })
+  private readonly docker: Docker = new Docker(null)
 
-    if (!flags['no-results']) {
-      const tasks = flags.task || []
-      this.mesg.api.ListenResult({serviceID: args.SERVICE})
-        .on('data', (data: any) => {
-          if (tasks.length > 0 && !tasks.includes(data.taskKey)) return
-          this.log(this.formatResult(data))
-        })
-        .on('error', (error: Error) => {
-          throw error
-        })
+  async run() {
+    const {args, flags} = this.parse(ServiceLogs)
+
+    const dockerServices = await this.docker.service.list({
+      filters: {
+        label: [`mesg.hash=${args.INSTANCE_HASH}`]
+      }
+    })
+    for (const service of dockerServices) {
+      const logs = (await service.logs({
+        stderr: true,
+        stdout: true,
+        follow: flags.follow,
+        tail: flags.tail && flags.tail >= 0 ? flags.tail : 'all'
+      }) as any)
+      logs
+        .on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => this.log(x)))
+        .on('error', (error: Error) => { throw error })
     }
 
-    if (!flags['no-events']) {
-      const events = flags.event || []
-      this.mesg.api.ListenEvent({serviceID: args.SERVICE})
-        .on('data', (data: any) => {
-          if (events.length > 0 && !events.includes(data.evenKey)) return
-          this.log(this.formatEvent(data))
-        })
-        .on('error', (error: Error) => {
-          throw error
-        })
+    if (flags.results) {
+      this.api.execution.stream({
+        filter: {
+          instanceHash: args.INSTANCE_HASH,
+          statuses: [
+            ExecutionStatus.COMPLETED,
+            ExecutionStatus.FAILED,
+          ],
+          taskKey: flags.task
+        }
+      })
+        .on('data', data => this.log(this.formatResult(data)))
+        .on('error', (error: Error) => { throw error })
     }
 
-    return stream
+    if (flags.events) {
+      this.api.event.stream({
+        filter: {
+          instanceHash: args.INSTANCE_HASH,
+          key: flags.event,
+        }
+      })
+        .on('data', (data: any) => this.log(this.formatEvent(data)))
+        .on('error', (error: Error) => { throw error })
+    }
+
+    // return stream
   }
 
-  formatEvent(event: any) {
-    return `EVENT[${event.eventKey}]: ` + chalk.gray(event.eventData)
+  formatEvent(event: Event) {
+    return `EVENT[${event.key}]: ` + chalk.gray(event.data)
   }
-  formatResult(result: any) {
-    if (result.error) {
-      return `RESULT[${result.taskKey}]: ` + chalk.red('ERROR:', result.error)
+  formatResult(execution: Execution) {
+    if (execution.error) {
+      return `RESULT[${execution.taskKey}]: ` + chalk.red('ERROR:', execution.error)
     }
-    return `RESULT[${result.taskKey}]: ` + chalk.gray(result.outputData)
+    return `RESULT[${execution.taskKey}]: ` + chalk.gray(execution.outputs || '')
   }
 }

@@ -1,7 +1,7 @@
 import {flags} from '@oclif/command'
 
 import Command from '../../docker-command'
-import version from '../../version';
+import version from '../../version'
 
 import Status, {ServiceStatus} from './status'
 

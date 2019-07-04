@@ -1,5 +1,4 @@
 import {WithPassphrase as Command} from '../../account-command'
-import services from '../../services'
 
 export default class AccountImport extends Command {
   static description = 'Import a account'
@@ -14,9 +13,13 @@ export default class AccountImport extends Command {
     const {args} = this.parse(AccountImport)
 
     this.spinner.start('Import account')
-    const {data} = await this.executeAndCaptureError(services.account.id, services.account.tasks.import, {
-      passphrase: await this.getPassphrase(),
-      account: JSON.parse(args.ACCOUNT),
+    const data = await this.execute({
+      instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
+      taskKey: 'import',
+      inputs: JSON.stringify({
+        passphrase: await this.getPassphrase(),
+        account: JSON.parse(args.ACCOUNT),
+      })
     })
     this.spinner.stop(data.address)
     return data

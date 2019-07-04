@@ -1,28 +1,33 @@
-import Command from '../../service-command'
+import {flags} from '@oclif/command'
+import {InstanceCreateOutputs} from 'mesg-js/lib/api'
+
+import Command from '../../root-command'
 
 export default class ServiceStart extends Command {
-  static description = 'Start a service'
+  static description = 'Start a service by creating a new instance'
 
   static flags = {
     ...Command.flags,
+    env: flags.string({
+      description: 'set env defined in mesg.yml (configuration.env)',
+      multiple: true,
+      helpValue: 'FOO=BAR'
+    })
   }
 
-  static strict = false
-
   static args = [{
-    name: 'SERVICE',
+    name: 'SERVICE_HASH',
     required: true,
-    description: 'Hash or Sid'
   }]
 
-  async run(): Promise<string[]> {
-    const {argv} = this.parse(ServiceStart)
+  async run(): InstanceCreateOutputs {
+    const {args, flags} = this.parse(ServiceStart)
     this.spinner.start('Start service')
-    for (const arg of argv) {
-      this.spinner.status = arg
-      await this.unaryCall('StartService', {serviceID: arg})
-    }
-    this.spinner.stop(argv.join(', '))
-    return argv
+    const instance = await this.api.instance.create({
+      serviceHash: args.SERVICE_HASH,
+      env: flags.env
+    })
+    this.spinner.stop(instance.hash)
+    return instance
   }
 }

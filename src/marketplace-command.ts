@@ -2,8 +2,8 @@ import {flags} from '@oclif/command'
 import {cli} from 'cli-ux'
 import {prompt} from 'inquirer'
 
+import {WithoutPassphrase} from './account-command'
 import Command from './root-command'
-import services from './services'
 
 export interface Manifest {
   version: 1
@@ -32,11 +32,17 @@ export default abstract class MarketplaceCommand extends Command {
     })
   }
 
+  static SERVICE_NAME = 'Marketplace'
+
   async sign(account: string, data: any, passphrase: string) {
-    const res = await this.executeAndCaptureError(services.account.id, services.account.tasks.sign, {
-      passphrase,
-      address: account,
-      transaction: data,
+    const res = await this.execute({
+      instanceHash: await this.engineServiceInstance(WithoutPassphrase.SERVICE_NAME),
+      taskKey: 'sign',
+      inputs: JSON.stringify({
+        passphrase,
+        address: account,
+        transaction: data,
+      })
     })
     return res.data
   }
@@ -46,8 +52,14 @@ export default abstract class MarketplaceCommand extends Command {
     if (flags.account) {
       return flags.account
     }
-    const list = await this.executeAndCaptureError(services.account.id, services.account.tasks.list)
-    this.require(list.data.addresses.length > 0, 'You need to create an account first.')
+    const list = await this.execute({
+      instanceHash: await this.engineServiceInstance(WithoutPassphrase.SERVICE_NAME),
+      taskKey: 'list',
+      inputs: JSON.stringify({})
+    })
+    if (!list.data.addresses.length) {
+      throw new Error('You need to create an account first.')
+    }
     if (list.data.addresses.length === 1) {
       return list.data.addresses[0]
     }
@@ -56,7 +68,7 @@ export default abstract class MarketplaceCommand extends Command {
       name: 'account',
       message: 'Choose the account to use to publish your service',
       choices: list.data.addresses
-    })) as {account: string}
+    })) as { account: string }
     return account
   }
 

@@ -3,10 +3,9 @@ import {readdirSync, readFileSync} from 'fs'
 import {join} from 'path'
 
 import Command from '../../marketplace-command'
-import {Service, ServiceID} from '../../service-command'
-import services from '../../services'
-import ServiceDeploy from '../service/deploy'
-import ServiceDetail from '../service/detail'
+import {createTar} from '../../utils/deployer'
+import ServiceCreate from '../service/create'
+import ServiceGet from '../service/get'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -29,10 +28,12 @@ export default class MarketplacePublish extends Command {
     const account = await this.getAccount()
 
     this.spinner.start('Deploy service')
-    const [deployedService] = (await ServiceDeploy.run([path, '--silent'])) as ServiceID[]
-    this.require(deployedService, 'Deployed service issue')
+    const deployedService = await ServiceCreate.run([path, '--silent'])
+    if (!deployedService) {
+      throw new Error('Deployed service issue')
+    }
 
-    const [service] = (await ServiceDetail.run([deployedService.hash, '--silent'])) as Service[]
+    const service = await ServiceGet.run([deployedService.hash, '--silent'])
 
     this.spinner.status = 'Upload sources'
     const sources = await this.deploySources(path)
@@ -62,10 +63,9 @@ export default class MarketplacePublish extends Command {
   }
 
   async deploySources(path: string): Promise<string> {
-    const cmd = new ServiceDeploy(this.argv, this.config)
     const buffer: any[] = []
     return new Promise<string>((resolve, reject) => {
-      cmd.createTar(join(path))
+      createTar(join(path))
         .on('data', (data: any) => buffer.push(...data))
         .once('error', reject)
         .on('end', async () => resolve(await this.upload(Buffer.from(buffer)))
@@ -74,16 +74,24 @@ export default class MarketplacePublish extends Command {
   }
 
   async preparePublishService(service: any, account: string): Promise<any> {
-    const publishTx = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.prepareCreateVersion, {
-      service,
-      from: account
+    const publishTx = await this.execute({
+      instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
+      taskKey: 'prepareCreateVersion',
+      inputs: JSON.stringify({
+        service,
+        from: account
+      })
     })
     return publishTx.data
   }
 
   async publishService(account: string, serviceTx: any, passphrase: string): Promise<any> {
     const signedTx = await this.sign(account, serviceTx, passphrase)
-    const service = await this.executeAndCaptureError(services.marketplace.id, services.marketplace.tasks.publishCreateVersion, signedTx)
+    const service = await this.execute({
+      instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
+      taskKey: 'publishCreateVersion',
+      inputs: JSON.stringify(signedTx)
+    })
     return service.data
   }
 

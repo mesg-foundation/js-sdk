@@ -1,9 +1,12 @@
 import {readFileSync} from 'fs'
 import yaml from 'js-yaml'
+import {Service} from 'mesg-js/lib/api'
 import {join} from 'path'
 
-import deployer from '../../deployer'
-import Command, {CompiledDefinition, Parameter} from '../../service-command'
+import {WithoutPassphrase} from '../../account-command'
+import MarketplaceCommand from '../../marketplace-command'
+import Command from '../../root-command'
+import deployer from '../../utils/deployer'
 import MarketplacePublish from '../marketplace/publish'
 
 export default class ServiceCompile extends Command {
@@ -19,9 +22,7 @@ export default class ServiceCompile extends Command {
     default: './'
   }]
 
-  static hidden = true
-
-  async run(): Promise<CompiledDefinition> {
+  async run(): Promise<Service> {
     const {args} = this.parse(ServiceCompile)
     this.spinner.status = 'Download sources'
     const path = await deployer(await this.processUrl(args.SERVICE_PATH_OR_URL))
@@ -32,9 +33,9 @@ export default class ServiceCompile extends Command {
     return definition
   }
 
-  parseYml(content: string, source: string): CompiledDefinition {
+  parseYml(content: string, source: string): Service {
     const o = yaml.safeLoad(content)
-    const parseParams = (params: any): Parameter[] => Object.keys(params || {})
+    const parseParams = (params: any): any => Object.keys(params || {})
       .map((key: string) => {
         const {name, description, type, repeated, optional, object} = params[key]
         return {key, name, description, type, repeated, optional, object: parseParams(object || {})}
@@ -56,6 +57,31 @@ export default class ServiceCompile extends Command {
       repository: o.repository,
       source
     }
+  }
+
+  async getAuthorizedServiceInfo(id: string, versionHash: string): Promise<{ sid: string, source: string, type: string }> {
+    const {addresses} = await this.execute({
+      instanceHash: await this.engineServiceInstance(WithoutPassphrase.SERVICE_NAME),
+      taskKey: 'list',
+      inputs: JSON.stringify({})
+    })
+    if (!addresses.length) {
+      throw new Error('you have no accounts. please add an authorized account in order to deploy this service')
+    }
+
+    const {authorized, sid, source, type} = await this.execute({
+      instanceHash: await this.engineServiceInstance(MarketplaceCommand.SERVICE_NAME),
+      taskKey: 'isAuthorized',
+      inputs: JSON.stringify({
+        id,
+        versionHash,
+        addresses
+      })
+    })
+    if (!authorized) {
+      throw new Error('you have no authorized accounts. please add an authorized account in order to deploy this service')
+    }
+    return {sid, source, type}
   }
 
   async processUrl(url: string): Promise<string> {
