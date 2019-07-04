@@ -6,7 +6,7 @@ export default class AccountImport extends Command {
   static flags = {
     ...Command.flags,
   }
-  
+
   static args = [{
     name: 'ACCOUNT',
     description: 'Account saved from a previous account',

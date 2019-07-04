@@ -6,7 +6,7 @@ export default class AccountImportPK extends Command {
   static flags = {
     ...Command.flags,
   }
-  
+
   static args = [{
     name: 'PRIVATE_KEY',
     description: 'Private key for your account',
