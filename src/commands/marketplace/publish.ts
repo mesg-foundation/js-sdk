@@ -5,7 +5,7 @@ import {join} from 'path'
 import Command from '../../marketplace-command'
 import ServiceCompile from '../service/compile'
 import ServiceCreate from '../service/create'
-import ServiceGet from '../service/get'
+import ServiceDetail from '../service/detail'
 
 export default class MarketplacePublish extends Command {
   static description = 'Publish a service on the MESG Marketplace'
@@ -27,7 +27,7 @@ export default class MarketplacePublish extends Command {
     const compiledService = await ServiceCompile.run([path, '--silent'])
 
     const createResponse = await ServiceCreate.run([JSON.stringify(compiledService), '--silent'])
-    const definition = await ServiceGet.run([createResponse.hash, '--silent'])
+    const definition = await ServiceDetail.run([createResponse.hash, '--silent'])
 
     this.spinner.status = 'Preparing service'
     const serviceTx = await this.preparePublishService({
