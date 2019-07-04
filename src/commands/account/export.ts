@@ -3,6 +3,10 @@ import {WithPassphrase as Command} from '../../account-command'
 export default class AccountExport extends Command {
   static description = 'Export an existing account'
 
+  static flags = {
+    ...Command.flags,
+  }
+  
   static args = [{
     name: 'ADDRESS',
     required: true

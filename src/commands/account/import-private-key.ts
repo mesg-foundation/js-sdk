@@ -3,6 +3,10 @@ import {WithPassphrase as Command} from '../../account-command'
 export default class AccountImportPK extends Command {
   static description = 'Import a account from a private key'
 
+  static flags = {
+    ...Command.flags,
+  }
+  
   static args = [{
     name: 'PRIVATE_KEY',
     description: 'Private key for your account',

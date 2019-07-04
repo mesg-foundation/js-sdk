@@ -3,6 +3,10 @@ import {WithPassphrase as Command} from '../../account-command'
 export default class AccountDelete extends Command {
   static description = 'Delete an existing account'
 
+  static flags = {
+    ...Command.flags,
+  }
+  
   static args = [{
     name: 'ADDRESS',
     required: true
