@@ -3,6 +3,10 @@ import {WithPassphrase as Command} from '../../account-command'
 export default class AccountCreate extends Command {
   static description = 'Create a new account'
 
+  static flags = {
+    ...Command.flags,
+  }
+
   async run() {
     this.spinner.start('Create account')
     const data = await this.execute({
