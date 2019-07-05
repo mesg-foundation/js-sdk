@@ -36,7 +36,7 @@ export default class ServiceDev extends Command {
         await ServiceStop.run([instance.hash])
         await ServiceDelete.run([service.hash, '--confirm'])
       } catch (error) {
-        console.error(error)
+        this.error(error)
       } finally {
         process.exit(0)
       }
