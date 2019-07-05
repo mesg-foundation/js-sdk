@@ -12,7 +12,11 @@ export default class ServiceStop extends Command {
       description: 'Delete instances\' persistent data',
       default: false,
     }),
-    confirm: flags.boolean({description: 'Confirm delete', default: false})
+    confirm: flags.boolean({
+      description: 'Confirm delete',
+      default: false,
+      dependsOn: ['delete-data']
+    })
   }
 
   static strict = false
@@ -24,10 +28,10 @@ export default class ServiceStop extends Command {
 
   async run(): Promise<string[]> {
     const {argv, flags} = this.parse(ServiceStop)
-    if (flags['delete-data']) {
+    if (flags['delete-data'] && !flags.confirm) {
       cli.warn('This will delete all data associated to this instance')
+      if (!await cli.confirm('Are you sure?')) return []
     }
-    if (!flags.confirm && !await cli.confirm('Are you sure?')) return []
     this.spinner.start('Delete instance')
     for (const hash of argv) {
       this.spinner.status = hash
