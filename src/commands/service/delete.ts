@@ -16,7 +16,7 @@ export default class ServiceDelete extends Command {
   static strict = false
 
   static args = [{
-    name: 'SERVICE_HASH',
+    name: 'SERVICE_HASH...',
     required: true,
   }]
 

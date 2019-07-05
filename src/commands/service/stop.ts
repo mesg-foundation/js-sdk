@@ -18,7 +18,7 @@ export default class ServiceStop extends Command {
   static strict = false
 
   static args = [{
-    name: 'INSTANCE_HASH',
+    name: 'INSTANCE_HASH...',
     required: true,
   }]
 
