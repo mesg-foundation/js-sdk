@@ -10,6 +10,10 @@ import ServiceDetail from '../service/detail'
 export default class MarketplacePublish extends Command {
   static description = 'Publish a service on the MESG Marketplace'
 
+  static flags = {
+    ...Command.flags
+  }
+
   static args = [{
     name: 'SERVICE_PATH',
     description: 'Path of the service',
