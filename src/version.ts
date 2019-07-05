@@ -1,3 +1,3 @@
 export default {
-  engine: 'v0.10.1'
+  engine: 'v0.11.0'
 }
