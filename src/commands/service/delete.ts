@@ -6,8 +6,6 @@ import Command from '../../root-command'
 export default class ServiceDelete extends Command {
   static description = 'Delete one or many services'
 
-  static aliases = ['service:rm', 'service:destroy']
-
   static flags = {
     ...Command.flags,
     confirm: flags.boolean({description: 'Confirm delete', default: false})
@@ -16,7 +14,7 @@ export default class ServiceDelete extends Command {
   static strict = false
 
   static args = [{
-    name: 'SERVICE_HASH',
+    name: 'SERVICE_HASH...',
     required: true,
   }]
 
