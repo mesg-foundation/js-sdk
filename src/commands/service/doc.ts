@@ -9,8 +9,6 @@ import Command from '../../root-command'
 export default class ServiceDoc extends Command {
   static description = 'Generate the documentation for the service in a README.md file'
 
-  static aliases = ['service:doc', 'service:docs']
-
   static flags = {
     ...Command.flags,
     save: flags.boolean({char: 's', description: 'Save to default readme file'}),

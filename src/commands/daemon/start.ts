@@ -16,16 +16,16 @@ export default class Start extends Command {
       default: version.engine
     }),
     'log-force-colors': flags.boolean({
-      description: 'log force colors',
+      description: 'Log force colors',
       default: false
     }),
     'log-format': flags.enum({
-      description: 'log format',
+      description: 'Log format',
       default: 'text',
       options: ['text', 'json']
     }),
     'log-level': flags.enum({
-      description: 'log level',
+      description: 'Log level',
       default: 'info',
       options: ['debug', 'info', 'warn', 'error', 'fatal', 'panic']
     }),

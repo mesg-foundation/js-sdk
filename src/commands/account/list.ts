@@ -5,8 +5,6 @@ import {WithoutPassphrase as Command} from '../../account-command'
 export default class AccountList extends Command {
   static description = 'List all existing accounts'
 
-  static aliases = ['account:ls']
-
   static flags = {
     ...Command.flags,
     ...cli.table.flags()
