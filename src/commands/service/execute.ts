@@ -4,7 +4,7 @@ import {ExecutionCreateOutputs} from 'mesg-js/lib/api'
 
 import Command from '../../root-command'
 
-import ServiceGet from './get'
+import ServiceDetail from './detail'
 
 export default class ServiceExecute extends Command {
   static description = 'Execute a task on a specific service\'s instance'
@@ -33,7 +33,7 @@ export default class ServiceExecute extends Command {
     const {args, flags} = this.parse(ServiceExecute)
 
     const instance = await this.api.instance.get({hash: args.INSTANCE_HASH})
-    const service = await ServiceGet.run([instance.serviceHash, '--silent'])
+    const service = await ServiceDetail.run([instance.serviceHash, '--silent'])
 
     const task = service.tasks.find((x: any) => x.key === args.TASK)
     if (!task) {

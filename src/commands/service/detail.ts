@@ -2,7 +2,7 @@ import {ServiceGetOutputs} from 'mesg-js/lib/api'
 
 import Command from '../../root-command'
 
-export default class ServiceGet extends Command {
+export default class ServiceDetail extends Command {
   static description = 'Show details of a service'
 
   static flags = {
@@ -15,7 +15,7 @@ export default class ServiceGet extends Command {
   }]
 
   async run(): ServiceGetOutputs {
-    const {args} = this.parse(ServiceGet)
+    const {args} = this.parse(ServiceDetail)
     const response = await this.api.service.get({hash: args.SERVICE_HASH})
     this.styledJSON(response)
     return response
