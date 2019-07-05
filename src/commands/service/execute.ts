@@ -14,7 +14,7 @@ export default class ServiceExecute extends Command {
     json: flags.string({char: 'j', description: 'Path to a JSON file containing the data required to run the task'}),
     data: flags.string({
       char: 'd',
-      description: 'data required to run the task',
+      description: 'Data required to run the task',
       multiple: true,
       helpValue: 'key=value'
     }),
