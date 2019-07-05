@@ -100,8 +100,6 @@ export default class ServiceLogs extends Command {
         .on('data', (data: any) => this.log(this.formatEvent(data)))
         .on('error', (error: Error) => { throw error })
     }
-
-    // return stream
   }
 
   formatEvent(event: Event) {
