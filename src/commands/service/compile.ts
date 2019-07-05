@@ -6,8 +6,9 @@ import {join} from 'path'
 import {WithoutPassphrase} from '../../account-command'
 import MarketplaceCommand from '../../marketplace-command'
 import Command from '../../root-command'
-import deployer from '../../utils/deployer'
-import MarketplacePublish from '../marketplace/publish'
+import deployer, {createTar} from '../../utils/deployer'
+
+const ipfsClient = require('ipfs-http-client')
 
 export default class ServiceCompile extends Command {
   static description = 'Compile a service and upload its source to IPFS'
@@ -22,11 +23,13 @@ export default class ServiceCompile extends Command {
     default: './'
   }]
 
+  private readonly IPFS = ipfsClient('ipfs.app.mesg.com', '5001', {protocol: 'http'})
+
   async run(): Promise<Service> {
     const {args} = this.parse(ServiceCompile)
     this.spinner.status = 'Download sources'
     const path = await deployer(await this.processUrl(args.SERVICE_PATH_OR_URL))
-    const source = await new MarketplacePublish(this.argv, this.config).deploySources(path)
+    const source = await this.deploySources(path)
     const definition = this.parseYml(readFileSync(join(path, 'mesg.yml')).toString(), source)
     this.styledJSON(definition)
     this.spinner.stop()
@@ -95,5 +98,24 @@ export default class ServiceCompile extends Command {
       throw new Error(`unknown protocol '${type}'`)
     }
     return url
+  }
+
+  private async deploySources(path: string): Promise<string> {
+    const buffer: any[] = []
+    return new Promise<string>((resolve, reject) => {
+      createTar(join(path))
+        .on('data', (data: any) => buffer.push(...data))
+        .once('error', reject)
+        .on('end', async () => resolve(await this.upload(Buffer.from(buffer)))
+        )
+    })
+  }
+
+  private async upload(buffer: Buffer): Promise<string> {
+    const res = await this.IPFS.add(Buffer.from(buffer), {pin: true})
+    if (!res.length) {
+      throw new Error('Error with the generation of your manifest')
+    }
+    return res[0].hash
   }
 }
