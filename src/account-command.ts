@@ -15,7 +15,6 @@ export abstract class WithPassphrase extends WithoutPassphrase {
   static flags = {
     ...WithoutPassphrase.flags,
     passphrase: flags.string({
-      required: true,
       description: 'Passphrase to unlock your account'
     })
   }
