@@ -22,7 +22,7 @@ export default class ServiceStart extends Command {
 
   async run(): InstanceCreateOutputs {
     const {args, flags} = this.parse(ServiceStart)
-    this.spinner.start('Start service')
+    this.spinner.start('Start instance')
     const instance = await this.api.instance.create({
       serviceHash: args.SERVICE_HASH,
       env: flags.env
