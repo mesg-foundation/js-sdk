@@ -1,6 +1,7 @@
 import {flags} from '@oclif/command'
 import {readFileSync} from 'fs'
 import {ExecutionCreateOutputs} from 'mesg-js/lib/api'
+import {resolveSID} from 'mesg-js/lib/util/resolve'
 
 import Command from '../../root-command'
 
@@ -32,18 +33,22 @@ export default class ServiceExecute extends Command {
   async run(): ExecutionCreateOutputs {
     const {args, flags} = this.parse(ServiceExecute)
 
-    const instance = await this.api.instance.get({hash: args.INSTANCE_HASH})
+    const instanceHash = await resolveSID(this.api, args.INSTANCE_HASH)
+
+    const instance = await this.api.instance.get({
+      hash: instanceHash
+    })
     const service = await ServiceDetail.run([instance.serviceHash, '--silent'])
 
     const task = service.tasks.find((x: any) => x.key === args.TASK)
     if (!task) {
-      throw new Error(`The task ${args.TASK} does not exists in the instance ${args.INSTANCE_HASH}`)
+      throw new Error(`The task ${args.TASK} does not exists in the instance ${instanceHash}`)
     }
     const inputs = this.convertValue(task.inputs, this.dataFromFlags(flags))
 
     const result = await this.execute({
       inputs: JSON.stringify(inputs),
-      instanceHash: args.INSTANCE_HASH,
+      instanceHash,
       tags: ['CLI'],
       taskKey: args.TASK
     })
