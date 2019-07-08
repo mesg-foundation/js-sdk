@@ -1,7 +1,7 @@
 import Command from '../../marketplace-command'
 
 export default class MarketplacePurchase extends Command {
-  static description = 'Purchase a service on the MESG Marketplace'
+  static description = 'Purchase a service'
 
   static flags = {
     ...Command.flags,
@@ -9,11 +9,11 @@ export default class MarketplacePurchase extends Command {
 
   static args = [{
     name: 'SID',
-    description: 'ID of the service on the MESG Marketplace',
+    description: 'ID of the service',
     required: true,
   }, {
     name: 'OFFER_ID',
-    description: 'ID of the offer on the MESG Marketplace',
+    description: 'ID of the offer',
     required: true,
   }]
 
