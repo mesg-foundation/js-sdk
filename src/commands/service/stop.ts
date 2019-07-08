@@ -35,7 +35,7 @@ export default class ServiceStop extends Command {
     for (const hash of argv) {
       await this.api.instance.delete({hash, deleteData: flags['delete-data']})
     }
-    this.spinner.stop()
+    this.spinner.stop(argv.join(', '))
     return argv
   }
 }
