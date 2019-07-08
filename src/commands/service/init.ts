@@ -15,7 +15,7 @@ interface Template {
 }
 
 export default class ServiceInit extends Command {
-  static description = 'Initialize a service by creating a mesg.yml and Dockerfile in a dedicated directory.'
+  static description = 'Initialize a service from a template'
 
   static flags = {
     ...Command.flags,
@@ -25,7 +25,7 @@ export default class ServiceInit extends Command {
   static args = [{
     name: 'DIR',
     required: true,
-    description: 'Create the service in the directory'
+    description: 'Directory to initialize a service into'
   }]
 
   async run(): Promise<string> {
@@ -41,13 +41,13 @@ export default class ServiceInit extends Command {
     if (template) {
       return template
     }
-    this.spinner.start('Fetch the list of templates available')
+    this.spinner.start('Fetching templates')
     const templates = await this.fetchTemplates()
     this.spinner.stop()
     const {value} = (await prompt({
       type: 'list',
       name: 'value',
-      message: 'Choose the template you want to use',
+      message: 'Select the template to use',
       default: 'Basic',
       choices: templates.map(x => ({
         name: `${x.name} ➜ ${x.url}`,
@@ -58,7 +58,7 @@ export default class ServiceInit extends Command {
 
     const selectedTemplate = templates.find(x => x.name === value)
     if (!selectedTemplate) {
-      throw new Error(`The template "${value}" is not valid`)
+      throw new Error(`The template name "${value}" is not valid`)
     }
     return selectedTemplate.url
   }

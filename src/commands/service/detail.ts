@@ -3,7 +3,7 @@ import {ServiceGetOutputs} from 'mesg-js/lib/api'
 import Command from '../../root-command'
 
 export default class ServiceDetail extends Command {
-  static description = 'Show details of a service'
+  static description = 'Display detailed information on a service'
 
   static flags = {
     ...Command.flags,

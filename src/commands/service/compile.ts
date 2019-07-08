@@ -11,15 +11,15 @@ import deployer, {createTar} from '../../utils/deployer'
 const ipfsClient = require('ipfs-http-client')
 
 export default class ServiceCompile extends Command {
-  static description = 'Compile a service and upload its source to IPFS'
+  static description = 'Compile a service and upload its source to IPFS server'
 
   static flags = {
     ...Command.flags
   }
 
   static args = [{
-    name: 'SERVICE_PATH_OR_URL',
-    description: 'Path of the service or url to access it',
+    name: 'SERVICE',
+    description: 'Path or url ([https|mesg]://) of a service',
     default: './'
   }]
 
@@ -28,7 +28,7 @@ export default class ServiceCompile extends Command {
   async run(): Promise<Service> {
     const {args} = this.parse(ServiceCompile)
     this.spinner.status = 'Download sources'
-    const path = await deployer(await this.processUrl(args.SERVICE_PATH_OR_URL))
+    const path = await deployer(await this.processUrl(args.SERVICE))
     const source = await this.deploySources(path)
     const definition = this.parseYml(readFileSync(join(path, 'mesg.yml')).toString(), source)
     this.styledJSON(definition)
@@ -69,7 +69,7 @@ export default class ServiceCompile extends Command {
       inputs: JSON.stringify({})
     })
     if (!addresses.length) {
-      throw new Error('you have no accounts. please add an authorized account in order to deploy this service')
+      throw new Error('no available account. please add an authorized account in order to deploy the service')
     }
 
     const {authorized, sid, source, type} = await this.execute({
@@ -82,7 +82,7 @@ export default class ServiceCompile extends Command {
       })
     })
     if (!authorized) {
-      throw new Error('you have no authorized accounts. please add an authorized account in order to deploy this service')
+      throw new Error('no available account. please add an authorized account in order to deploy the service')
     }
     return {sid, source, type}
   }
@@ -114,7 +114,7 @@ export default class ServiceCompile extends Command {
   private async upload(buffer: Buffer): Promise<string> {
     const res = await this.IPFS.add(Buffer.from(buffer), {pin: true})
     if (!res.length) {
-      throw new Error('Error with the generation of your manifest')
+      throw new Error('pushing service manifest failed: run service:compile again')
     }
     return res[0].hash
   }
