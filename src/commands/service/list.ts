@@ -4,7 +4,7 @@ import {Instance} from 'mesg-js/lib/api'
 import Command from '../../root-command'
 
 export default class ServiceList extends Command {
-  static description = 'List all instances'
+  static description = 'List running services'
 
   static flags = {
     ...Command.flags,

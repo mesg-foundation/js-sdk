@@ -5,16 +5,16 @@ import Command from '../../root-command'
 import instanceResolver from '../../utils/instance-resolver'
 
 export default class ServiceStop extends Command {
-  static description = 'Stop a service by deleting a specific instance'
+  static description = 'Stop one or more running service'
 
   static flags = {
     ...Command.flags,
     'delete-data': flags.boolean({
-      description: 'Delete instances\' persistent data',
+      description: 'Delete running service persistent data',
       default: false,
     }),
     confirm: flags.boolean({
-      description: 'Confirm delete',
+      description: 'Confirm deletion',
       default: false,
     })
   }
@@ -29,13 +29,12 @@ export default class ServiceStop extends Command {
   async run(): Promise<string[]> {
     const {argv, flags} = this.parse(ServiceStop)
     if (flags['delete-data'] && !flags.confirm) {
-      cli.warn('This will delete all data associated to this instance')
+      cli.warn('This will delete all the data associated with this running service')
       if (!await cli.confirm('Are you sure?')) return []
     }
-    this.spinner.start('Delete instance')
+    this.spinner.start('Stop running services')
     for (const hash of argv) {
       const instanceHash = await instanceResolver(this.api, hash)
-      this.spinner.status = instanceHash
       await this.api.instance.delete({hash: instanceHash, deleteData: flags['delete-data']})
     }
     this.spinner.stop(argv.join(', '))

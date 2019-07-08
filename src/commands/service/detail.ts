@@ -4,7 +4,7 @@ import Command from '../../root-command'
 import serviceResolver from '../../utils/service-resolver'
 
 export default class ServiceDetail extends Command {
-  static description = 'Show details of a service'
+  static description = 'Display detailed information on a service'
 
   static flags = {
     ...Command.flags,

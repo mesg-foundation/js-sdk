@@ -3,7 +3,7 @@ import Command from '../../docker-command'
 import Status, {ServiceStatus} from './status'
 
 export default class Stop extends Command {
-  static description = 'Stop the MESG Engine\'s daemon'
+  static description = 'Stop the Engine'
 
   static flags = {
     ...Command.flags
@@ -12,25 +12,23 @@ export default class Stop extends Command {
   async run() {
     const {flags} = this.parse(Stop)
 
-    const status = await Status.run(['--name', flags.name])
+    const status = await Status.run(['--name', flags.name, '--silent'])
     if (status === ServiceStatus.STOPPED) {
+      this.log('Engine is already stopped')
       return false
     }
-    this.spinner.start('MESG Engine')
-    this.spinner.status = 'Fetching services'
+    this.spinner.start('Stopping Engine')
     const services = await this.listServices({name: flags.name})
-    if (services.length === 0) return
+    if (services.length === 0) return false
     const service = services[0]
     const eventPromise = this.waitForEvent(({Action, from, Type}) =>
       Type === 'container' &&
       Action === 'destroy' &&
       from === (service.data as any).Spec.TaskTemplate.ContainerSpec.Image
     )
-    this.spinner.status = 'Removing service'
     await service.remove()
     await eventPromise
-    this.spinner.stop('stopped')
-
+    this.spinner.stop()
     return true
   }
 }

@@ -9,7 +9,7 @@ export default class ServiceDelete extends Command {
 
   static flags = {
     ...Command.flags,
-    confirm: flags.boolean({description: 'Confirm delete', default: false})
+    confirm: flags.boolean({description: 'Confirm deletion', default: false})
   }
 
   static strict = false
@@ -22,7 +22,7 @@ export default class ServiceDelete extends Command {
   async run(): Promise<string[]> {
     const {argv, flags} = this.parse(ServiceDelete)
     if (!flags.confirm && !await cli.confirm('Are you sure?')) return []
-    this.spinner.start('Delete service')
+    this.spinner.start('Deleting service(s)')
     for (const hash of argv) {
       const serviceHash = await serviceResolver(this.api, hash)
       this.spinner.status = serviceHash
