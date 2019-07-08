@@ -34,7 +34,7 @@ export default abstract class extends Command {
   static flags = {
     ...Command.flags,
     name: flags.string({
-      description: 'Name of the service running the engine',
+      description: 'Name of the docker service running the engine',
       required: true,
       default: 'engine'
     }),

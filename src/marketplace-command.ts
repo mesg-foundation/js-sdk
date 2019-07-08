@@ -28,7 +28,7 @@ export default abstract class MarketplaceCommand extends Command {
     }),
     passphrase: flags.string({
       char: 'p',
-      description: 'Passphrase to unlock your account'
+      description: 'Passphrase to unlock the account'
     })
   }
 
@@ -65,7 +65,7 @@ export default abstract class MarketplaceCommand extends Command {
     const {account} = (await prompt({
       type: 'list',
       name: 'account',
-      message: 'Choose the account to use to publish your service',
+      message: 'Select the account to use:',
       choices: addresses
     })) as { account: string }
     return account
@@ -76,6 +76,6 @@ export default abstract class MarketplaceCommand extends Command {
     if (flags.passphrase) {
       return flags.passphrase
     }
-    return cli.prompt('Type your passphrase', {type: 'hide'})
+    return cli.prompt('Type the passphrase of the account', {type: 'hide'})
   }
 }
