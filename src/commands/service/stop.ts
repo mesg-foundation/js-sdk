@@ -15,7 +15,6 @@ export default class ServiceStop extends Command {
     confirm: flags.boolean({
       description: 'Confirm delete',
       default: false,
-      dependsOn: ['delete-data']
     })
   }
 
