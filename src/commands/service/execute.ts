@@ -42,7 +42,7 @@ export default class ServiceExecute extends Command {
 
     const task = service.tasks.find((x: any) => x.key === args.TASK)
     if (!task) {
-      throw new Error(`The task ${args.TASK} does not exist in mesg.yaml service`)
+      throw new Error(`The task ${args.TASK} does not exist in service`)
     }
     const inputs = this.convertValue(task.inputs, this.dataFromFlags(flags))
 
