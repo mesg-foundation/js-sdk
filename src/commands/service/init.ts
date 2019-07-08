@@ -41,7 +41,7 @@ export default class ServiceInit extends Command {
     if (template) {
       return template
     }
-    this.spinner.start('Fetch the list of available templates')
+    this.spinner.start('Fetching templates')
     const templates = await this.fetchTemplates()
     this.spinner.stop()
     const {value} = (await prompt({
