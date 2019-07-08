@@ -47,7 +47,7 @@ export default class ServiceInit extends Command {
     const {value} = (await prompt({
       type: 'list',
       name: 'value',
-      message: 'Choose the template to use',
+      message: 'Select the template to use',
       default: 'Basic',
       choices: templates.map(x => ({
         name: `${x.name} ➜ ${x.url}`,
