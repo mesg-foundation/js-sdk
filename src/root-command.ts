@@ -9,7 +9,7 @@ import {format, inspect} from 'util'
 export default abstract class extends Command {
   static flags = {
     help: flags.help({char: 'h'}),
-    quiet: flags.boolean({char: 'q', description: 'Display only important information'}),
+    quiet: flags.boolean({char: 'q', description: 'Display only essential information'}),
     silent: flags.boolean({hidden: true}),
   }
 

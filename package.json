@@ -84,16 +84,16 @@
     ],
     "topics": {
       "service": {
-        "description": "Manage MESG Services"
+        "description": "Manage services"
       },
       "daemon": {
-        "description": "Manage MESG Engine"
+        "description": "Manage the Engine"
       },
       "marketplace": {
-        "description": "Let you interact with the MESG Marketplace"
+        "description": "Interact with the Marketplace"
       },
       "account": {
-        "description": "Manage your MESG Accounts"
+        "description": "Manage accounts"
       }
     }
   },
