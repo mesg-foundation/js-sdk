@@ -2,6 +2,7 @@ import {flags} from '@oclif/command'
 import {InstanceCreateOutputs} from 'mesg-js/lib/api'
 
 import Command from '../../root-command'
+import serviceResolver from '../../utils/service-resolver'
 
 export default class ServiceStart extends Command {
   static description = 'Start a service by creating a new instance'
@@ -23,8 +24,9 @@ export default class ServiceStart extends Command {
   async run(): InstanceCreateOutputs {
     const {args, flags} = this.parse(ServiceStart)
     this.spinner.start('Start instance')
+    const serviceHash = await serviceResolver(this.api, args.SERVICE_HASH)
     const instance = await this.api.instance.create({
-      serviceHash: args.SERVICE_HASH,
+      serviceHash,
       env: flags.env
     })
     this.spinner.stop(instance.hash)
