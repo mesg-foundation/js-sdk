@@ -3,16 +3,16 @@ import {flags} from '@oclif/command'
 import Command from '../../marketplace-command'
 
 export default class MarketplaceCreateOffer extends Command {
-  static description = 'Create an offer on a service'
+  static description = 'Create an offer of a service'
 
   static flags = {
     ...Command.flags,
     price: flags.string({
-      description: 'Price (in MESG token)',
+      description: 'Price (in MESG tokens)',
       required: true,
     }),
     duration: flags.string({
-      description: 'Duration (in second)',
+      description: 'Duration (in seconds)',
       required: true,
     }),
   }
