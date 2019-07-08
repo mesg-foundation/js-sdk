@@ -1,11 +1,11 @@
 import {flags} from '@oclif/command'
 import chalk from 'chalk'
 import {Event, Execution, ExecutionStatus} from 'mesg-js/lib/api'
-import {resolveSID} from 'mesg-js/lib/util/resolve'
 import {Docker} from 'node-docker-api'
 
 import Command from '../../root-command'
 import {parseLog} from '../../utils/docker'
+import instanceResolver from '../../utils/instance-resolver'
 
 export interface Log {
   dependency: string
@@ -59,7 +59,7 @@ export default class ServiceLogs extends Command {
   async run() {
     const {args, flags} = this.parse(ServiceLogs)
 
-    const instanceHash = await resolveSID(this.api, args.INSTANCE_HASH)
+    const instanceHash = await instanceResolver(this.api, args.INSTANCE_HASH)
 
     const streams: (() => any)[] = []
 
