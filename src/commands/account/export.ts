@@ -14,14 +14,14 @@ export default class AccountExport extends Command {
 
   async run() {
     const {args} = this.parse(AccountExport)
-
-    this.spinner.start('Export account')
+    const passphrase = await this.getPassphrase()
+    this.spinner.start('Exporting account')
     const data = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'export',
       inputs: JSON.stringify({
-        passphrase: await this.getPassphrase(),
         address: args.ADDRESS,
+        passphrase,
       })
     })
     this.spinner.stop()

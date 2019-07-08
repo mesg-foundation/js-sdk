@@ -15,16 +15,13 @@ export abstract class WithPassphrase extends WithoutPassphrase {
   static flags = {
     ...WithoutPassphrase.flags,
     passphrase: flags.string({
-      description: 'Passphrase to unlock your account'
+      description: 'Passphrase of the account'
     })
   }
 
   async getPassphrase(): Promise<string | null> {
     const {flags} = this.parse()
-    if (flags.passphrase) {
-      return flags.passphrase
-    }
-    const passphrase = await cli.prompt('Type your passphrase', {type: 'hide'})
-    return passphrase
+    if (flags.passphrase) return flags.passphrase
+    return cli.prompt('Type the passphrase', {type: 'hide'})
   }
 }

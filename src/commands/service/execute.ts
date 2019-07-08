@@ -1,20 +1,21 @@
 import {flags} from '@oclif/command'
 import {readFileSync} from 'fs'
 import {ExecutionCreateOutputs} from 'mesg-js/lib/api'
+import {resolveSID} from 'mesg-js/lib/util/resolve'
 
 import Command from '../../root-command'
 
 import ServiceDetail from './detail'
 
 export default class ServiceExecute extends Command {
-  static description = 'Execute a task on a specific service\'s instance'
+  static description = 'Execute a task on a running service'
 
   static flags = {
     ...Command.flags,
-    json: flags.string({char: 'j', description: 'Path to a JSON file containing the data required to run the task'}),
+    json: flags.string({char: 'j', description: 'Path to a JSON file containing the task inputs'}),
     data: flags.string({
       char: 'd',
-      description: 'Data required to run the task',
+      description: 'Task inputs',
       multiple: true,
       helpValue: 'key=value'
     }),
@@ -32,18 +33,22 @@ export default class ServiceExecute extends Command {
   async run(): ExecutionCreateOutputs {
     const {args, flags} = this.parse(ServiceExecute)
 
-    const instance = await this.api.instance.get({hash: args.INSTANCE_HASH})
+    const instanceHash = await resolveSID(this.api, args.INSTANCE_HASH)
+
+    const instance = await this.api.instance.get({
+      hash: instanceHash
+    })
     const service = await ServiceDetail.run([instance.serviceHash, '--silent'])
 
     const task = service.tasks.find((x: any) => x.key === args.TASK)
     if (!task) {
-      throw new Error(`The task ${args.TASK} does not exists in the instance ${args.INSTANCE_HASH}`)
+      throw new Error(`The task ${args.TASK} does not exist in service`)
     }
     const inputs = this.convertValue(task.inputs, this.dataFromFlags(flags))
 
     const result = await this.execute({
       inputs: JSON.stringify(inputs),
-      instanceHash: args.INSTANCE_HASH,
+      instanceHash,
       tags: ['CLI'],
       taskKey: args.TASK
     })

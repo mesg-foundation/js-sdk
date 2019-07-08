@@ -7,7 +7,7 @@ import {join} from 'path'
 import Command from '../../root-command'
 
 export default class ServiceDoc extends Command {
-  static description = 'Generate the documentation for the service in a README.md file'
+  static description = 'Generate documentation for service and print it on stdout'
 
   static flags = {
     ...Command.flags,
@@ -15,17 +15,17 @@ export default class ServiceDoc extends Command {
   }
 
   static args = [{
-    name: 'SERVICE_PATH',
-    description: 'Path of the service',
+    name: 'SERVICE',
+    description: 'Path of a service',
     default: './'
   }]
 
   async run(): Promise<string> {
     const {args, flags} = this.parse(ServiceDoc)
-    const definition = safeLoad(readFileSync(join(args.SERVICE_PATH, 'mesg.yml')).toString())
+    const definition = safeLoad(readFileSync(join(args.SERVICE, 'mesg.yml')).toString())
     const markdown = this.generateTemplate(definition)
     if (flags.save) {
-      this.saveReadme(args.SERVICE_PATH, markdown)
+      this.saveReadme(args.SERVICE, markdown)
     } else {
       this.log(markdown)
     }

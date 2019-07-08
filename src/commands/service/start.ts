@@ -9,7 +9,7 @@ export default class ServiceStart extends Command {
   static flags = {
     ...Command.flags,
     env: flags.string({
-      description: 'Set env defined in mesg.yml (configuration.env)',
+      description: 'Set environment variables',
       multiple: true,
       helpValue: 'FOO=BAR'
     })
