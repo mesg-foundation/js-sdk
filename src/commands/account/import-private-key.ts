@@ -25,8 +25,7 @@ export default class AccountImportPK extends Command {
         passphrase,
       })
     })
-    this.spinner.stop()
-    this.log(`Account ${data.address} imported`)
+    this.spinner.stop(data.address)
     return data
   }
 }

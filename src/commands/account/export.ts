@@ -15,7 +15,7 @@ export default class AccountExport extends Command {
   async run() {
     const {args} = this.parse(AccountExport)
     const passphrase = await this.getPassphrase()
-    this.spinner.start(`Exporting account ${args.ADDRESS}`)
+    this.spinner.start('Exporting account')
     const data = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'export',

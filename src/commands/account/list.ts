@@ -12,13 +12,11 @@ export default class AccountList extends Command {
 
   async run() {
     const {flags} = this.parse(AccountList)
-    this.spinner.start('Listing accounts')
     const data = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'list',
       inputs: JSON.stringify({})
     })
-    this.spinner.stop()
     cli.table(data.addresses, {
       address: {header: 'ADDRESS', get: (x: any) => x},
     }, {printLine: this.log, ...flags})

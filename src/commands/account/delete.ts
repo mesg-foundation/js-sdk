@@ -15,7 +15,7 @@ export default class AccountDelete extends Command {
   async run() {
     const {args} = this.parse(AccountDelete)
     const passphrase = await this.getPassphrase()
-    this.spinner.start(`Deleting account ${args.ADDRESS}`)
+    this.spinner.start('Deleting account')
     const data = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'delete',
@@ -25,7 +25,6 @@ export default class AccountDelete extends Command {
       })
     })
     this.spinner.stop()
-    this.log(`Account ${data.address} deleted`)
     return data
   }
 }
