@@ -22,10 +22,10 @@ export default class ServiceDoc extends Command {
 
   async run(): Promise<string> {
     const {args, flags} = this.parse(ServiceDoc)
-    const definition = safeLoad(readFileSync(join(args.SERVICE_PATH, 'mesg.yml')).toString())
+    const definition = safeLoad(readFileSync(join(args.SERVICE, 'mesg.yml')).toString())
     const markdown = this.generateTemplate(definition)
     if (flags.save) {
-      this.saveReadme(args.SERVICE_PATH, markdown)
+      this.saveReadme(args.SERVICE, markdown)
     } else {
       this.log(markdown)
     }
