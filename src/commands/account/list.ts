@@ -3,7 +3,7 @@ import {cli} from 'cli-ux'
 import {WithoutPassphrase as Command} from '../../account-command'
 
 export default class AccountList extends Command {
-  static description = 'List all existing accounts'
+  static description = 'List accounts'
 
   static flags = {
     ...Command.flags,
