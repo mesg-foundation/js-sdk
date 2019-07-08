@@ -6,12 +6,12 @@ import version from '../../version'
 import Status, {ServiceStatus} from './status'
 
 export default class Start extends Command {
-  static description = 'Start the MESG Engine\'s daemon'
+  static description = 'Start the Engine'
 
   static flags = {
     ...Command.flags,
     version: flags.string({
-      description: 'Version of the engine to run',
+      description: 'Version of the Engine to run',
       required: true,
       default: version.engine
     }),
@@ -38,15 +38,13 @@ export default class Start extends Command {
     if (status === ServiceStatus.STARTED) {
       return false
     }
-    this.spinner.start('MESG Engine')
+    this.spinner.start('Starting Engine')
     const eventPromise = this.waitForEvent(({Action, Type, from}) =>
       Type === 'container' &&
       Action === 'start' &&
       from === `mesg/engine:${flags.version}`
     )
-    this.spinner.status = 'Creating network'
     const network = await this.getOrCreateNetwork({name: flags.name})
-    this.spinner.status = 'Creating service'
     await this.createService(network, {
       name: flags.name,
       version: flags.version,
@@ -54,10 +52,8 @@ export default class Start extends Command {
       format: flags['log-format'],
       level: flags['log-level']
     })
-    this.spinner.status = 'Waiting service to start'
     await eventPromise
-    this.spinner.stop('Started')
-
+    this.spinner.stop()
     return true
   }
 }

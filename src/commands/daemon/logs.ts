@@ -9,7 +9,7 @@ export default class Logs extends Command {
   static flags = {
     ...Command.flags,
     tail: flags.integer({
-      description: 'Output specified number of lines at the end of logs',
+      description: 'Output the specified number of lines at the end of logs',
       default: -1
     }),
     follow: flags.boolean({
@@ -36,7 +36,6 @@ export default class Logs extends Command {
     logs.on('error', (error: Error) => {
       throw error
     })
-
     return logs
   }
 }
