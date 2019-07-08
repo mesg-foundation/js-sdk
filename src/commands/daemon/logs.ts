@@ -9,7 +9,7 @@ export default class Logs extends Command {
   static flags = {
     ...Command.flags,
     tail: flags.integer({
-      description: 'Output the specified number of lines at the end of logs',
+      description:  'Display the last N lines',
       default: -1
     }),
     follow: flags.boolean({
