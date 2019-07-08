@@ -26,7 +26,7 @@ export default class AccountImportPK extends Command {
       })
     })
     this.spinner.stop()
-    this.log(`Account ${data.address} imported with success`)
+    this.log(`Account ${data.address} imported`)
     return data
   }
 }

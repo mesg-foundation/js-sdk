@@ -25,7 +25,7 @@ export default class AccountDelete extends Command {
       })
     })
     this.spinner.stop()
-    this.log(`Account ${data.address} deleted with success`)
+    this.log(`Account ${data.address} deleted`)
     return data
   }
 }

@@ -16,7 +16,7 @@ export default class AccountCreate extends Command {
       inputs: JSON.stringify({passphrase})
     })
     this.spinner.stop()
-    this.log(`Account created with address: ${data.address}`)
+    this.log(`Account address ${data.address}`)
     return data
   }
 }
