@@ -1,6 +1,7 @@
 import {flags} from '@oclif/command'
 import chalk from 'chalk'
 import {Event, Execution, ExecutionStatus} from 'mesg-js/lib/api'
+import {resolveSID} from 'mesg-js/lib/util/resolve'
 import {Docker} from 'node-docker-api'
 
 import Command from '../../root-command'
@@ -57,11 +58,14 @@ export default class ServiceLogs extends Command {
 
   async run() {
     const {args, flags} = this.parse(ServiceLogs)
+
+    const instanceHash = await resolveSID(this.api, args.INSTANCE_HASH)
+
     const streams: (() => any)[] = []
 
     const dockerServices = await this.docker.service.list({
       filters: {
-        label: [`mesg.hash=${args.INSTANCE_HASH}`]
+        label: [`mesg.hash=${instanceHash}`]
       }
     })
     for (const service of dockerServices) {
@@ -80,7 +84,7 @@ export default class ServiceLogs extends Command {
     if (flags.results) {
       const results = this.api.execution.stream({
         filter: {
-          instanceHash: args.INSTANCE_HASH,
+          instanceHash,
           statuses: [
             ExecutionStatus.COMPLETED,
             ExecutionStatus.FAILED,
@@ -97,7 +101,7 @@ export default class ServiceLogs extends Command {
     if (flags.events) {
       const events = this.api.event.stream({
         filter: {
-          instanceHash: args.INSTANCE_HASH,
+          instanceHash,
           key: flags.event,
         }
       })
