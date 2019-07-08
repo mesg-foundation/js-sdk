@@ -9,7 +9,7 @@ export default class ServiceStop extends Command {
   static flags = {
     ...Command.flags,
     'delete-data': flags.boolean({
-      description: 'Delete runnign service persistent data',
+      description: 'Delete running service persistent data',
       default: false,
     }),
     confirm: flags.boolean({
