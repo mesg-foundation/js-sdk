@@ -56,6 +56,18 @@ export default abstract class extends Command {
     cli.styledJSON(data)
   }
 
+  async catch(err: Error) {
+    try {
+      await super.catch(err)
+    } catch (e) {
+      if (e.message) {
+        this.error(err.message)
+      } else {
+        throw e
+      }
+    }
+  }
+
   async execute(request: ExecutionCreateInputs): Promise<any> {
     const exec = await this._app.executeTaskAndWaitResult(request)
     return JSON.parse(exec.outputs || '')
