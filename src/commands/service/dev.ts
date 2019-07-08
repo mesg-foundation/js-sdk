@@ -29,17 +29,12 @@ export default class ServiceDev extends Command {
     const service = await ServiceCreate.run([JSON.stringify(definition)])
     const envs = (flags.env || []).reduce((prev, value) => [...prev, '--env', value], [] as string[])
     const instance = await ServiceStart.run([service.hash, ...envs])
-    await ServiceLog.run([instance.hash])
+    const stream = await ServiceLog.run([instance.hash])
 
-    process.on('SIGINT', async () => {
-      try {
-        await ServiceStop.run([instance.hash])
-        await ServiceDelete.run([service.hash, '--confirm'])
-      } catch (error) {
-        this.error(error)
-      } finally {
-        process.exit(0)
-      }
+    process.once('SIGINT', async () => {
+      stream.destroy()
+      await ServiceStop.run([instance.hash])
+      await ServiceDelete.run([service.hash, '--confirm'])
     })
   }
 }

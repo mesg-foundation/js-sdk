@@ -57,6 +57,7 @@ export default class ServiceLogs extends Command {
 
   async run() {
     const {args, flags} = this.parse(ServiceLogs)
+    const streams: (() => any)[] = []
 
     const dockerServices = await this.docker.service.list({
       filters: {
@@ -70,13 +71,14 @@ export default class ServiceLogs extends Command {
         follow: flags.follow,
         tail: flags.tail && flags.tail >= 0 ? flags.tail : 'all'
       }) as any)
+      streams.push(() => logs.destroy())
       logs
         .on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => this.log(x)))
-        .on('error', (error: Error) => { throw error })
+        .on('error', (error: Error) => { this.warn('error in docker stream: ' + error.message) })
     }
 
     if (flags.results) {
-      this.api.execution.stream({
+      const results = this.api.execution.stream({
         filter: {
           instanceHash: args.INSTANCE_HASH,
           statuses: [
@@ -86,19 +88,29 @@ export default class ServiceLogs extends Command {
           taskKey: flags.task
         }
       })
+      streams.push(() => results.cancel())
+      results
         .on('data', data => this.log(this.formatResult(data)))
-        .on('error', (error: Error) => { throw error })
+        .on('error', (error: Error) => { this.warn('error in result stream: ' + error.message) })
     }
 
     if (flags.events) {
-      this.api.event.stream({
+      const events = this.api.event.stream({
         filter: {
           instanceHash: args.INSTANCE_HASH,
           key: flags.event,
         }
       })
+      streams.push(() => events.cancel())
+      events
         .on('data', (data: any) => this.log(this.formatEvent(data)))
-        .on('error', (error: Error) => { throw error })
+        .on('error', (error: Error) => { this.warn('error in event stream: ' + error.message) })
+    }
+
+    return {
+      destroy: () => {
+        streams.forEach(s => s())
+      }
     }
   }
 
