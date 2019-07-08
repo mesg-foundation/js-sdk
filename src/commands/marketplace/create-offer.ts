@@ -3,29 +3,28 @@ import {flags} from '@oclif/command'
 import Command from '../../marketplace-command'
 
 export default class MarketplaceCreateOffer extends Command {
-  static description = 'Create a new offer on a service on the MESG Marketplace'
+  static description = 'Create an offer of a service'
 
   static flags = {
     ...Command.flags,
     price: flags.string({
-      description: 'Price (in MESG token) of the offer to create',
+      description: 'Price (in MESG tokens)',
       required: true,
     }),
     duration: flags.string({
-      description: 'Duration (in second) of the offer to create',
+      description: 'Duration (in seconds)',
       required: true,
     }),
   }
 
   static args = [{
     name: 'SID',
-    description: 'SID of the service on the MESG Marketplace',
+    description: 'SID of the service',
     required: true,
   }]
 
   async run() {
     const {args, flags} = this.parse(MarketplaceCreateOffer)
-
     const account = await this.getAccount()
     const passphrase = await this.getPassphrase()
     this.spinner.start('Creating offer')
@@ -45,8 +44,7 @@ export default class MarketplaceCreateOffer extends Command {
       taskKey: 'publishCreateServiceOffer',
       inputs: JSON.stringify(signedTx)
     })
-    this.spinner.stop('Offer created')
-
+    this.spinner.stop()
     this.styledJSON(offer)
     return offer
   }

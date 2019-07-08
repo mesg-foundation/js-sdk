@@ -8,7 +8,7 @@ import ServiceCreate from '../service/create'
 import ServiceDetail from '../service/detail'
 
 export default class MarketplacePublish extends Command {
-  static description = 'Publish a service on the MESG Marketplace'
+  static description = 'Publish a service'
 
   static flags = {
     ...Command.flags
@@ -27,13 +27,10 @@ export default class MarketplacePublish extends Command {
 
     const account = await this.getAccount()
 
-    this.spinner.start('Compile service')
+    this.spinner.start('Preparing service')
     const compiledService = await ServiceCompile.run([path, '--silent'])
-
     const createResponse = await ServiceCreate.run([JSON.stringify(compiledService), '--silent'])
     const definition = await ServiceDetail.run([createResponse.hash, '--silent'])
-
-    this.spinner.status = 'Preparing service'
     const serviceTx = await this.preparePublishService({
       definition,
       readme: this.lookupReadme(path),
@@ -44,15 +41,16 @@ export default class MarketplacePublish extends Command {
         source: definition.source
       }
     }, account)
-    this.spinner.stop('ready')
-    if (!await cli.confirm(`Ready to send a transaction to ${serviceTx.to} with the account ${account}?`)) {
+    this.spinner.stop()
+
+    if (!await cli.confirm(`Do you confirm to send a transaction to ${serviceTx.to} with the account ${account}?`)) {
       return null
     }
+
     const passphrase = await this.getPassphrase()
-
-    this.spinner.start('Publish service')
-
+    this.spinner.start('Publishing service')
     const marketplaceService = await this.publishService(account, serviceTx, passphrase)
+    this.spinner.stop()
     this.styledJSON(marketplaceService)
     return marketplaceService
   }

@@ -14,8 +14,7 @@ export default class Status extends Command {
 
   async run() {
     const {flags} = this.parse(Status)
-    this.spinner.start('MESG Engine')
-    this.spinner.status = 'Fetching services'
+    this.spinner.start('Engine is')
     const services = await this.listServices({name: flags.name})
     if (services.length === 0) {
       this.spinner.stop('stopped')
