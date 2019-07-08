@@ -76,6 +76,6 @@ export default abstract class MarketplaceCommand extends Command {
     if (flags.passphrase) {
       return flags.passphrase
     }
-    return cli.prompt('Type the passphrase of the account', {type: 'hide'})
+    return cli.prompt('Type the passphrase', {type: 'hide'})
   }
 }
