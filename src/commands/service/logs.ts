@@ -13,7 +13,7 @@ export interface Log {
 }
 
 export default class ServiceLogs extends Command {
-  static description = 'Show logs of a service'
+  static description = 'Fetch the logs of a service'
 
   static flags = {
     ...Command.flags,
@@ -23,27 +23,27 @@ export default class ServiceLogs extends Command {
     //   multiple: true
     // }),
     events: flags.boolean({
-      description: 'Don\'t display events',
+      description: 'Display events',
       allowNo: true,
       default: true
     }),
     results: flags.boolean({
-      description: 'Don\'t display results',
+      description: 'Display results',
       allowNo: true,
       default: true
     }),
     event: flags.string({
-      description: 'Only display a specific event'
+      description: 'Display a specific event'
     }),
     task: flags.string({
-      description: 'Only display a specific task results'
+      description: 'Display a specific task results'
     }),
     tail: flags.integer({
-      description: 'Output only specified number of lines',
+      description: 'Display the last N lines',
       default: -1
     }),
     follow: flags.boolean({
-      description: 'Continuously display logs',
+      description: 'Follow log output',
       allowNo: true,
       default: true
     })
@@ -78,7 +78,7 @@ export default class ServiceLogs extends Command {
       streams.push(() => logs.destroy())
       logs
         .on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => this.log(x)))
-        .on('error', (error: Error) => { this.warn('error in docker stream: ' + error.message) })
+        .on('error', (error: Error) => { this.warn('Docker log stream error: ' + error.message) })
     }
 
     if (flags.results) {
@@ -95,7 +95,7 @@ export default class ServiceLogs extends Command {
       streams.push(() => results.cancel())
       results
         .on('data', data => this.log(this.formatResult(data)))
-        .on('error', (error: Error) => { this.warn('error in result stream: ' + error.message) })
+        .on('error', (error: Error) => { this.warn('Result stream errror: ' + error.message) })
     }
 
     if (flags.events) {
@@ -108,7 +108,7 @@ export default class ServiceLogs extends Command {
       streams.push(() => events.cancel())
       events
         .on('data', (data: any) => this.log(this.formatEvent(data)))
-        .on('error', (error: Error) => { this.warn('error in event stream: ' + error.message) })
+        .on('error', (error: Error) => { this.warn('Event stream error: ' + error.message) })
     }
 
     return {

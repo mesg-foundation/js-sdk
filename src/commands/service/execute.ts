@@ -8,14 +8,14 @@ import Command from '../../root-command'
 import ServiceDetail from './detail'
 
 export default class ServiceExecute extends Command {
-  static description = 'Execute a task on a specific service\'s instance'
+  static description = 'Execute a task on a running service'
 
   static flags = {
     ...Command.flags,
-    json: flags.string({char: 'j', description: 'Path to a JSON file containing the data required to run the task'}),
+    json: flags.string({char: 'j', description: 'Path to a JSON file containing the task inputs'}),
     data: flags.string({
       char: 'd',
-      description: 'Data required to run the task',
+      description: 'Task inputs',
       multiple: true,
       helpValue: 'key=value'
     }),
@@ -42,7 +42,7 @@ export default class ServiceExecute extends Command {
 
     const task = service.tasks.find((x: any) => x.key === args.TASK)
     if (!task) {
-      throw new Error(`The task ${args.TASK} does not exists in the instance ${instanceHash}`)
+      throw new Error(`The task ${args.TASK} does not exist in mesg.yaml service`)
     }
     const inputs = this.convertValue(task.inputs, this.dataFromFlags(flags))
 

@@ -7,7 +7,7 @@ import {join} from 'path'
 import Command from '../../root-command'
 
 export default class ServiceDoc extends Command {
-  static description = 'Generate the documentation for the service in a README.md file'
+  static description = 'Generate documentation for service and print it on stdout'
 
   static flags = {
     ...Command.flags,
@@ -15,8 +15,8 @@ export default class ServiceDoc extends Command {
   }
 
   static args = [{
-    name: 'SERVICE_PATH',
-    description: 'Path of the service',
+    name: 'SERVICE',
+    description: 'Path of a service',
     default: './'
   }]
 
