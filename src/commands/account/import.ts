@@ -9,7 +9,7 @@ export default class AccountImport extends Command {
 
   static args = [{
     name: 'ACCOUNT',
-    description: 'Previously exported account in JSON',
+    description: 'Account definition in JSON (could be retrieved with account:export)',
     required: true
   }]
 
