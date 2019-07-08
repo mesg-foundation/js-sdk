@@ -1,7 +1,7 @@
 import {WithPassphrase as Command} from '../../account-command'
 
 export default class AccountDelete extends Command {
-  static description = 'Delete an existing account'
+  static description = 'Delete an account'
 
   static flags = {
     ...Command.flags,
@@ -14,17 +14,18 @@ export default class AccountDelete extends Command {
 
   async run() {
     const {args} = this.parse(AccountDelete)
-
-    this.spinner.start('Delete account')
+    const passphrase = await this.getPassphrase()
+    this.spinner.start(`Deleting account ${args.ADDRESS}`)
     const data = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'delete',
       inputs: JSON.stringify({
-        passphrase: await this.getPassphrase(),
         address: args.ADDRESS,
+        passphrase
       })
     })
-    this.spinner.stop(data.address)
+    this.spinner.stop()
+    this.log(`Account ${data.address} deleted with success`)
     return data
   }
 }
