@@ -28,15 +28,9 @@ export default class MarketplacePublish extends Command {
     const account = await this.getAccount()
 
     this.spinner.start('Preparing service')
-
-    this.spinner.status = 'compiling'
     const compiledService = await ServiceCompile.run([path, '--silent'])
-
-    this.spinner.status = 'deploying'
     const createResponse = await ServiceCreate.run([JSON.stringify(compiledService), '--silent'])
     const definition = await ServiceDetail.run([createResponse.hash, '--silent'])
-
-    this.spinner.status = 'preparing transaction'
     const serviceTx = await this.preparePublishService({
       definition,
       readme: this.lookupReadme(path),
@@ -52,7 +46,7 @@ export default class MarketplacePublish extends Command {
     if (!await cli.confirm(`Do you confirm to send a transaction to ${serviceTx.to} with the account ${account}?`)) {
       return null
     }
-    
+
     const passphrase = await this.getPassphrase()
     this.spinner.start('Publishing service')
     const marketplaceService = await this.publishService(account, serviceTx, passphrase)
