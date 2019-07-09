@@ -1,9 +1,9 @@
 import {flags} from '@oclif/command'
 import {readFileSync} from 'fs'
 import {ExecutionCreateOutputs} from 'mesg-js/lib/api'
-import {resolveSID} from 'mesg-js/lib/util/resolve'
 
 import Command from '../../root-command'
+import instanceResolver from '../../utils/instance-resolver'
 
 import ServiceDetail from './detail'
 
@@ -33,7 +33,7 @@ export default class ServiceExecute extends Command {
   async run(): ExecutionCreateOutputs {
     const {args, flags} = this.parse(ServiceExecute)
 
-    const instanceHash = await resolveSID(this.api, args.INSTANCE_HASH)
+    const instanceHash = await instanceResolver(this.api, args.INSTANCE_HASH)
 
     const instance = await this.api.instance.get({
       hash: instanceHash

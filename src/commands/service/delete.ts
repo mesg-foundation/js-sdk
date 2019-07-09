@@ -2,6 +2,7 @@ import {flags} from '@oclif/command'
 import cli from 'cli-ux'
 
 import Command from '../../root-command'
+import serviceResolver from '../../utils/service-resolver'
 
 export default class ServiceDelete extends Command {
   static description = 'Delete one or many services'
@@ -23,8 +24,9 @@ export default class ServiceDelete extends Command {
     if (!flags.confirm && !await cli.confirm('Are you sure?')) return []
     this.spinner.start('Deleting service(s)')
     for (const hash of argv) {
-      this.spinner.status = hash
-      await this.api.service.delete({hash})
+      const serviceHash = await serviceResolver(this.api, hash)
+      this.spinner.status = serviceHash
+      await this.api.service.delete({hash: serviceHash})
     }
     this.spinner.stop()
     return argv
