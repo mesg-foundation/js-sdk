@@ -1,5 +1,5 @@
 import {readFileSync} from 'fs'
-import {Service} from 'mesg-js/lib/api'
+import {Service} from 'mesg-js/lib/api/types'
 import {join} from 'path'
 
 import {WithoutPassphrase} from '../../account-command'

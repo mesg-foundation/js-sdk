@@ -19,6 +19,7 @@ export default class ServiceCreate extends Command {
     const {args} = this.parse(ServiceCreate)
     this.spinner.start('Create service')
     const resp = await this.api.service.create(JSON.parse(args.DEFINITION))
+    if (!resp.hash) { throw new Error('invalid response') }
     this.spinner.stop(resp.hash)
     return resp
   }

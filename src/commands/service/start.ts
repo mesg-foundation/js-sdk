@@ -29,6 +29,7 @@ export default class ServiceStart extends Command {
       serviceHash,
       env: flags.env
     })
+    if (!instance.hash) throw new Error('invalid instance')
     this.spinner.stop(instance.hash)
     return instance
   }
