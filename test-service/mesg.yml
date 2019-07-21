@@ -1,0 +1,6 @@
+name: test-workflow
+sid: test-workflow
+description: "Description of my service"
+workflows:
+  - trigger:
+    
