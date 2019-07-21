@@ -1,5 +1,6 @@
 import yaml from 'js-yaml'
 import pick from 'lodash.pick'
+import {Service} from 'mesg-js/lib/api/types'
 
 const decode = (content: Buffer) => yaml.safeLoad(content.toString())
 
@@ -13,7 +14,7 @@ const parseParams = (params: any): any => mapToArray(params).map(x => ({
   object: parseParams(x.object),
 }))
 
-export default async (content: Buffer): Promise<any> => {
+export default async (content: Buffer): Promise<Service> => {
   const definition = decode(content)
   return {
     ...pick(definition, ['sid', 'name', 'description', 'configuration', 'repository']),
@@ -27,5 +28,6 @@ export default async (content: Buffer): Promise<any> => {
       ...pick(x, ['key', 'name', 'description']),
       data: parseParams(x.data)
     })),
+    workflows: mapToArray(definition.workflows).map(x => pick(x, ['trigger', 'task']))
   }
 }
