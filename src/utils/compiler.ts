@@ -28,6 +28,6 @@ export default async (content: Buffer): Promise<Service> => {
       ...pick(x, ['key', 'name', 'description']),
       data: parseParams(x.data)
     })),
-    workflows: mapToArray(definition.workflows).map(x => pick(x, ['trigger', 'task']))
+    workflows: mapToArray(definition.workflows).map(x => pick(x, ['key', 'trigger', 'task']))
   }
 }
