@@ -1,11 +1,11 @@
 import {readFileSync} from 'fs'
-import yaml from 'js-yaml'
 import {Service} from 'mesg-js/lib/api'
 import {join} from 'path'
 
 import {WithoutPassphrase} from '../../account-command'
 import MarketplaceCommand from '../../marketplace-command'
 import Command from '../../root-command'
+import compile from '../../utils/compiler'
 import deployer, {createTar} from '../../utils/deployer'
 
 const ipfsClient = require('ipfs-http-client')
@@ -29,37 +29,11 @@ export default class ServiceCompile extends Command {
     const {args} = this.parse(ServiceCompile)
     this.spinner.status = 'Download sources'
     const path = await deployer(await this.processUrl(args.SERVICE))
-    const source = await this.deploySources(path)
-    const definition = this.parseYml(readFileSync(join(path, 'mesg.yml')).toString(), source)
+    const definition = await compile(readFileSync(join(path, 'mesg.yml')))
+    definition.source = await this.deploySources(path)
     this.styledJSON(definition)
     this.spinner.stop()
     return definition
-  }
-
-  parseYml(content: string, source: string): Service {
-    const o = yaml.safeLoad(content)
-    const parseParams = (params: any): any => Object.keys(params || {})
-      .map((key: string) => {
-        const {name, description, type, repeated, optional, object} = params[key]
-        return {key, name, description, type, repeated, optional, object: parseParams(object || {})}
-      })
-    return {
-      sid: o.sid,
-      name: o.name,
-      description: o.description,
-      tasks: Object.keys(o.tasks || {}).map((key: string) => {
-        const {name, description, inputs, outputs} = o.tasks[key]
-        return {key, name, description, inputs: parseParams(inputs), outputs: parseParams(outputs)}
-      }),
-      events: Object.keys(o.events || {}).map((key: string) => {
-        const {name, description, data} = o.events[key]
-        return {key, name, description, data: parseParams(data)}
-      }),
-      dependencies: Object.keys(o.dependencies || {}).map((key: string) => ({key, ...o.dependencies[key]})),
-      configuration: o.configuration,
-      repository: o.repository,
-      source
-    }
   }
 
   async getAuthorizedServiceInfo(id: string, versionHash: string): Promise<{ sid: string, source: string, type: string }> {
