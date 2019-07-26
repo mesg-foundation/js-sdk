@@ -1,12 +1,17 @@
 import {readFileSync} from 'fs'
+import getSize from 'get-folder-size'
 import {Service} from 'mesg-js/lib/api/types'
 import {join} from 'path'
+import {promisify} from 'util'
 
 import {WithoutPassphrase} from '../../account-command'
 import MarketplaceCommand from '../../marketplace-command'
 import Command from '../../root-command'
 import compile from '../../utils/compiler'
 import deployer, {createTar} from '../../utils/deployer'
+
+const MB = 1024 * 1024
+const MAX_UPLOAD_SIZE = MB * 10
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -75,6 +80,8 @@ export default class ServiceCompile extends Command {
   }
 
   private async deploySources(path: string): Promise<string> {
+    const size = await promisify(getSize)(path) as number
+    if (size > MAX_UPLOAD_SIZE) throw new Error(`Max size upload ${MAX_UPLOAD_SIZE / MB}MB`)
     const buffer: any[] = []
     return new Promise<string>((resolve, reject) => {
       createTar(join(path))
