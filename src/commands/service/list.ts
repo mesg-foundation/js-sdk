@@ -1,5 +1,5 @@
 import cli from 'cli-ux'
-import {Instance} from 'mesg-js/lib/api'
+import {Instance, Service} from 'mesg-js/lib/api/types'
 
 import Command from '../../root-command'
 
@@ -16,17 +16,17 @@ export default class ServiceList extends Command {
     const {services} = await this.api.service.list({})
     const {instances} = await this.api.instance.list({})
     if (!services) return []
-    cli.table(services, {
+    cli.table<Service>(services, {
       hash: {header: 'HASH', get: x => x.hash},
       sid: {header: 'SID', get: x => x.sid},
       instances: {
         header: 'INSTANCES',
-        get: x => (instances || [])
+        get: x => (instances as Instance[])
           .filter(y => y.serviceHash === x.hash)
-          .map(x => x.hash)
+          .map(y => y.hash)
           .join('\n')
       }
     }, {printLine: this.log, ...flags})
-    return instances
+    return instances || []
   }
 }

@@ -38,6 +38,7 @@ export default class ServiceExecute extends Command {
     const instance = await this.api.instance.get({
       hash: instanceHash
     })
+    if (!instance.serviceHash) { throw new Error('invalid service hash') }
     const service = await ServiceDetail.run([instance.serviceHash, '--silent'])
 
     const task = service.tasks.find((x: any) => x.key === args.TASK)

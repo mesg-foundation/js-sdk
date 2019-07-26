@@ -119,7 +119,7 @@ export default class ServiceLogs extends Command {
   }
 
   formatEvent(event: Event) {
-    return `EVENT[${event.key}]: ` + chalk.gray(event.data)
+    return `EVENT[${event.key}]: ` + chalk.gray(event.data || '')
   }
   formatResult(execution: Execution) {
     if (execution.error) {
