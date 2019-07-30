@@ -65,10 +65,12 @@ export default class ServiceLogs extends Command {
 
     const dockerServices = await this.docker.service.list({
       filters: {
-        label: [`mesg.hash=${instanceHash}`]
+        label: [`mesg.instance=${instanceHash}`]
       }
     })
     for (const service of dockerServices) {
+      const labels = (service.data as any).Spec.Labels
+      const name = [labels['mesg.sid'], labels['mesg.dependency']].join('/')
       const logs = (await service.logs({
         stderr: true,
         stdout: true,
@@ -77,7 +79,7 @@ export default class ServiceLogs extends Command {
       }) as any)
       streams.push(() => logs.destroy())
       logs
-        .on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => this.log(x)))
+        .on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => this.log(chalk.gray(name + ':'), x)))
         .on('error', (error: Error) => { this.warn('Docker log stream error: ' + error.message) })
     }
 
