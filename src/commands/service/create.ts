@@ -29,7 +29,7 @@ export default class ServiceCreate extends Command {
     if (!resp.hash) { throw new Error('invalid response') }
     this.spinner.stop(resp.hash)
     if (flags.start) {
-      this.spinner.start('Create service')
+      this.spinner.start('Starting service')
       const start = await ServiceStart.run([resp.hash])
       this.spinner.stop(start.hash)
     }
