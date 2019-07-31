@@ -30,7 +30,7 @@
     "is-git-url": "^1.0.0",
     "js-yaml": "^3.13.1",
     "lodash.pick": "^4.4.0",
-    "mesg-js": "^4.2.0",
+    "mesg-js": "^4.2.2",
     "node-docker-api": "^1.1.22",
     "rimraf": "^2.6.3",
     "tar": "^4.4.8",
