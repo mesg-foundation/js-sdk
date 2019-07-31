@@ -19,10 +19,10 @@ export default class AccountExport extends Command {
     const data = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'export',
-      inputs: JSON.stringify({
+      inputs: {
         address: args.ADDRESS,
         passphrase,
-      })
+      }
     })
     this.spinner.stop()
     this.styledJSON(data)

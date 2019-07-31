@@ -38,11 +38,11 @@ export default abstract class MarketplaceCommand extends Command {
     return this.execute({
       instanceHash: await this.engineServiceInstance(WithoutPassphrase.SERVICE_NAME),
       taskKey: 'sign',
-      inputs: JSON.stringify({
+      inputs: {
         passphrase,
         address: account,
         transaction: data,
-      })
+      }
     })
   }
 
@@ -53,8 +53,7 @@ export default abstract class MarketplaceCommand extends Command {
     }
     const {addresses} = await this.execute({
       instanceHash: await this.engineServiceInstance(WithoutPassphrase.SERVICE_NAME),
-      taskKey: 'list',
-      inputs: JSON.stringify({})
+      taskKey: 'list'
     })
     if (!addresses.length) {
       throw new Error('You need to create an account first.')

@@ -25,11 +25,11 @@ export default class MarketplacePurchase extends Command {
     const preparePurchase = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'preparePurchase',
-      inputs: JSON.stringify({
+      inputs: {
         sid: args.SID,
         offerIndex: args.OFFER_ID,
         from: account,
-      })
+      }
     })
     this.spinner.stop()
     const passphrase = await this.getPassphrase()
@@ -41,9 +41,9 @@ export default class MarketplacePurchase extends Command {
     const purchase = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'publishPurchase',
-      inputs: JSON.stringify({
+      inputs: {
         signedTransactions: signedTxs.map(x => x.signedTransaction)
-      })
+      }
     })
     this.spinner.stop()
     this.styledJSON(purchase)

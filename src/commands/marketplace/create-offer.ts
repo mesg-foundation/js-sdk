@@ -31,18 +31,18 @@ export default class MarketplaceCreateOffer extends Command {
     const prepareOffer = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'prepareCreateServiceOffer',
-      inputs: JSON.stringify({
+      inputs: {
         sid: args.SID,
         price: flags.price,
         duration: flags.duration,
         from: account,
-      })
+      }
     })
     const signedTx = await this.sign(account, prepareOffer, passphrase)
     const offer = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'publishCreateServiceOffer',
-      inputs: JSON.stringify(signedTx)
+      inputs: signedTx
     })
     this.spinner.stop()
     this.styledJSON(offer)
