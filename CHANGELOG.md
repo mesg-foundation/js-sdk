@@ -8,6 +8,25 @@
 #### Fixed
 #### Removed
 
+## [v1.2.0](https://github.com/mesg-foundation/cli/releases/tag/v1.2.0)
+
+#### Added
+
+- ([#120](https://github.com/mesg-foundation/cli/pull/120)) Use latest MESG engine v0.12
+- ([#118](https://github.com/mesg-foundation/cli/pull/118)) Limit size of the upload during compilation to avoid mistakes (limit to 10MB)
+- ([#117](https://github.com/mesg-foundation/cli/pull/117)) Add `--start` flag to the `service:create` command to automatically start the service when created
+- ([#115](https://github.com/mesg-foundation/cli/pull/115)) Add workflow compilation
+- (???) Add validation of the service during the compilation
+
+#### Changed
+
+- ([#114](https://github.com/mesg-foundation/cli/pull/114)) Update compilation strategy
+
+#### Fixed
+
+- ([#116](https://github.com/mesg-foundation/cli/pull/116)) Fix `service:logs` with the last version of the engine
+- ([#38](https://github.com/mesg-foundation/cli/issues/38)) Fix issue when deploying from a wrong directory
+
 ## [v1.1.0](https://github.com/mesg-foundation/cli/releases/tag/v1.1.0)
 
 ### [Click here to see the release notes](https://forum.mesg.com/t/release-notes-of-engine-v0-11-cli-v1-1-and-js-library-v4/339)
