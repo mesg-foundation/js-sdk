@@ -26,6 +26,7 @@
 
 - ([#116](https://github.com/mesg-foundation/cli/pull/116)) Fix `service:logs` with the last version of the engine
 - ([#38](https://github.com/mesg-foundation/cli/issues/38)) Fix issue when deploying from a wrong directory
+- ([#121](https://github.com/mesg-foundation/cli/pull/121)) Fix issue when running `service:list` command with no instances running
 
 ## [v1.1.0](https://github.com/mesg-foundation/cli/releases/tag/v1.1.0)
 
