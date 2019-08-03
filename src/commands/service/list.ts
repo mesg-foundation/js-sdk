@@ -21,7 +21,7 @@ export default class ServiceList extends Command {
       sid: {header: 'SID', get: x => x.sid},
       instances: {
         header: 'INSTANCES',
-        get: x => (instances as Instance[])
+        get: x => ((instances || []) as Instance[])
           .filter(y => y.serviceHash === x.hash)
           .map(y => y.hash)
           .join('\n')
