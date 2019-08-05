@@ -20,10 +20,10 @@ export default class AccountImport extends Command {
     const data = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'import',
-      inputs: JSON.stringify({
+      inputs: {
         account: JSON.parse(args.ACCOUNT),
         passphrase,
-      })
+      }
     })
     this.spinner.stop(data.address)
     return data

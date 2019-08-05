@@ -39,8 +39,7 @@ export default class ServiceCompile extends Command {
   async getAuthorizedServiceInfo(id: string, versionHash: string): Promise<{ sid: string, source: string, type: string }> {
     const {addresses} = await this.execute({
       instanceHash: await this.engineServiceInstance(WithoutPassphrase.SERVICE_NAME),
-      taskKey: 'list',
-      inputs: JSON.stringify({})
+      taskKey: 'list'
     })
     if (!addresses.length) {
       throw new Error('no available account. please add an authorized account in order to deploy the service')
@@ -49,11 +48,11 @@ export default class ServiceCompile extends Command {
     const {authorized, sid, source, type} = await this.execute({
       instanceHash: await this.engineServiceInstance(MarketplaceCommand.SERVICE_NAME),
       taskKey: 'isAuthorized',
-      inputs: JSON.stringify({
+      inputs: {
         id,
         versionHash,
         addresses
-      })
+      }
     })
     if (!authorized) {
       throw new Error('no available account. please add an authorized account in order to deploy the service')

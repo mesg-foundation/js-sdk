@@ -13,7 +13,9 @@ export default class AccountCreate extends Command {
     const data = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'create',
-      inputs: JSON.stringify({passphrase})
+      inputs: {
+        passphrase
+      }
     })
     this.spinner.stop(data.address)
     return data
