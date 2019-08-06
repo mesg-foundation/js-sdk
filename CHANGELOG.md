@@ -12,19 +12,20 @@
 
 #### Added
 
-- ([#120](https://github.com/mesg-foundation/cli/pull/120)) Use latest MESG engine v0.12.
-- ([#118](https://github.com/mesg-foundation/cli/pull/118)) Limit size of the upload during compilation to avoid mistakes (limit to 10MB).
-- ([#117](https://github.com/mesg-foundation/cli/pull/117)) Add `--start` flag to the `service:create` command to automatically start the service when created.
 - ([#115](https://github.com/mesg-foundation/cli/pull/115)) Add workflow compilation.
+- ([#117](https://github.com/mesg-foundation/cli/pull/117)) Add `--start` flag to the `service:create` command to automatically start the service when created.
+- ([#118](https://github.com/mesg-foundation/cli/pull/118)) Limit size of the upload during compilation to avoid mistakes (limit to 10MB).
+- ([#120](https://github.com/mesg-foundation/cli/pull/120)) Use latest MESG engine v0.12.
 
 #### Changed
 
 - ([#114](https://github.com/mesg-foundation/cli/pull/114)) Update compilation strategy.
+- ([#119](https://github.com/mesg-foundation/cli/pull/119)) Migrate to mesg-js 4.2.
 
 #### Fixed
 
-- ([#116](https://github.com/mesg-foundation/cli/pull/116)) Fix `service:logs` with the last version of the engine.
 - ([#38](https://github.com/mesg-foundation/cli/issues/38)) Fix issue when deploying from a wrong directory.
+- ([#116](https://github.com/mesg-foundation/cli/pull/116)) Fix `service:logs` with the last version of the engine.
 - ([#121](https://github.com/mesg-foundation/cli/pull/121)) Fix issue when running `service:list` command with no instances running.
 
 ## [v1.1.0](https://github.com/mesg-foundation/cli/releases/tag/v1.1.0)
