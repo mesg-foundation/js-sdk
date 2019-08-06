@@ -48,7 +48,7 @@ export default class ServiceExecute extends Command {
     const inputs = this.convertValue(task.inputs, this.dataFromFlags(flags))
 
     const result = await this.execute({
-      inputs: JSON.stringify(inputs),
+      inputs,
       instanceHash,
       tags: ['CLI'],
       taskKey: args.TASK

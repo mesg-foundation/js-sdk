@@ -1,6 +1,7 @@
 import {flags} from '@oclif/command'
 import chalk from 'chalk'
 import {Event, Execution, ExecutionStatus} from 'mesg-js/lib/api'
+import {decode} from 'mesg-js/lib/util/encoder'
 import {Docker} from 'node-docker-api'
 
 import Command from '../../root-command'
@@ -121,12 +122,14 @@ export default class ServiceLogs extends Command {
   }
 
   formatEvent(event: Event) {
-    return `EVENT[${event.key}]: ` + chalk.gray(event.data || '')
+    if (!event.data) return
+    return `EVENT[${event.key}]: ` + chalk.gray(JSON.stringify(decode(event.data)))
   }
   formatResult(execution: Execution) {
     if (execution.error) {
       return `RESULT[${execution.taskKey}]: ` + chalk.red('ERROR:', execution.error)
     }
-    return `RESULT[${execution.taskKey}]: ` + chalk.gray(execution.outputs || '')
+    if (!execution.outputs) return
+    return `RESULT[${execution.taskKey}]: ` + chalk.gray(JSON.stringify(decode(execution.outputs)))
   }
 }

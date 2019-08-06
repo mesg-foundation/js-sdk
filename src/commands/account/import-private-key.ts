@@ -20,10 +20,10 @@ export default class AccountImportPK extends Command {
     const data = await this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'importFromPrivateKey',
-      inputs: JSON.stringify({
+      inputs: {
         privateKey: args.PRIVATE_KEY,
         passphrase,
-      })
+      }
     })
     this.spinner.stop(data.address)
     return data

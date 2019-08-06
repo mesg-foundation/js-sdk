@@ -1,4 +1,4 @@
-import {existsSync, lstatSync, readdirSync, readFileSync} from 'fs'
+import {existsSync, lstatSync, readdirSync, readFileSync, Stats, statSync} from 'fs'
 import {fromUrl} from 'hosted-git-info'
 import ignore from 'ignore'
 import isGitUrl from 'is-git-url'
@@ -9,6 +9,9 @@ import {Readable} from 'stream'
 import tar from 'tar'
 import {v4 as uuid} from 'uuid'
 import {isURL} from 'validator'
+
+const MB = 1024 * 1024
+const MAX_UPLOAD_SIZE = MB * 10
 
 const downloadTarball = require('download-tarball')
 const gitclone = require('git-clone')
@@ -48,15 +51,32 @@ const preprocessPath = (path: string): string => {
   return path
 }
 
+const directorySize = (path: string, accept: (path: string) => boolean): number => {
+  const fileAndStat = (x: string) => ({file: x, stat: statSync(join(path, x))})
+  const sizeOf = ({file, stat}: { file: string, stat: Stats }) => stat.isDirectory()
+    ? directorySize(join(path, file), accept)
+    : stat.size
+
+  return readdirSync(path, 'utf8')
+    .filter(accept)
+    .map(fileAndStat)
+    .map(sizeOf)
+    .reduce((prev, next) => prev + next, 0)
+}
+
 export const createTar = (path: string): Readable => {
   const mesgignore = join(path, '.mesgignore')
   const ig = ignore().add([
     '.git',
     ...(existsSync(mesgignore) ? readFileSync(mesgignore).toString().split('\n') : [])
   ])
+  const filter = ig.createFilter()
+  const dirSize = directorySize(path, filter)
+  if (dirSize > MAX_UPLOAD_SIZE) throw new Error(`Max size upload ${MAX_UPLOAD_SIZE / MB}MB`)
+
   return tar.create({
     cwd: path,
-    filter: ig.createFilter(),
+    filter,
     strict: true,
     gzip: true,
     portable: true,

@@ -59,10 +59,10 @@ export default class MarketplacePublish extends Command {
     return this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'preparePublishServiceVersion',
-      inputs: JSON.stringify({
+      inputs: {
         service,
         from: account
-      })
+      }
     })
   }
 
@@ -71,7 +71,7 @@ export default class MarketplacePublish extends Command {
     return this.execute({
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'publishPublishServiceVersion',
-      inputs: JSON.stringify(signedTx)
+      inputs: signedTx
     })
   }
 
