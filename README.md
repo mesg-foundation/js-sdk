@@ -199,7 +199,7 @@ OPTIONS
   --name=name                                      (required) [default: engine] Name of the docker service running the
                                                    engine
 
-  --version=version                                (required) [default: v0.11.0] Version of the Engine to run
+  --version=version                                (required) [default: v0.12.1] Version of the Engine to run
 ```
 
 _See code: [src/commands/daemon/start.ts](https://github.com/mesg-foundation/cli/blob/v1.1.0/src/commands/daemon/start.ts)_
@@ -348,6 +348,7 @@ ARGUMENTS
 OPTIONS
   -h, --help   show CLI help
   -q, --quiet  Display only essential information
+  --start      Automatically start the service once created
 ```
 
 _See code: [src/commands/service/create.ts](https://github.com/mesg-foundation/cli/blob/v1.1.0/src/commands/service/create.ts)_
@@ -398,6 +399,7 @@ OPTIONS
   -h, --help     show CLI help
   -q, --quiet    Display only essential information
   --env=FOO=BAR  Set environment variables
+  --start        Automatically start the service once created
 ```
 
 _See code: [src/commands/service/dev.ts](https://github.com/mesg-foundation/cli/blob/v1.1.0/src/commands/service/dev.ts)_
