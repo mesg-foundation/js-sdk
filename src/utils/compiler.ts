@@ -14,7 +14,7 @@ const parseParams = (params: any): any => mapToArray(params).map(x => ({
   object: parseParams(x.object),
 }))
 
-export default async (content: Buffer): Promise<Service> => {
+export const service = async (content: Buffer): Promise<Service> => {
   const definition = decode(content)
   return {
     ...pick(definition, ['sid', 'name', 'description', 'configuration', 'repository']),
@@ -27,7 +27,9 @@ export default async (content: Buffer): Promise<Service> => {
     events: mapToArray(definition.events).map(x => ({
       ...pick(x, ['key', 'name', 'description']),
       data: parseParams(x.data)
-    })),
-    workflows: mapToArray(definition.workflows).map(x => pick(x, ['key', 'trigger', 'task']))
+    }))
+  }
+}
+
   }
 }
