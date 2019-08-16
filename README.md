@@ -54,6 +54,7 @@ USAGE
 * [`mesg-cli service:logs INSTANCE_HASH`](#mesg-cli-servicelogs-instance_hash)
 * [`mesg-cli service:start SERVICE_HASH`](#mesg-cli-servicestart-service_hash)
 * [`mesg-cli service:stop INSTANCE_HASH...`](#mesg-cli-servicestop-instance_hash)
+* [`mesg-cli workflow:compile [WORKFLOW_FILE]`](#mesg-cli-workflowcompile-workflow_file)
 
 ## `mesg-cli account:create`
 
@@ -538,4 +539,22 @@ OPTIONS
 ```
 
 _See code: [src/commands/service/stop.ts](https://github.com/mesg-foundation/cli/blob/v1.2.0/src/commands/service/stop.ts)_
+
+## `mesg-cli workflow:compile [WORKFLOW_FILE]`
+
+Compile a workflow
+
+```
+USAGE
+  $ mesg-cli workflow:compile [WORKFLOW_FILE]
+
+ARGUMENTS
+  WORKFLOW_FILE  Path of a workflow file
+
+OPTIONS
+  -h, --help   show CLI help
+  -q, --quiet  Display only essential information
+```
+
+_See code: [src/commands/workflow/compile.ts](https://github.com/mesg-foundation/cli/blob/v1.2.0/src/commands/workflow/compile.ts)_
 <!-- commandsstop -->
