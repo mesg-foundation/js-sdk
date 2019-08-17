@@ -2,6 +2,7 @@ import {flags} from '@oclif/command'
 import {InstanceCreateOutputs} from 'mesg-js/lib/api'
 
 import Command from '../../root-command'
+import {isAlreadyExists, resourceHash} from '../../utils/error'
 import serviceResolver from '../../utils/service-resolver'
 
 export default class ServiceStart extends Command {
@@ -32,5 +33,15 @@ export default class ServiceStart extends Command {
     if (!instance.hash) throw new Error('invalid instance')
     this.spinner.stop(instance.hash)
     return instance
+  }
+
+  async catch(err: Error): Promise<any> {
+    if (isAlreadyExists(err, 'instance')) {
+      const hash = resourceHash(err, 'instance')
+      this.warn(`instance ${hash} already started`)
+      this.spinner.stop(hash)
+      return {hash}
+    }
+    return super.catch(err)
   }
 }
