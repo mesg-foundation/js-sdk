@@ -11,6 +11,8 @@ export default abstract class extends Command {
     help: flags.help({char: 'h'}),
     quiet: flags.boolean({char: 'q', description: 'Display only essential information'}),
     silent: flags.boolean({hidden: true}),
+    port: flags.integer({char: 'p', default: 50052, description: 'Port to access the MESG engine'}),
+    host: flags.string({default: 'localhost', description: 'Host to access the MESG engine'})
   }
 
   public api: API
@@ -18,10 +20,11 @@ export default abstract class extends Command {
 
   constructor(argv: string[], config: IConfig) {
     super(argv, config)
-    const port = 50052
+    const {flags} = this.parse()
+    const port = flags.port
     const host = process.env.DOCKER_HOST
       ? new URL(process.env.DOCKER_HOST).hostname
-      : 'localhost'
+      : flags.host
     const endpoint = `${host}:${port}`
     this.api = createApi(endpoint)
     this._app = application({endpoint})
