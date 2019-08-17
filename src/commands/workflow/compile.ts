@@ -1,8 +1,11 @@
-import {readFileSync} from 'fs'
+import {existsSync, readFileSync} from 'fs'
+import {dirname, join} from 'path'
 
 import Command from '../../root-command'
 import * as compile from '../../utils/compiler'
-import ServiceStart from '../service/start';
+import ServiceCompile from '../service/compile'
+import ServiceCreate from '../service/create'
+import ServiceStart from '../service/start'
 
 export default class WorkflowCompile extends Command {
   static description = 'Compile a workflow'
@@ -25,11 +28,21 @@ export default class WorkflowCompile extends Command {
       if (instanceObject.service) {
         return this.serviceToInstance(instanceObject.service)
       }
-      throw new Error('at least one of the following parameter should be set: "instanceHash" or "service"')
+      if (instanceObject.src) {
+        return this.sourceToInstance(args.WORKFLOW_FILE, instanceObject.src)
+      }
+      throw new Error('at least one of the following parameter should be set: "instanceHash", "service" or "src"')
     })
     this.styledJSON(definition)
     this.spinner.stop()
     return definition
+  }
+
+  async sourceToInstance(dir: string, src: string): Promise<string> {
+    const directory = join(dirname(dir), src)
+    const definition = await ServiceCompile.run([existsSync(directory) ? directory : src, '--silent'])
+    const service = await ServiceCreate.run([JSON.stringify(definition), '--silent'])
+    return this.serviceToInstance(service.hash)
   }
 
   async serviceToInstance(key: string): Promise<string> {
