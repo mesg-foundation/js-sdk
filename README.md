@@ -55,6 +55,10 @@ USAGE
 * [`mesg-cli service:start SERVICE_HASH`](#mesg-cli-servicestart-service_hash)
 * [`mesg-cli service:stop INSTANCE_HASH...`](#mesg-cli-servicestop-instance_hash)
 * [`mesg-cli workflow:compile [WORKFLOW_FILE]`](#mesg-cli-workflowcompile-workflow_file)
+* [`mesg-cli workflow:create DEFINITION`](#mesg-cli-workflowcreate-definition)
+* [`mesg-cli workflow:delete WORKFLOW_HASH...`](#mesg-cli-workflowdelete-workflow_hash)
+* [`mesg-cli workflow:detail WORKFLOW_HASH`](#mesg-cli-workflowdetail-workflow_hash)
+* [`mesg-cli workflow:list`](#mesg-cli-workflowlist)
 
 ## `mesg-cli account:create`
 
@@ -610,4 +614,83 @@ OPTIONS
 ```
 
 _See code: [src/commands/workflow/compile.ts](https://github.com/mesg-foundation/cli/blob/v1.2.0/src/commands/workflow/compile.ts)_
+
+## `mesg-cli workflow:create DEFINITION`
+
+Create a workflow
+
+```
+USAGE
+  $ mesg-cli workflow:create DEFINITION
+
+ARGUMENTS
+  DEFINITION  Workflow's definition. Use workflow:compile first to build workflow definition
+
+OPTIONS
+  -h, --help       show CLI help
+  -p, --port=port  [default: 50052] Port to access the MESG engine
+  -q, --quiet      Display only essential information
+  --host=host      [default: localhost] Host to access the MESG engine
+```
+
+_See code: [src/commands/workflow/create.ts](https://github.com/mesg-foundation/cli/blob/v1.2.0/src/commands/workflow/create.ts)_
+
+## `mesg-cli workflow:delete WORKFLOW_HASH...`
+
+Delete one or many workflows
+
+```
+USAGE
+  $ mesg-cli workflow:delete WORKFLOW_HASH...
+
+OPTIONS
+  -h, --help       show CLI help
+  -p, --port=port  [default: 50052] Port to access the MESG engine
+  -q, --quiet      Display only essential information
+  --confirm        Confirm deletion
+  --host=host      [default: localhost] Host to access the MESG engine
+```
+
+_See code: [src/commands/workflow/delete.ts](https://github.com/mesg-foundation/cli/blob/v1.2.0/src/commands/workflow/delete.ts)_
+
+## `mesg-cli workflow:detail WORKFLOW_HASH`
+
+Display detailed information on a workflow
+
+```
+USAGE
+  $ mesg-cli workflow:detail WORKFLOW_HASH
+
+OPTIONS
+  -h, --help       show CLI help
+  -p, --port=port  [default: 50052] Port to access the MESG engine
+  -q, --quiet      Display only essential information
+  --host=host      [default: localhost] Host to access the MESG engine
+```
+
+_See code: [src/commands/workflow/detail.ts](https://github.com/mesg-foundation/cli/blob/v1.2.0/src/commands/workflow/detail.ts)_
+
+## `mesg-cli workflow:list`
+
+List workflows
+
+```
+USAGE
+  $ mesg-cli workflow:list
+
+OPTIONS
+  -h, --help         show CLI help
+  -p, --port=port    [default: 50052] Port to access the MESG engine
+  -q, --quiet        Display only essential information
+  -x, --extended     show extra columns
+  --columns=columns  only show provided columns (comma-separated)
+  --csv              output is csv format
+  --filter=filter    filter property by partial string matching, ex: name=foo
+  --host=host        [default: localhost] Host to access the MESG engine
+  --no-header        hide table header from output
+  --no-truncate      do not truncate output to fit screen
+  --sort=sort        property to sort by (prepend '-' for descending)
+```
+
+_See code: [src/commands/workflow/list.ts](https://github.com/mesg-foundation/cli/blob/v1.2.0/src/commands/workflow/list.ts)_
 <!-- commandsstop -->
