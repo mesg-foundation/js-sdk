@@ -609,6 +609,7 @@ OPTIONS
   -h, --help       show CLI help
   -p, --port=port  [default: 50052] Port to access the MESG engine
   -q, --quiet      Display only essential information
+  --dev            compile the workflow and automatically deploy and start all the services
   --host=host      [default: localhost] Host to access the MESG engine
 ```
 
