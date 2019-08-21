@@ -5,7 +5,7 @@ import {join} from 'path'
 import {WithoutPassphrase} from '../../account-command'
 import MarketplaceCommand from '../../marketplace-command'
 import Command from '../../root-command'
-import compile from '../../utils/compiler'
+import * as compile from '../../utils/compiler'
 import deployer, {createTar} from '../../utils/deployer'
 
 const ipfsClient = require('ipfs-http-client')
@@ -29,7 +29,7 @@ export default class ServiceCompile extends Command {
     const {args} = this.parse(ServiceCompile)
     this.spinner.status = 'Download sources'
     const path = await deployer(await this.processUrl(args.SERVICE))
-    const definition = await compile(readFileSync(join(path, 'mesg.yml')))
+    const definition = await compile.service(readFileSync(join(path, 'mesg.yml')))
     definition.source = await this.deploySources(path)
     this.styledJSON(definition)
     this.spinner.stop()
