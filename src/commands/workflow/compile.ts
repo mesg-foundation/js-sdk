@@ -1,3 +1,4 @@
+import {flags} from '@oclif/command';
 import {existsSync, readFileSync} from 'fs'
 import {dirname, join} from 'path'
 
@@ -11,7 +12,8 @@ export default class WorkflowCompile extends Command {
   static description = 'Compile a workflow'
 
   static flags = {
-    ...Command.flags
+    ...Command.flags,
+    dev: flags.boolean({description: 'compile the workflow and automatically deploy and start all the services'})
   }
 
   static args = [{
@@ -20,10 +22,13 @@ export default class WorkflowCompile extends Command {
   }]
 
   async run(): Promise<any> {
-    const {args} = this.parse(WorkflowCompile)
+    const {args, flags} = this.parse(WorkflowCompile)
     const definition = await compile.workflow(readFileSync(args.WORKFLOW_FILE), async (instanceObject: any) => {
       if (instanceObject.instanceHash) {
         return instanceObject.instanceHash
+      }
+      if (!flags.dev) {
+        throw new Error('"instanceHash" should be present in your workflow. Use `--dev` to be able to use "service" or "src" attributes.')
       }
       if (instanceObject.service) {
         return this.serviceToInstance(instanceObject.service)
