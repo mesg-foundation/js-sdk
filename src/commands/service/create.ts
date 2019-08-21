@@ -2,7 +2,7 @@ import {flags} from '@oclif/command'
 import {ServiceCreateOutputs} from 'mesg-js/lib/api'
 
 import Command from '../../root-command'
-import {isAlreadyExists, resourceHash} from '../../utils/error'
+import {errorConversion} from '../../utils/error'
 
 import ServiceStart from './start'
 
@@ -30,7 +30,7 @@ export default class ServiceCreate extends Command {
     try {
       resp = await this.api.service.create(JSON.parse(args.DEFINITION))
     } catch (e) {
-      resp = this.handleError(e)
+      throw errorConversion(e)
     }
     if (!resp.hash) { throw new Error('invalid response') }
     this.spinner.stop(resp.hash)
@@ -40,15 +40,5 @@ export default class ServiceCreate extends Command {
       this.spinner.stop(start.hash)
     }
     return resp
-  }
-
-  handleError(err: Error) {
-    if (isAlreadyExists(err, 'service')) {
-      const hash = resourceHash(err, 'service')
-      this.warn(`service ${hash} already created`)
-      this.spinner.stop(hash)
-      return {hash}
-    }
-    throw err
   }
 }
