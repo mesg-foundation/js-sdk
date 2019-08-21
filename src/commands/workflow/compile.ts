@@ -25,7 +25,7 @@ export default class WorkflowCompile extends Command {
       if (instanceObject.service) {
         return this.serviceToInstance(instanceObject.service)
       }
-      throw new Error('instance resolution error')
+      throw new Error('at least one of the following parameter should be set: "instanceHash" or "service"')
     })
     this.styledJSON(definition)
     this.spinner.stop()
@@ -36,7 +36,7 @@ export default class WorkflowCompile extends Command {
     const {services} = await this.api.service.list({})
     if (!services) throw new Error('no services deployed, please deploy your service first')
     const match = services.filter(x => x.hash === key || x.sid === key)
-    if (match.length > 1) throw new Error(`multiple services match the following key: ${key}, please use service Hash instead.`)
+    if (match.length > 1) throw new Error(`multiple services match the following sid: ${key}, provide a service's hash instead`)
     const service = match[0]
     if (!service.hash) throw new Error('invalid service')
     const {instances} = await this.api.instance.list({serviceHash: service.hash})
@@ -44,7 +44,7 @@ export default class WorkflowCompile extends Command {
       const instance = await ServiceStart.run([service.hash, '--silent'])
       return instance.hash
     }
-    if (instances.length > 1) throw new Error('multiple instances running, please use instanceHash instead.')
+    if (instances.length > 1) throw new Error('multiple instances match the service, use parameter "instanceHash" instead of "service"')
     const instance = instances[0]
     if (!instance.hash) throw new Error('invalid instance')
     return instance.hash
