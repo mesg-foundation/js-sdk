@@ -15,10 +15,6 @@ const parseParams = (params: any): any => mapToArray(params).map(x => ({
   object: parseParams(x.object),
 }))
 
-const prepareInstanceHash = async (object: any): Promise<string> => {
-  return object.instanceHash
-}
-
 export const service = async (content: Buffer): Promise<Service> => {
   const definition = decode(content)
   return {
@@ -36,17 +32,17 @@ export const service = async (content: Buffer): Promise<Service> => {
   }
 }
 
-export const workflow = async (content: Buffer): Promise<Workflow> => {
+export const workflow = async (content: Buffer, instanceResolver: (object: any) => Promise<string>): Promise<Workflow> => {
   const definition = decode(content)
   const createNode = async (def: any, index: number): Promise<WorkflowType.types.Workflow.INode> => ({
     key: def.key || `node-${index}`,
     taskKey: def.taskKey,
-    instanceHash: await prepareInstanceHash(def)
+    instanceHash: await instanceResolver(def)
   })
   const orderedNodes = await Promise.all(definition.tasks.map(createNode)) as WorkflowType.types.Workflow.INode[]
 
   const trigger = {
-    instanceHash: await prepareInstanceHash(definition.trigger),
+    instanceHash: await instanceResolver(definition.trigger),
     taskKey: definition.trigger.taskKey,
     eventKey: definition.trigger.eventKey,
     nodeKey: orderedNodes[0].key
