@@ -36,7 +36,7 @@ export default class WorkflowCompile extends Command {
     const {services} = await this.api.service.list({})
     if (!services) throw new Error('no services deployed, please deploy your service first')
     const match = services.filter(x => x.hash === key || x.sid === key)
-    if (!match || match.length === 0) throw new Error(`cannot find any service with the following key: ${key}`)
+    if (!match || match.length === 0) throw new Error(`cannot find any service with the following: ${key}`)
     if (match.length > 1) throw new Error(`multiple services match the following sid: ${key}, provide a service's hash instead`)
     const service = match[0]
     if (!service.hash) throw new Error('invalid service')
