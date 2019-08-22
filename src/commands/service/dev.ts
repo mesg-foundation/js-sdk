@@ -25,6 +25,9 @@ export default class ServiceDev extends Command {
     default: './'
   }]
 
+  serviceCreated = false
+  instanceCreated = false
+
   async run() {
     const {args, flags} = this.parse(ServiceDev)
 
@@ -35,8 +38,8 @@ export default class ServiceDev extends Command {
 
     process.once('SIGINT', async () => {
       stream.destroy()
-      await ServiceStop.run([instanceHash])
-      await ServiceDelete.run([serviceHash, '--confirm'])
+      if (this.instanceCreated) await ServiceStop.run([instanceHash])
+      if (this.serviceCreated) await ServiceDelete.run([serviceHash, '--confirm'])
     })
   }
 
@@ -44,6 +47,7 @@ export default class ServiceDev extends Command {
     try {
       const service = await this.api.service.create(definition)
       if (!service.hash) throw new Error('invalid hash')
+      this.serviceCreated = true
       return service.hash
     } catch (e) {
       if (!IsAlreadyExistsError.match(e)) throw e
@@ -59,6 +63,7 @@ export default class ServiceDev extends Command {
         env
       })
       if (!instance.hash) throw new Error('invalid hash')
+      this.instanceCreated = true
       return instance.hash
     } catch (e) {
       if (!IsAlreadyExistsError.match(e)) throw e
