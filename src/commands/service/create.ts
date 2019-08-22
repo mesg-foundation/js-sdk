@@ -2,6 +2,7 @@ import {flags} from '@oclif/command'
 import {ServiceCreateOutputs} from 'mesg-js/lib/api'
 
 import Command from '../../root-command'
+import {errorConversion} from '../../utils/error'
 
 import ServiceStart from './start'
 
@@ -25,7 +26,12 @@ export default class ServiceCreate extends Command {
   async run(): ServiceCreateOutputs {
     const {args, flags} = this.parse(ServiceCreate)
     this.spinner.start('Create service')
-    const resp = await this.api.service.create(JSON.parse(args.DEFINITION))
+    let resp: any
+    try {
+      resp = await this.api.service.create(JSON.parse(args.DEFINITION))
+    } catch (e) {
+      throw errorConversion(e)
+    }
     if (!resp.hash) { throw new Error('invalid response') }
     this.spinner.stop(resp.hash)
     if (flags.start) {
