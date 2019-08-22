@@ -4,9 +4,8 @@ import {dirname, join} from 'path'
 
 import Command from '../../root-command'
 import * as compile from '../../utils/compiler'
+import {IsAlreadyExistsError} from '../../utils/error'
 import ServiceCompile from '../service/compile'
-import ServiceCreate from '../service/create'
-import ServiceStart from '../service/start'
 
 export default class WorkflowCompile extends Command {
   static description = 'Compile a workflow'
@@ -46,8 +45,17 @@ export default class WorkflowCompile extends Command {
   async sourceToInstance(dir: string, src: string): Promise<string> {
     const directory = join(dirname(dir), src)
     const definition = await ServiceCompile.run([existsSync(directory) ? directory : src, '--silent'])
-    const service = await ServiceCreate.run([JSON.stringify(definition), '--silent'])
-    return this.serviceToInstance(service.hash)
+    let hash: string | null = null
+    try {
+      const resp = await this.api.service.create(definition)
+      if (!resp.hash) throw new Error('invalid hash')
+      hash = resp.hash
+    } catch (e) {
+      if (!IsAlreadyExistsError.match(e)) throw e
+      hash = new IsAlreadyExistsError(e).hash
+    }
+    if (!hash) throw new Error('hash cannot be empty')
+    return this.serviceToInstance(hash)
   }
 
   async serviceToInstance(key: string): Promise<string> {
@@ -60,8 +68,17 @@ export default class WorkflowCompile extends Command {
     if (!service.hash) throw new Error('invalid service')
     const {instances} = await this.api.instance.list({serviceHash: service.hash})
     if (!instances || instances.length === 0) {
-      const instance = await ServiceStart.run([service.hash, '--silent'])
-      return instance.hash
+      try {
+        const resp = await this.api.instance.create({
+          serviceHash: service.hash,
+          env: [],
+        })
+        if (!resp.hash) throw new Error('invalid hash')
+        return resp.hash
+      } catch (e) {
+        if (!IsAlreadyExistsError.match(e)) throw e
+        return new IsAlreadyExistsError(e).hash
+      }
     }
     if (instances.length > 1) throw new Error('multiple instances match the service, use parameter "instanceHash" instead of "service"')
     const instance = instances[0]
