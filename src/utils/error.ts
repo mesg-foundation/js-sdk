@@ -15,10 +15,3 @@ export class IsAlreadyExistsError extends Error {
     this.name = IsAlreadyExistsError.ID
   }
 }
-
-export const errorConversion = (err: Error): Error => {
-  if (IsAlreadyExistsError.match(err)) {
-    return new IsAlreadyExistsError(err)
-  }
-  return err
-}
