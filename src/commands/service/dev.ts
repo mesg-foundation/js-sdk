@@ -1,4 +1,7 @@
+import {Service} from 'mesg-js/lib/api'
+
 import Command from '../../root-command'
+import {IsAlreadyExistsError} from '../../utils/error'
 
 import ServiceCompile from './compile'
 import ServiceCreate from './create'
@@ -22,19 +25,50 @@ export default class ServiceDev extends Command {
     default: './'
   }]
 
+  serviceCreated = false
+  instanceCreated = false
+
   async run() {
     const {args, flags} = this.parse(ServiceDev)
 
     const definition = await ServiceCompile.run([args.SERVICE, '--silent'])
-    const service = await ServiceCreate.run([JSON.stringify(definition)])
-    const envs = (flags.env || []).reduce((prev, value) => [...prev, '--env', value], [] as string[])
-    const instance = await ServiceStart.run([service.hash, ...envs])
-    const stream = await ServiceLog.run([instance.hash])
+    const serviceHash = await this.createService(definition)
+    const instanceHash = await this.startService(serviceHash, flags.env)
+    const stream = await ServiceLog.run([instanceHash])
 
     process.once('SIGINT', async () => {
       stream.destroy()
-      await ServiceStop.run([instance.hash])
-      await ServiceDelete.run([service.hash, '--confirm'])
+      if (this.instanceCreated) await ServiceStop.run([instanceHash])
+      if (this.serviceCreated) await ServiceDelete.run([serviceHash, '--confirm'])
     })
+  }
+
+  async createService(definition: Service): Promise<string> {
+    try {
+      const service = await this.api.service.create(definition)
+      if (!service.hash) throw new Error('invalid hash')
+      this.serviceCreated = true
+      return service.hash
+    } catch (e) {
+      if (!IsAlreadyExistsError.match(e)) throw e
+      this.warn('service already created')
+      return new IsAlreadyExistsError(e).hash
+    }
+  }
+
+  async startService(serviceHash: string, env: string[]): Promise<string> {
+    try {
+      const instance = await this.api.instance.create({
+        serviceHash,
+        env
+      })
+      if (!instance.hash) throw new Error('invalid hash')
+      this.instanceCreated = true
+      return instance.hash
+    } catch (e) {
+      if (!IsAlreadyExistsError.match(e)) throw e
+      this.warn('service already started')
+      return new IsAlreadyExistsError(e).hash
+    }
   }
 }

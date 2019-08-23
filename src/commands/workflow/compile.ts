@@ -1,4 +1,4 @@
-import {flags} from '@oclif/command';
+import {flags} from '@oclif/command'
 import {existsSync, readFileSync} from 'fs'
 import {dirname, join} from 'path'
 
