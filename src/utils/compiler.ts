@@ -1,7 +1,7 @@
 import yaml from 'js-yaml'
 import pick from 'lodash.pick'
 import * as WorkflowType from 'mesg-js/lib/api/typedef/workflow'
-import {Service, Workflow} from 'mesg-js/lib/api/types'
+import {Service, Workflow, hash} from 'mesg-js/lib/api/types'
 
 const decode = (content: Buffer) => yaml.safeLoad(content.toString())
 
@@ -32,7 +32,7 @@ export const service = async (content: Buffer): Promise<Service> => {
   }
 }
 
-export const workflow = async (content: Buffer, instanceResolver: (object: any) => Promise<string>): Promise<Workflow> => {
+export const workflow = async (content: Buffer, instanceResolver: (object: any) => Promise<hash>): Promise<Workflow> => {
   const definition = decode(content)
   const createNode = async (def: any, index: number): Promise<WorkflowType.types.Workflow.INode> => ({
     key: def.key || `node-${index}`,

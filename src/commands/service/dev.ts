@@ -1,4 +1,6 @@
 import {Service} from 'mesg-js/lib/api'
+import {hash} from 'mesg-js/lib/api/types'
+import * as base58 from 'mesg-js/lib/util/base58'
 
 import Command from '../../root-command'
 import {IsAlreadyExistsError} from '../../utils/error'
@@ -34,16 +36,16 @@ export default class ServiceDev extends Command {
     const definition = await ServiceCompile.run([args.SERVICE, '--silent'])
     const serviceHash = await this.createService(definition)
     const instanceHash = await this.startService(serviceHash, flags.env)
-    const stream = await ServiceLog.run([instanceHash])
+    const stream = await ServiceLog.run([base58.encode(instanceHash)])
 
     process.once('SIGINT', async () => {
       stream.destroy()
-      if (this.instanceCreated) await ServiceStop.run([instanceHash])
-      if (this.serviceCreated) await ServiceDelete.run([serviceHash, '--confirm'])
+      if (this.instanceCreated) await ServiceStop.run([base58.encode(instanceHash)])
+      if (this.serviceCreated) await ServiceDelete.run([base58.encode(serviceHash), '--confirm'])
     })
   }
 
-  async createService(definition: Service): Promise<string> {
+  async createService(definition: Service): Promise<hash> {
     try {
       const service = await this.api.service.create(definition)
       if (!service.hash) throw new Error('invalid hash')
@@ -56,7 +58,7 @@ export default class ServiceDev extends Command {
     }
   }
 
-  async startService(serviceHash: string, env: string[]): Promise<string> {
+  async startService(serviceHash: hash, env: string[]): Promise<hash> {
     try {
       const instance = await this.api.instance.create({
         serviceHash,

@@ -3,6 +3,7 @@ import {IConfig} from '@oclif/config'
 import {cli} from 'cli-ux'
 import {application} from 'mesg-js'
 import createApi, {API, InfoOutputs} from 'mesg-js/lib/api'
+import {hash} from 'mesg-js/lib/api/types'
 import {Application} from 'mesg-js/lib/application'
 import {format, inspect} from 'util'
 
@@ -71,7 +72,7 @@ export default abstract class extends Command {
     }
   }
 
-  async execute(request: {instanceHash: string, taskKey: string, inputs?: {[key: string]: any}, tags?: string[]}): Promise<{[key: string]: any}> {
+  async execute(request: {instanceHash: hash, taskKey: string, inputs?: {[key: string]: any}, tags?: string[]}): Promise<{[key: string]: any}> {
     const exec = await this._app.executeTaskAndWaitResult({
       instanceHash: request.instanceHash,
       tags: request.tags || [],
@@ -87,7 +88,7 @@ export default abstract class extends Command {
     return this.api.core.info()
   }
 
-  async engineServiceInstance(key: string) {
+  async engineServiceInstance(key: string): Promise<hash> {
     const info = await this.info()
     const service = info.services.find((x: any) => x.key === key)
     if (!service) {

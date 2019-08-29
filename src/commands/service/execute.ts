@@ -1,6 +1,7 @@
 import {flags} from '@oclif/command'
 import {readFileSync} from 'fs'
 import {ExecutionCreateOutputs} from 'mesg-js/lib/api'
+import * as base58 from 'mesg-js/lib/util/base58'
 
 import Command from '../../root-command'
 import instanceResolver from '../../utils/instance-resolver'
@@ -39,7 +40,7 @@ export default class ServiceExecute extends Command {
       hash: instanceHash
     })
     if (!instance.serviceHash) { throw new Error('invalid service hash') }
-    const service = await ServiceDetail.run([instance.serviceHash, '--silent'])
+    const service = await ServiceDetail.run([base58.encode(instance.serviceHash), '--silent'])
 
     const task = service.tasks.find((x: any) => x.key === args.TASK)
     if (!task) {

@@ -1,9 +1,16 @@
 import {API, hash} from 'mesg-js/lib/api/types'
+import * as base58 from 'mesg-js/lib/util/base58'
 
 export default async (api: API, sidOrHash: hash | string): Promise<hash> => {
   try {
-    await api.service.get({hash: sidOrHash})
-    return sidOrHash
+    let hash: hash
+    if (sidOrHash instanceof Uint8Array) {
+      hash = sidOrHash
+    } else {
+      hash = base58.decode(sidOrHash)
+    }
+    await api.service.get({hash})
+    return hash
   } catch {
     const {services} = await api.service.list({})
     const match = (services || []).filter(x => x.sid === sidOrHash)

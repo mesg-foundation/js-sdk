@@ -1,5 +1,6 @@
 import {flags} from '@oclif/command'
 import {ServiceCreateOutputs} from 'mesg-js/lib/api'
+import * as base58 from 'mesg-js/lib/util/base58'
 
 import Command from '../../root-command'
 
@@ -27,10 +28,10 @@ export default class ServiceCreate extends Command {
     this.spinner.start('Create service')
     const resp = await this.api.service.create(JSON.parse(args.DEFINITION))
     if (!resp.hash) { throw new Error('invalid response') }
-    this.spinner.stop(resp.hash)
+    this.spinner.stop(base58.encode(resp.hash))
     if (flags.start) {
       this.spinner.start('Starting service')
-      const start = await ServiceStart.run([resp.hash])
+      const start = await ServiceStart.run([base58.encode(resp.hash)])
       this.spinner.stop(start.hash)
     }
     return resp
