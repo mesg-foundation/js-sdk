@@ -6,6 +6,7 @@ import Command from '../../root-command'
 import * as compile from '../../utils/compiler'
 import {IsAlreadyExistsError} from '../../utils/error'
 import ServiceCompile from '../service/compile'
+import { hash } from 'mesg-js/lib/api/types';
 
 export default class WorkflowCompile extends Command {
   static description = 'Compile a workflow'
@@ -42,10 +43,10 @@ export default class WorkflowCompile extends Command {
     return definition
   }
 
-  async sourceToInstance(dir: string, src: string): Promise<string> {
+  async sourceToInstance(dir: string, src: string): Promise<hash> {
     const directory = join(dirname(dir), src)
     const definition = await ServiceCompile.run([existsSync(directory) ? directory : src, '--silent'])
-    let hash: string | null = null
+    let hash: hash
     try {
       const resp = await this.api.service.create(definition)
       if (!resp.hash) throw new Error('invalid hash')
@@ -58,12 +59,13 @@ export default class WorkflowCompile extends Command {
     return this.serviceToInstance(hash)
   }
 
-  async serviceToInstance(key: string): Promise<string> {
+  async serviceToInstance(sidOrHash: hash | string): Promise<hash> {
     const {services} = await this.api.service.list({})
     if (!services) throw new Error('no services deployed, please deploy your service first')
-    const match = services.filter(x => x.hash === key || x.sid === key)
-    if (!match || match.length === 0) throw new Error(`cannot find any service with the following: ${key}`)
-    if (match.length > 1) throw new Error(`multiple services match the following sid: ${key}, provide a service's hash instead`)
+    const sidOrHashStr = sidOrHash.toString()
+    const match = services.filter(x => x.hash && x.hash.toString() === sidOrHashStr || x.sid && x.sid.toString() === sidOrHashStr)
+    if (!match || match.length === 0) throw new Error(`cannot find any service with the following: ${sidOrHashStr}`)
+    if (match.length > 1) throw new Error(`multiple services match the following sid: ${sidOrHashStr}, provide a service's hash instead`)
     const service = match[0]
     if (!service.hash) throw new Error('invalid service')
     const {instances} = await this.api.instance.list({serviceHash: service.hash})

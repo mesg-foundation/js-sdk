@@ -1,3 +1,6 @@
+import {hash} from 'mesg-js/lib/api/types'
+import * as base58 from 'mesg-js/lib/util/base58'
+
 export class IsAlreadyExistsError extends Error {
   static ID = 'ALREADY_EXISTS'
   static regexp = new RegExp('\"(.*)\" already exists')
@@ -5,13 +8,13 @@ export class IsAlreadyExistsError extends Error {
     return IsAlreadyExistsError.regexp.test(err.message)
   }
 
-  hash: string
+  hash: hash
 
   constructor(error: Error) {
     super(error.message)
     const res = IsAlreadyExistsError.regexp.exec(error.message)
     const hash = res && res.length >= 1 ? res[1] : ''
-    this.hash = hash
+    this.hash = base58.decode(hash)
     this.name = IsAlreadyExistsError.ID
   }
 }

@@ -1,5 +1,6 @@
 import {flags} from '@oclif/command'
 import cli from 'cli-ux'
+import * as base58 from 'mesg-js/lib/util/base58'
 
 import Command from '../../root-command'
 
@@ -24,7 +25,7 @@ export default class WorkflowDelete extends Command {
     this.spinner.start('Deleting workflow(s)')
     for (const hash of argv) {
       this.spinner.status = hash
-      await this.api.workflow.delete({hash})
+      await this.api.workflow.delete({hash: base58.decode(hash)})
     }
     this.spinner.stop()
     return argv
