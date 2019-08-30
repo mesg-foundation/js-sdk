@@ -5,6 +5,7 @@ import {application} from 'mesg-js'
 import createApi, {API, InfoOutputs} from 'mesg-js/lib/api'
 import {hash} from 'mesg-js/lib/api/types'
 import {Application} from 'mesg-js/lib/application'
+import * as base58 from 'mesg-js/lib/util/base58'
 import {format, inspect} from 'util'
 
 export default abstract class extends Command {
@@ -57,7 +58,12 @@ export default abstract class extends Command {
   styledJSON(data: any) {
     const {flags} = this.parse()
     if (flags.silent) return
-    cli.styledJSON(data)
+    const base58EncodedHash = JSON.parse(JSON.stringify(data, (key: string, value: any): any => {
+      return key && RegExp('hash', 'i').test(key) && value && value.type === 'Buffer'
+        ? base58.encode(value.data)
+        : value
+    }))
+    cli.styledJSON(base58EncodedHash)
   }
 
   async catch(err: Error) {
