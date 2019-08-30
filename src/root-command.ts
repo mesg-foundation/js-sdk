@@ -59,7 +59,7 @@ export default abstract class extends Command {
     const {flags} = this.parse()
     if (flags.silent) return
     const base58EncodedHash = JSON.parse(JSON.stringify(data, (key: string, value: any): any => {
-      return key && RegExp('hash', 'i').test(key) && value && value.type === 'Buffer'
+      return key && RegExp('hash$', 'i').test(key) && value && value.type === 'Buffer'
         ? base58.encode(value.data)
         : value
     }))
