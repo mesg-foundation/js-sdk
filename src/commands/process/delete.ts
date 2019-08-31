@@ -4,8 +4,8 @@ import * as base58 from 'mesg-js/lib/util/base58'
 
 import Command from '../../root-command'
 
-export default class WorkflowDelete extends Command {
-  static description = 'Delete one or many workflows'
+export default class ProcessDelete extends Command {
+  static description = 'Delete one or many processes'
 
   static flags = {
     ...Command.flags,
@@ -15,17 +15,17 @@ export default class WorkflowDelete extends Command {
   static strict = false
 
   static args = [{
-    name: 'WORKFLOW_HASH...',
+    name: 'PROCESS_HASH...',
     required: true,
   }]
 
   async run(): Promise<string[]> {
-    const {argv, flags} = this.parse(WorkflowDelete)
+    const {argv, flags} = this.parse(ProcessDelete)
     if (!flags.confirm && !await cli.confirm('Are you sure?')) return []
-    this.spinner.start('Deleting workflow(s)')
+    this.spinner.start('Deleting process(s)')
     for (const hash of argv) {
       this.spinner.status = hash
-      await this.api.workflow.delete({hash: base58.decode(hash)})
+      await this.api.process.delete({hash: base58.decode(hash)})
     }
     this.spinner.stop()
     return argv
