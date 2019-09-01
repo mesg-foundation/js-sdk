@@ -1,7 +1,7 @@
 import yaml from 'js-yaml'
 import pick from 'lodash.pick'
-import * as WorkflowType from 'mesg-js/lib/api/typedef/workflow'
-import {Service, Workflow, hash} from 'mesg-js/lib/api/types'
+import * as ProcessType from 'mesg-js/lib/api/typedef/process'
+import {hash, Process, Service} from 'mesg-js/lib/api/types'
 
 const decode = (content: Buffer) => yaml.safeLoad(content.toString())
 
@@ -33,34 +33,83 @@ export const service = async (content: Buffer): Promise<Service> => {
   }
 }
 
-export const workflow = async (content: Buffer, instanceResolver: (object: any) => Promise<hash>): Promise<Workflow> => {
-  const definition = decode(content)
-  const createNode = async (def: any, index: number): Promise<WorkflowType.types.Workflow.INode> => ({
-    key: def.key || `node-${index}`,
-    taskKey: def.taskKey,
-    instanceHash: await instanceResolver(def)
-  })
-  const orderedNodes = await Promise.all(definition.tasks.map(createNode)) as WorkflowType.types.Workflow.INode[]
-
-  const trigger = {
-    instanceHash: await instanceResolver(definition.trigger),
-    taskKey: definition.trigger.taskKey,
-    eventKey: definition.trigger.eventKey,
-    nodeKey: orderedNodes[0].key
-  }
-
-  const edges: any[] = []
-  for (let i = 0; i < orderedNodes.length - 1; i++) {
-    edges.push({
-      src: orderedNodes[i].key,
-      dst: orderedNodes[i + 1].key
+const nodeCompiler = (instanceResolver: (object: any) => Promise<hash>) => {
+  const nodes = {
+    result: async (def: any, key: string): Promise<ProcessType.types.Process.Node.IResult> => ({
+      key,
+      taskKey: def.taskKey,
+      instanceHash: await instanceResolver(def)
+    }),
+    event: async (def: any, key: string): Promise<ProcessType.types.Process.Node.IEvent> => ({
+      key,
+      eventKey: def.eventKey,
+      instanceHash: await instanceResolver(def)
+    }),
+    task: async (def: any, key: string): Promise<ProcessType.types.Process.Node.ITask> => ({
+      key,
+      taskKey:
+      def.taskKey,
+      instanceHash: await instanceResolver(def)
+    }),
+    map: async (def: any, key: string): Promise<ProcessType.types.Process.Node.IMap> => ({
+      key,
+      outputs: Object.keys(def.inputs).map(key => ({
+        key,
+        ref: pick(def.inputs[key], ['key', 'nodeKey'])
+      }))
+    }),
+    filter: async (def: any, key: string): Promise<ProcessType.types.Process.Node.IFilter> => ({
+      key,
+      conditions: Object.keys(def).map(key => ({
+        key,
+        predicate: 1, // EQ
+        value: def[key]
+      }))
     })
+  }
+  return async (type: 'result' | 'event' | 'task' | 'map' | 'filter', def: any, key: string) => ({
+    [type]: await nodes[type](def, key)
+  })
+}
+
+export const process = async (content: Buffer, instanceResolver: (object: any) => Promise<hash>): Promise<Process> => {
+  const definition = decode(content)
+  const compileNode = nodeCompiler(instanceResolver)
+
+  let nodes = []
+  let edges = []
+
+  let trigger = await (definition.trigger.eventKey
+    ? compileNode('event', definition.trigger, definition.trigger.key)
+    : compileNode('result', definition.trigger, definition.trigger.key))
+
+  nodes.push(trigger)
+
+  let previousKey = definition.trigger.key
+  for (const task of definition.tasks) {
+    if (task.filter) {
+      const filterKey = `${previousKey}-filter`
+      const filterNode = await compileNode('filter', task.filter, filterKey)
+      nodes.push(filterNode)
+      edges.push({src: previousKey, dst: filterKey})
+      previousKey = filterKey
+    }
+    if (task.inputs) {
+      const mapKey = `${previousKey}-map`
+      const mapNode = await compileNode('map', task, mapKey)
+      nodes.push(mapNode)
+      edges.push({src: previousKey, dst: mapKey})
+      previousKey = mapKey
+    }
+    const taskNode = await compileNode('task', task, task.key)
+    nodes.push(taskNode)
+    edges.push({src: previousKey, dst: task.key})
+    previousKey = task.key
   }
 
   return {
     key: definition.key,
-    trigger,
-    nodes: orderedNodes,
+    nodes,
     edges,
   }
 }
