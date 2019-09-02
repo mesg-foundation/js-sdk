@@ -18,7 +18,8 @@ const parseParams = (params: any): any => mapToArray(params).map(x => ({
 export const service = async (content: Buffer): Promise<Service> => {
   const definition = decode(content)
   return {
-    ...pick(definition, ['sid', 'name', 'description', 'configuration', 'repository']),
+    ...pick(definition, ['sid', 'name', 'description', 'repository']),
+    configuration: definition.configuration || {},
     dependencies: mapToArray(definition.dependencies),
     tasks: mapToArray(definition.tasks).map(x => ({
       ...pick(x, ['key', 'name', 'description']),
