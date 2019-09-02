@@ -28,13 +28,17 @@ export default class ProcessCompile extends Command {
         return instanceObject.instanceHash
       }
       if (!flags.dev) {
-        throw new Error('"instanceHash" should be present in your process. Use `--dev` to be able to use "service" or "src" attributes.')
+        throw new Error('"instanceHash" should be present in your process. Use `--dev` to be able to use the "instance" attributes.')
       }
-      if (instanceObject.service) {
-        return this.serviceToInstance(instanceObject.service)
+      if (!instanceObject.instance) {
+        throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
       }
-      if (instanceObject.src) {
-        return this.sourceToInstance(args.PROCESS_FILE, instanceObject.src)
+      const {service, src, env} = instanceObject.instance
+      if (service) {
+        return this.serviceToInstance(service, env)
+      }
+      if (src) {
+        return this.sourceToInstance(args.PROCESS_FILE, src, env)
       }
       throw new Error('at least one of the following parameter should be set: "instanceHash", "service" or "src"')
     })
@@ -43,7 +47,7 @@ export default class ProcessCompile extends Command {
     return definition
   }
 
-  async sourceToInstance(dir: string, src: string): Promise<hash> {
+  async sourceToInstance(dir: string, src: string, env: string[]): Promise<hash> {
     const directory = join(dirname(dir), src)
     const definition = await ServiceCompile.run([existsSync(directory) ? directory : src, '--silent'])
     let hash: hash
@@ -56,10 +60,10 @@ export default class ProcessCompile extends Command {
       hash = new IsAlreadyExistsError(e).hash
     }
     if (!hash) throw new Error('hash cannot be empty')
-    return this.serviceToInstance(hash)
+    return this.serviceToInstance(hash, env)
   }
 
-  async serviceToInstance(sidOrHash: hash | string): Promise<hash> {
+  async serviceToInstance(sidOrHash: hash | string, env: string[]): Promise<hash> {
     const {services} = await this.api.service.list({})
     if (!services) throw new Error('no services deployed, please deploy your service first')
     const sidOrHashStr = sidOrHash.toString()
@@ -68,23 +72,16 @@ export default class ProcessCompile extends Command {
     if (match.length > 1) throw new Error(`multiple services match the following sid: ${sidOrHashStr}, provide a service's hash instead`)
     const service = match[0]
     if (!service.hash) throw new Error('invalid service')
-    const {instances} = await this.api.instance.list({serviceHash: service.hash})
-    if (!instances || instances.length === 0) {
-      try {
-        const resp = await this.api.instance.create({
-          serviceHash: service.hash,
-          env: [],
-        })
-        if (!resp.hash) throw new Error('invalid hash')
-        return resp.hash
-      } catch (e) {
-        if (!IsAlreadyExistsError.match(e)) throw e
-        return new IsAlreadyExistsError(e).hash
-      }
+    try {
+      const resp = await this.api.instance.create({
+        serviceHash: service.hash,
+        env,
+      })
+      if (!resp.hash) throw new Error('invalid hash')
+      return resp.hash
+    } catch (e) {
+      if (!IsAlreadyExistsError.match(e)) throw e
+      return new IsAlreadyExistsError(e).hash
     }
-    if (instances.length > 1) throw new Error('multiple instances match the service, use parameter "instanceHash" instead of "service"')
-    const instance = instances[0]
-    if (!instance.hash) throw new Error('invalid instance')
-    return instance.hash
   }
 }
