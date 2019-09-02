@@ -1,4 +1,5 @@
 import {ProcessGetOutputs} from 'mesg-js/lib/api'
+import * as base58 from 'mesg-js/lib/util/base58'
 
 import Command from '../../root-command'
 
@@ -16,7 +17,7 @@ export default class ProcessDetail extends Command {
 
   async run(): ProcessGetOutputs {
     const {args} = this.parse(ProcessDetail)
-    const response = await this.api.process.get({hash: args.PROCESS_HASH})
+    const response = await this.api.process.get({hash: base58.decode(args.PROCESS_HASH)})
     this.styledJSON(response)
     return response
   }
