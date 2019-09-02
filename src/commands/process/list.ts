@@ -1,5 +1,6 @@
 import cli from 'cli-ux'
 import {Process} from 'mesg-js/lib/api/types'
+import * as base58 from 'mesg-js/lib/util/base58'
 
 import Command from '../../root-command'
 
@@ -16,7 +17,7 @@ export default class ProcessList extends Command {
     const {processes} = await this.api.process.list({})
     if (!processes) return []
     cli.table<Process>(processes, {
-      hash: {header: 'HASH', get: x => x.hash},
+      hash: {header: 'HASH', get: x => x.hash ? base58.encode(x.hash) : ''},
     }, {printLine: this.log, ...flags})
     return processes
   }
