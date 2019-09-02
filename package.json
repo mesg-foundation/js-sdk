@@ -88,8 +88,8 @@
       "service": {
         "description": "Manage services"
       },
-      "workflow": {
-        "description": "Manage workflows"
+      "process": {
+        "description": "Manage processes"
       },
       "daemon": {
         "description": "Manage the Engine"
