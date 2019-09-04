@@ -1,6 +1,7 @@
 import {flags} from '@oclif/command'
 import chalk from 'chalk'
 import {Event, Execution, ExecutionStatus} from 'mesg-js/lib/api'
+import * as base58 from 'mesg-js/lib/util/base58'
 import {decode} from 'mesg-js/lib/util/encoder'
 import {Docker} from 'node-docker-api'
 
@@ -66,7 +67,7 @@ export default class ServiceLogs extends Command {
 
     const dockerServices = await this.docker.service.list({
       filters: {
-        label: [`mesg.instance=${instanceHash}`]
+        label: [`mesg.instance=${base58.encode(instanceHash)}`]
       }
     })
     for (const service of dockerServices) {
