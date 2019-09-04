@@ -55,15 +55,18 @@ const nodeCompiler = (instanceResolver: (object: any) => Promise<hash>) => {
       key,
       outputs: Object.keys(def.inputs).map(key => ({
         key,
-        ref: pick(def.inputs[key], ['key', 'nodeKey'])
+        ref: {
+          key: def.inputs[key].key,
+          nodeKey: def.inputs[key].stepKey,
+        }
       }))
     }),
     filter: async (def: any, key: string): Promise<ProcessType.types.Process.Node.IFilter> => ({
       key,
-      conditions: Object.keys(def).map(key => ({
+      conditions: Object.keys(def.conditions).map(key => ({
         key,
         predicate: 1, // EQ
-        value: def[key]
+        value: def.conditions[key]
       }))
     })
   }
@@ -79,32 +82,32 @@ export const process = async (content: Buffer, instanceResolver: (object: any) =
   let nodes = []
   let edges = []
 
-  let trigger = await (definition.trigger.eventKey
-    ? compileNode('event', definition.trigger, definition.trigger.key)
-    : compileNode('result', definition.trigger, definition.trigger.key))
-
-  nodes.push(trigger)
-
-  let previousKey = definition.trigger.key
-  for (const task of definition.tasks) {
-    if (task.filter) {
-      const filterKey = `${previousKey}-filter`
-      const filterNode = await compileNode('filter', task.filter, filterKey)
-      nodes.push(filterNode)
-      edges.push({src: previousKey, dst: filterKey})
-      previousKey = filterKey
-    }
-    if (task.inputs) {
-      const mapKey = `${previousKey}-map`
-      const mapNode = await compileNode('map', task, mapKey)
+  let previousKey = null
+  let i = 0
+  for (const step of definition.steps) {
+    step.key = step.key || `node-${i}`
+    if (step.inputs) {
+      const mapKey = `${step.key}-inputs`
+      const mapNode = await compileNode('map', step, mapKey)
       nodes.push(mapNode)
-      edges.push({src: previousKey, dst: mapKey})
+      if (previousKey) {
+        edges.push({src: previousKey, dst: mapKey})
+      }
       previousKey = mapKey
+      i++
     }
-    const taskNode = await compileNode('task', task, task.key)
-    nodes.push(taskNode)
-    edges.push({src: previousKey, dst: task.key})
-    previousKey = task.key
+    const type = step.type !== 'trigger'
+      ? step.type
+      : step.eventKey
+        ? 'event'
+        : 'result'
+    const stepNode = await compileNode(type, step, step.key)
+    nodes.push(stepNode)
+    if (previousKey) {
+      edges.push({src: previousKey, dst: step.key})
+    }
+    previousKey = step.key
+    i++
   }
 
   return {
