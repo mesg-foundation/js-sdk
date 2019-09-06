@@ -13,7 +13,12 @@ export default class ProcessCompile extends Command {
 
   static flags = {
     ...Command.flags,
-    dev: flags.boolean({description: 'compile the process and automatically deploy and start all the services'})
+    dev: flags.boolean({description: 'compile the process and automatically deploy and start all the services'}),
+    env: flags.string({
+      description: 'Set environment variables',
+      multiple: true,
+      helpValue: 'FOO=BAR'
+    })
   }
 
   static args = [{
@@ -41,7 +46,10 @@ export default class ProcessCompile extends Command {
         return this.sourceToInstance(args.PROCESS_FILE, src, env)
       }
       throw new Error('at least one of the following parameter should be set: "instanceHash", "service" or "src"')
-    })
+    }, (flags.env || []).reduce((prev, env) => ({
+      ...prev,
+      [env.split('=')[0]]: env.split('=')[1],
+    }), {}))
     this.styledJSON(definition)
     this.spinner.stop()
     return definition

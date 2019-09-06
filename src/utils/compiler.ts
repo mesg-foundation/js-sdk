@@ -3,7 +3,23 @@ import pick from 'lodash.pick'
 import * as ProcessType from 'mesg-js/lib/api/typedef/process'
 import {hash, Process, Service} from 'mesg-js/lib/api/types'
 
-const decode = (content: Buffer) => yaml.safeLoad(content.toString())
+const replaceVariable = (value: any, env: { [key: string]: string }) => {
+  if (typeof value !== 'string') return value
+  const reg = new RegExp('\\$\\(env\\:(.*)\\)', 'g')
+  return value.replace(reg, (match: string, p1: string) => {
+    if (!Object.keys(env).includes(p1)) {
+      throw new Error('env variable ' + p1 + ' must be set')
+    }
+    return env[p1]
+  })
+}
+
+const decode = (content: Buffer, env: { [key: string]: string }) => {
+  const data = yaml.safeLoad(content.toString())
+  return JSON.parse(JSON.stringify(data), function (this: any, key: string, value: any) {
+    return replaceVariable(value, env)
+  })
+}
 
 const mapToArray = (inputs: any) => Object.keys(inputs || {}).map(key => ({
   ...inputs[key],
@@ -16,7 +32,7 @@ const parseParams = (params: any): any => mapToArray(params).map(x => ({
 }))
 
 export const service = async (content: Buffer): Promise<Service> => {
-  const definition = decode(content)
+  const definition = decode(content, {})
   return {
     ...pick(definition, ['sid', 'name', 'description', 'repository']),
     configuration: definition.configuration || {},
@@ -83,8 +99,8 @@ const nodeCompiler = async (
   }
 }
 
-export const process = async (content: Buffer, instanceResolver: (object: any) => Promise<hash>): Promise<Process> => {
-  const definition = decode(content)
+export const process = async (content: Buffer, instanceResolver: (object: any) => Promise<hash>, envs: { [key: string]: string }): Promise<Process> => {
+  const definition = decode(content, envs)
 
   let nodes = []
   let edges = []
