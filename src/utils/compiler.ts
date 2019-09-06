@@ -6,7 +6,12 @@ import {hash, Process, Service} from 'mesg-js/lib/api/types'
 const replaceVariable = (value: any, env: { [key: string]: string }) => {
   if (typeof value !== 'string') return value
   const reg = new RegExp('\\$\\(env\\:(.*)\\)', 'g')
-  return value.replace(reg, (match: string, p1: string) => env[p1])
+  return value.replace(reg, (match: string, p1: string) => {
+    if (!Object.keys(env).includes(p1)) {
+      throw new Error('env variable ' + p1 + ' must be set')
+    }
+    return env[p1]
+  })
 }
 
 const decode = (content: Buffer, env: { [key: string]: string }) => {
