@@ -46,7 +46,7 @@ export default class ProcessCompile extends Command {
         return this.sourceToInstance(args.PROCESS_FILE, src, env)
       }
       throw new Error('at least one of the following parameter should be set: "instanceHash", "service" or "src"')
-    }, flags.env.reduce((prev, env) => ({
+    }, (flags.env || []).reduce((prev, env) => ({
       ...prev,
       [env.split('=')[0]]: env.split('=')[1],
     }), {}))
