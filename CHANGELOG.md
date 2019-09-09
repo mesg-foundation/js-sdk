@@ -8,6 +8,26 @@
 #### Fixed
 #### Removed
 
+## [v1.3.0](https://github.com/mesg-foundation/cli/releases/tag/v1.3.0)
+
+#### Added
+
+- ([#125](https://github.com/mesg-foundation/cli/pull/125)) Add service resolution for process compilation. ([#129](https://github.com/mesg-foundation/cli/pull/129)).
+- ([#126](https://github.com/mesg-foundation/cli/pull/126)) Add commands to interact with processes (create, delete, detail, list).
+- ([#130](https://github.com/mesg-foundation/cli/pull/130)) Add the flag `--port` and `--host` to override the default address of the engine.
+- ([#142](https://github.com/mesg-foundation/cli/pull/142)) Process compilation. ([#123](https://github.com/mesg-foundation/cli/pull/123)). ([#149](https://github.com/mesg-foundation/cli/pull/149)).
+- ([#143](https://github.com/mesg-foundation/cli/pull/143)) Support env variable injection in processes. ([#150](https://github.com/mesg-foundation/cli/pull/150)).
+
+#### Changed
+
+- ([#131](https://github.com/mesg-foundation/cli/pull/131)) Better error management for services start and create. ([#132](https://github.com/mesg-foundation/cli/pull/132)). ([#135](https://github.com/mesg-foundation/cli/pull/135)).
+
+#### Fixed
+
+- ([#134](https://github.com/mesg-foundation/cli/pull/134)) Fix command service:dev when a service or instance already exists. ([#136](https://github.com/mesg-foundation/cli/pull/136)).
+- ([#138](https://github.com/mesg-foundation/cli/pull/138)) Encode and decode hashes from and to base58. ([#144](https://github.com/mesg-foundation/cli/pull/144)). ([#148](https://github.com/mesg-foundation/cli/pull/148)).
+- ([#141](https://github.com/mesg-foundation/cli/pull/141)) Fix issue when a service is created with no configuration.
+
 ## [v1.2.0](https://github.com/mesg-foundation/cli/releases/tag/v1.2.0)
 
 #### Added
