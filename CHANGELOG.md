@@ -25,7 +25,7 @@
 #### Fixed
 
 - ([#141](https://github.com/mesg-foundation/cli/pull/141)) Fix issue when a service is created with no configuration.
-- ([#138](https://github.com/mesg-foundation/cli/pull/138)) Encode and decode Hashes from and to base58 ([#144](https://github.com/mesg-foundation/cli/pull/144)).
+- ([#138](https://github.com/mesg-foundation/cli/pull/138)) Encode and decode Hashes from and to base58 ([#144](https://github.com/mesg-foundation/cli/pull/144)), ([#148](https://github.com/mesg-foundation/cli/pull/148)).
 - ([#134](https://github.com/mesg-foundation/cli/pull/134)) service:dev command now doesn't crash when a service or instance already exists ([#136](https://github.com/mesg-foundation/cli/pull/136)).
 
 ## [v1.2.0](https://github.com/mesg-foundation/cli/releases/tag/v1.2.0)
