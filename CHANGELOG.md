@@ -12,7 +12,7 @@
 
 #### Changed
 
-- ([#152](https://github.com/mesg-foundation/cli/pull/152)) Use latest version of the engine and mesg-js.
+- ([#152](https://github.com/mesg-foundation/cli/pull/152)) Use latest version of the engine v0.14.1 and mesg-js v4.3.1.
 
 ## [v1.3.0](https://github.com/mesg-foundation/cli/releases/tag/v1.3.0)
 
