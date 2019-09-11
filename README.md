@@ -220,7 +220,7 @@ OPTIONS
   --name=name                                      (required) [default: engine] Name of the docker service running the
                                                    engine
 
-  --version=version                                (required) [default: v0.12.1] Version of the Engine to run
+  --version=version                                (required) [default: v0.14.1] Version of the Engine to run
 ```
 
 _See code: [src/commands/daemon/start.ts](https://github.com/mesg-foundation/cli/blob/v1.3.0/src/commands/daemon/start.ts)_
