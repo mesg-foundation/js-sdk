@@ -2,6 +2,7 @@ import yaml from 'js-yaml'
 import pick from 'lodash.pick'
 import * as ProcessType from 'mesg-js/lib/api/typedef/process'
 import {hash, Process, Service} from 'mesg-js/lib/api/types'
+import {encodeField} from 'mesg-js/lib/util/encoder'
 
 const replaceVariable = (value: any, env: { [key: string]: string }) => {
   if (typeof value !== 'string') return value
@@ -79,10 +80,16 @@ const nodeCompiler = async (
       key,
       outputs: Object.keys(def).map(key => ({
         key,
-        ref: {
-          key: def[key].key,
-          nodeKey: def[key].stepKey || opts.defaultNodeKey,
-        }
+        ...(typeof def[key] === 'object' && def[key].key  // if the value is an object containing an attribute key
+          ? {
+            ref: {
+              key: def[key].key,
+              nodeKey: def[key].stepKey || opts.defaultNodeKey,
+            }
+          }
+          : {
+            constant: encodeField(def[key])
+          })
       }))
     }),
     filter: async (def: any, key: string, opts: any): Promise<ProcessType.types.Process.Node.IFilter> => ({
