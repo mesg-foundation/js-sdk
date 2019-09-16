@@ -8,6 +8,12 @@
 #### Fixed
 #### Removed
 
+## [v1.3.2](https://github.com/mesg-foundation/cli/releases/tag/v1.3.2)
+
+#### Changed
+
+- ([#159](https://github.com/mesg-foundation/cli/pull/159)) Use latest version of the engine v0.14.2.
+
 ## [v1.3.1](https://github.com/mesg-foundation/cli/releases/tag/v1.3.1)
 
 #### Changed
