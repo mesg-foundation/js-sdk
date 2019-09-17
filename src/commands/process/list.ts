@@ -18,6 +18,7 @@ export default class ProcessList extends Command {
     if (!processes) return []
     cli.table<Process>(processes, {
       hash: {header: 'HASH', get: x => x.hash ? base58.encode(x.hash) : ''},
+      key: {header: 'KEY', get: x => x.key},
     }, {printLine: this.log, ...flags})
     return processes
   }
