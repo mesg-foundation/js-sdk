@@ -47,6 +47,7 @@ USAGE
 * [`mesg-cli process:delete PROCESS_HASH...`](#mesg-cli-processdelete-process_hash)
 * [`mesg-cli process:detail PROCESS_HASH`](#mesg-cli-processdetail-process_hash)
 * [`mesg-cli process:list`](#mesg-cli-processlist)
+* [`mesg-cli process:logs PROCESS_HASH`](#mesg-cli-processlogs-process_hash)
 * [`mesg-cli service:compile [SERVICE]`](#mesg-cli-servicecompile-service)
 * [`mesg-cli service:create DEFINITION`](#mesg-cli-servicecreate-definition)
 * [`mesg-cli service:delete SERVICE_HASH...`](#mesg-cli-servicedelete-service_hash)
@@ -447,6 +448,23 @@ OPTIONS
 ```
 
 _See code: [src/commands/process/list.ts](https://github.com/mesg-foundation/cli/blob/v1.3.2/src/commands/process/list.ts)_
+
+## `mesg-cli process:logs PROCESS_HASH`
+
+Log the executions related to a process
+
+```
+USAGE
+  $ mesg-cli process:logs PROCESS_HASH
+
+OPTIONS
+  -h, --help       show CLI help
+  -p, --port=port  [default: 50052] Port to access the MESG engine
+  -q, --quiet      Display only essential information
+  --host=host      [default: localhost] Host to access the MESG engine
+```
+
+_See code: [src/commands/process/logs.ts](https://github.com/mesg-foundation/cli/blob/v1.3.1/src/commands/process/logs.ts)_
 
 ## `mesg-cli service:compile [SERVICE]`
 
