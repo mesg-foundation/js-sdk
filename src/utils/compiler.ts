@@ -7,7 +7,7 @@ import {encodeField} from 'mesg-js/lib/util/encoder'
 const replaceVariable = (value: any, env: { [key: string]: string }) => {
   if (typeof value !== 'string') return value
   const reg = new RegExp('\\$\\(env\\:(.*)\\)', 'g')
-  return value.replace(reg, (match: string, p1: string) => {
+  return value.replace(reg, (_: string, p1: string) => {
     if (!Object.keys(env).includes(p1)) {
       throw new Error('env variable ' + p1 + ' must be set')
     }
@@ -17,7 +17,7 @@ const replaceVariable = (value: any, env: { [key: string]: string }) => {
 
 const decode = (content: Buffer, env: { [key: string]: string }) => {
   const data = yaml.safeLoad(content.toString())
-  return JSON.parse(JSON.stringify(data), function (this: any, key: string, value: any) {
+  return JSON.parse(JSON.stringify(data), function (this: any, _: string, value: any) {
     return replaceVariable(value, env)
   })
 }
@@ -92,7 +92,7 @@ const nodeCompiler = async (
           })
       }))
     }),
-    filter: async (def: any, key: string, opts: any): Promise<ProcessType.types.Process.Node.IFilter> => ({
+    filter: async (def: any, key: string): Promise<ProcessType.types.Process.Node.IFilter> => ({
       key,
       conditions: Object.keys(def.conditions).map(key => ({
         key,
