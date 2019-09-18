@@ -29,6 +29,11 @@ export default class Start extends Command {
       default: 'info',
       options: ['debug', 'info', 'warn', 'error', 'fatal', 'panic']
     }),
+    pull: flags.boolean({
+      description: 'Pull the latest image of the given version',
+      default: true,
+      allowNo: true
+    })
   }
 
   async run() {
@@ -39,6 +44,13 @@ export default class Start extends Command {
       this.log('Engine is already started')
       return false
     }
+
+    if (flags.pull) {
+      this.spinner.start(`Pulling version ${flags.version}`)
+      await this.pull(flags.version)
+      this.spinner.stop()
+    }
+
     this.spinner.start('Starting Engine')
     const eventPromise = this.waitForEvent(({Action, Type, from}) =>
       Type === 'container' &&

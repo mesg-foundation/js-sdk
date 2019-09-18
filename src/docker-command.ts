@@ -4,7 +4,8 @@ import {Docker} from 'node-docker-api'
 import {Network} from 'node-docker-api/lib/network'
 import {homedir} from 'os'
 import {join} from 'path'
-import {Readable} from 'stream'
+import {Readable, Stream} from 'stream'
+const debug = require('debug')('docker')
 
 import Command from './root-command'
 
@@ -131,5 +132,16 @@ export default abstract class extends Command {
         }]
       }
     })
+  }
+
+  async pull(tag: string): Promise<object> {
+    const stream = (await this.docker.image.create({}, {
+      fromImage: 'mesg/engine',
+      tag
+    })) as Stream
+    return new Promise((resolve, reject) => stream
+      .on('data', (x: any) => debug(x.toString())) // For some reason we need to listen to the data to have the end event
+      .on('error', reject)
+      .on('end', resolve))
   }
 }
