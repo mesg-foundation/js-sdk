@@ -99,7 +99,7 @@ export default class ServiceLogs extends Command {
       streams.push(() => results.cancel())
       results
         .on('data', data => this.log(this.formatResult(data)))
-        .on('error', (error: Error) => { this.warn('Result stream errror: ' + error.message) })
+        .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
     }
 
     if (flags.events) {
