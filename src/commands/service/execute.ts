@@ -74,7 +74,7 @@ export default class ServiceExecute extends Command {
   convertValue(inputs: any, data: any): any {
     if (!inputs) return {}
     return inputs
-      .filter((x: any) => !!data[x.key])
+      .filter((x: any) => data[x.key] !== undefined && data[x.key] !== null)
       .reduce((prev: any, value: any) => ({
         ...prev,
         [value.key]: this.convert(value.type, data[value.key])
