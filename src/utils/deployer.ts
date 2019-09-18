@@ -80,7 +80,8 @@ export const createTar = (path: string): Readable => {
     strict: true,
     gzip: true,
     portable: true,
-  }, readdirSync(path))
+    noMtime: true,
+  } as any, readdirSync(path))
     .on('error', (error: Error) => {
       throw error
     })
