@@ -13,9 +13,9 @@
 #### Added
 
 - ([#153](https://github.com/mesg-foundation/cli/pull/153)) Add support of constant mapping in processes.
-- ([#160](https://github.com/mesg-foundation/cli/pull/160)) Make deployment from remote deterministic.
+- ([#160](https://github.com/mesg-foundation/cli/pull/160)) Make service compilation from remote deterministic.
 - ([#161](https://github.com/mesg-foundation/cli/pull/161)) Add key to process:list.
-- ([#162](https://github.com/mesg-foundation/cli/pull/162)) Use minor version of the Engine.
+- ([#162](https://github.com/mesg-foundation/cli/pull/162)) Auto-update of the version of the Engine.
 - ([#154](https://github.com/mesg-foundation/cli/pull/154)) Add process log command.
 - ([#155](https://github.com/mesg-foundation/cli/pull/155)) Add process dev command.
 
@@ -25,7 +25,7 @@
 
 #### Fixed
 
-- ([#165](https://github.com/mesg-foundation/cli/pull/165)) Fix issue with zero data.
+- ([#165](https://github.com/mesg-foundation/cli/pull/165)) Fix issue with zero data on the `service:execute` command.
 
 ## [v1.3.2](https://github.com/mesg-foundation/cli/releases/tag/v1.3.2)
 
