@@ -8,6 +8,25 @@
 #### Fixed
 #### Removed
 
+## [v1.4.0](https://github.com/mesg-foundation/cli/releases/tag/v1.4.0)
+
+#### Added
+
+- ([#153](https://github.com/mesg-foundation/cli/pull/153)) Add support for constants.
+- ([#160](https://github.com/mesg-foundation/cli/pull/160)) Make deployment from remote deterministic.
+- ([#161](https://github.com/mesg-foundation/cli/pull/161)) Add key to process:list.
+- ([#162](https://github.com/mesg-foundation/cli/pull/162)) Use minor version of the Engine.
+- ([#154](https://github.com/mesg-foundation/cli/pull/154)) Add process log command.
+- ([#155](https://github.com/mesg-foundation/cli/pull/155)) Add process dev command.
+
+#### Changed
+
+- ([#166](https://github.com/mesg-foundation/cli/pull/166)) Update account:import command to match the new inputs of import task of ethwallet.
+
+#### Fixed
+
+- ([#165](https://github.com/mesg-foundation/cli/pull/165)) Fix issue with zero data.
+
 ## [v1.3.2](https://github.com/mesg-foundation/cli/releases/tag/v1.3.2)
 
 #### Changed
