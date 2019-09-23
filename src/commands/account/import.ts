@@ -21,7 +21,7 @@ export default class AccountImport extends Command {
       instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
       taskKey: 'import',
       inputs: {
-        account: JSON.parse(args.ACCOUNT),
+        account: args.ACCOUNT,
         passphrase,
       }
     })
