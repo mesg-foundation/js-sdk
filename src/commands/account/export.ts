@@ -25,7 +25,7 @@ export default class AccountExport extends Command {
       }
     })
     this.spinner.stop()
-    this.styledJSON(data)
+    this.styledJSON(JSON.parse(data.account))
     return data
   }
 }
