@@ -12,7 +12,7 @@
 
 #### Added
 
-- ([#153](https://github.com/mesg-foundation/cli/pull/153)) Add support for constants.
+- ([#153](https://github.com/mesg-foundation/cli/pull/153)) Add support of constant mapping in processes.
 - ([#160](https://github.com/mesg-foundation/cli/pull/160)) Make deployment from remote deterministic.
 - ([#161](https://github.com/mesg-foundation/cli/pull/161)) Add key to process:list.
 - ([#162](https://github.com/mesg-foundation/cli/pull/162)) Use minor version of the Engine.
