@@ -2,7 +2,7 @@ import {flags} from '@oclif/command'
 import cli from 'cli-ux'
 import * as base58 from 'mesg-js/lib/util/base58'
 
-import Command from '../../root-command'
+import {WithCredential as Command} from '../../credential-command'
 import serviceResolver from '../../utils/service-resolver'
 
 export default class ServiceDelete extends Command {
@@ -27,7 +27,7 @@ export default class ServiceDelete extends Command {
     for (const hash of argv) {
       const serviceHash = await serviceResolver(this.api, hash)
       this.spinner.status = base58.encode(serviceHash)
-      await this.api.service.delete({hash: serviceHash})
+      await this.api.service.delete({hash: serviceHash}, await this.getCredential())
     }
     this.spinner.stop()
     return argv
