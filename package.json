@@ -33,7 +33,7 @@
     "lodash.pick": "^4.4.0",
     "mesg-js": "^4.4.0",
     "node-docker-api": "^1.1.22",
-    "rimraf": "^2.7.1",
+    "rimraf": "^3.0.0",
     "tar": "^4.4.11",
     "tslib": "^1.10.0",
     "uuid": "^3.3.3",
