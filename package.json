@@ -37,7 +37,7 @@
     "tar": "^4.4.8",
     "tslib": "^1.9.3",
     "uuid": "^3.3.2",
-    "validator": "^10.11.0"
+    "validator": "^11.1.0"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.22.0",
