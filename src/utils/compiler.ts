@@ -60,23 +60,23 @@ const nodeCompiler = async (
   }
 ) => {
   const nodes = {
-    result: async (def: any, key: string, opts: any): Promise<ProcessType.types.Process.Node.IResult> => ({
+    result: async (def: any, key: string, opts: any): Promise<ProcessType.mesg.types.Process.Node.IResult> => ({
       key,
       taskKey: def.taskKey,
       instanceHash: opts.instanceResolver ? await opts.instanceResolver(def) : def.instanceHash
     }),
-    event: async (def: any, key: string, opts: any): Promise<ProcessType.types.Process.Node.IEvent> => ({
+    event: async (def: any, key: string, opts: any): Promise<ProcessType.mesg.types.Process.Node.IEvent> => ({
       key,
       eventKey: def.eventKey,
       instanceHash: opts.instanceResolver ? await opts.instanceResolver(def) : def.instanceHash
     }),
-    task: async (def: any, key: string, opts: any): Promise<ProcessType.types.Process.Node.ITask> => ({
+    task: async (def: any, key: string, opts: any): Promise<ProcessType.mesg.types.Process.Node.ITask> => ({
       key,
       taskKey:
       def.taskKey,
       instanceHash: opts.instanceResolver ? await opts.instanceResolver(def) : def.instanceHash
     }),
-    map: async (def: any, key: string, opts: any): Promise<ProcessType.types.Process.Node.IMap> => ({
+    map: async (def: any, key: string, opts: any): Promise<ProcessType.mesg.types.Process.Node.IMap> => ({
       key,
       outputs: Object.keys(def).map(key => ({
         key,
@@ -92,7 +92,7 @@ const nodeCompiler = async (
           })
       }))
     }),
-    filter: async (def: any, key: string): Promise<ProcessType.types.Process.Node.IFilter> => ({
+    filter: async (def: any, key: string): Promise<ProcessType.mesg.types.Process.Node.IFilter> => ({
       key,
       conditions: Object.keys(def.conditions).map(key => ({
         key,
