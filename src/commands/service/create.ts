@@ -2,7 +2,7 @@ import {flags} from '@oclif/command'
 import {ServiceCreateOutputs} from 'mesg-js/lib/api'
 import * as base58 from 'mesg-js/lib/util/base58'
 
-import Command from '../../root-command'
+import {WithCredential as Command} from '../../credential-command'
 
 import ServiceStart from './start'
 
@@ -25,8 +25,9 @@ export default class ServiceCreate extends Command {
 
   async run(): ServiceCreateOutputs {
     const {args, flags} = this.parse(ServiceCreate)
+    const credential = await this.getCredential()
     this.spinner.start('Create service')
-    const resp = await this.api.service.create(JSON.parse(args.DEFINITION))
+    const resp = await this.api.service.create(JSON.parse(args.DEFINITION), credential)
     if (!resp.hash) { throw new Error('invalid response') }
     this.spinner.stop(base58.encode(resp.hash))
     if (flags.start) {

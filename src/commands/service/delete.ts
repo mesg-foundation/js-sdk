@@ -2,7 +2,7 @@ import {flags} from '@oclif/command'
 import cli from 'cli-ux'
 import * as base58 from 'mesg-js/lib/util/base58'
 
-import Command from '../../root-command'
+import {WithCredential as Command} from '../../credential-command'
 import serviceResolver from '../../utils/service-resolver'
 
 export default class ServiceDelete extends Command {
@@ -23,11 +23,12 @@ export default class ServiceDelete extends Command {
   async run(): Promise<string[]> {
     const {argv, flags} = this.parse(ServiceDelete)
     if (!flags.confirm && !await cli.confirm('Are you sure?')) return []
+    const credential = await this.getCredential()
     this.spinner.start('Deleting service(s)')
     for (const hash of argv) {
       const serviceHash = await serviceResolver(this.api, hash)
       this.spinner.status = base58.encode(serviceHash)
-      await this.api.service.delete({hash: serviceHash})
+      await this.api.service.delete({hash: serviceHash}, credential)
     }
     this.spinner.stop()
     return argv
