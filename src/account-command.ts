@@ -3,6 +3,7 @@ import {cli} from 'cli-ux'
 
 import Command from './root-command'
 
+// TODO: to delete when ethwallet is not used.
 export abstract class WithoutPassphrase extends Command {
   static flags = {
     ...Command.flags
@@ -11,6 +12,7 @@ export abstract class WithoutPassphrase extends Command {
   static SERVICE_NAME = 'EthWallet'
 }
 
+// TODO: to delete when ethwallet is not used.
 export abstract class WithPassphrase extends WithoutPassphrase {
   static flags = {
     ...WithoutPassphrase.flags,
