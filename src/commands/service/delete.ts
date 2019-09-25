@@ -23,11 +23,12 @@ export default class ServiceDelete extends Command {
   async run(): Promise<string[]> {
     const {argv, flags} = this.parse(ServiceDelete)
     if (!flags.confirm && !await cli.confirm('Are you sure?')) return []
+    const credential = await this.getCredential()
     this.spinner.start('Deleting service(s)')
     for (const hash of argv) {
       const serviceHash = await serviceResolver(this.api, hash)
       this.spinner.status = base58.encode(serviceHash)
-      await this.api.service.delete({hash: serviceHash}, await this.getCredential())
+      await this.api.service.delete({hash: serviceHash}, credential)
     }
     this.spinner.stop()
     return argv

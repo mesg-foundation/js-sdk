@@ -25,8 +25,9 @@ export default class ServiceCreate extends Command {
 
   async run(): ServiceCreateOutputs {
     const {args, flags} = this.parse(ServiceCreate)
+    const credential = await this.getCredential()
     this.spinner.start('Create service')
-    const resp = await this.api.service.create(JSON.parse(args.DEFINITION), await this.getCredential())
+    const resp = await this.api.service.create(JSON.parse(args.DEFINITION), credential)
     if (!resp.hash) { throw new Error('invalid response') }
     this.spinner.stop(base58.encode(resp.hash))
     if (flags.start) {
