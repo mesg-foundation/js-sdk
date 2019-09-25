@@ -25,7 +25,7 @@ export abstract class WithCredential extends Command {
   async getCredentialUsername(): Promise<string> {
     const {flags} = this.parse()
     if (flags.account) return flags.account
-    return cli.prompt('Type the name of the account', {type: 'hide'})
+    return cli.prompt('Type the name of the account')
   }
 
   async getCredentialPassphrase(): Promise<string> {
