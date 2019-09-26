@@ -1,6 +1,6 @@
 import {cli} from 'cli-ux'
 
-import {WithoutPassphrase as Command} from '../../account-command'
+import Command from '../../root-command'
 
 export default class AccountList extends Command {
   static description = 'List accounts'
@@ -12,13 +12,12 @@ export default class AccountList extends Command {
 
   async run() {
     const {flags} = this.parse(AccountList)
-    const data = await this.execute({
-      instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
-      taskKey: 'list'
-    })
-    cli.table(data.addresses, {
-      address: {header: 'ADDRESS', get: (x: any) => x},
+
+    const {accounts} = await this.api.account.list({})
+    cli.table(accounts, {
+      name: {header: 'NAME', get: x => x.name},
+      address: {header: 'ADDRESS', get: x => x.address},
     }, {printLine: this.log, ...flags})
-    return data
+    return accounts
   }
 }
