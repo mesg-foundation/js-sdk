@@ -1,6 +1,6 @@
 import {cli} from 'cli-ux'
 
-import {WithoutPassphrase as Command} from '../../account-command'
+import Command from '../../root-command'
 
 export default class AccountList extends Command {
   static description = 'List accounts'
