@@ -1,8 +1,7 @@
 import {WithCredential as Command} from '../../credential-command'
 
-export default class AccountExpCreate extends Command {
+export default class AccountCreate extends Command {
   static description = 'Create an account'
-  static hidden = true
 
   static flags = {
     ...Command.flags,
@@ -14,7 +13,7 @@ export default class AccountExpCreate extends Command {
   }]
 
   async run() {
-    const {args} = this.parse(AccountExpCreate)
+    const {args} = this.parse(AccountCreate)
     const passphrase = await this.getCredentialPassphrase()
     this.spinner.start('Creating account')
     const account = await this.api.account.create({

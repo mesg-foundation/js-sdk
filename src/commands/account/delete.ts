@@ -1,8 +1,7 @@
 import {WithCredential as Command} from '../../credential-command'
 
-export default class AccountExpDelete extends Command {
+export default class AccountDelete extends Command {
   static description = 'Delete an account'
-  static hidden = true
 
   static flags = {
     ...Command.flags,
@@ -14,7 +13,7 @@ export default class AccountExpDelete extends Command {
   }]
 
   async run() {
-    const {args} = this.parse(AccountExpDelete)
+    const {args} = this.parse(AccountDelete)
     const passphrase = await this.getCredentialPassphrase()
     this.spinner.start('Deleting account')
     const data = await this.api.account.delete({}, {

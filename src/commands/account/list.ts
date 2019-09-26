@@ -2,9 +2,8 @@ import {cli} from 'cli-ux'
 
 import {WithoutPassphrase as Command} from '../../account-command'
 
-export default class AccountExpList extends Command {
+export default class AccountList extends Command {
   static description = 'List accounts'
-  static hidden = true
 
   static flags = {
     ...Command.flags,
@@ -12,7 +11,7 @@ export default class AccountExpList extends Command {
   }
 
   async run() {
-    const {flags} = this.parse(AccountExpList)
+    const {flags} = this.parse(AccountList)
 
     const {accounts} = await this.api.account.list({})
     cli.table(accounts, {
