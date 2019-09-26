@@ -23,7 +23,7 @@ export default class ServiceDev extends Command {
 
   static args = [{
     name: 'SERVICE',
-    description: 'Path or url ([https|mesg]://) of a service',
+    description: 'Path or url of a service',
     default: './'
   }]
 
