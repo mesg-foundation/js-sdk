@@ -2,7 +2,7 @@ import {Command, flags} from '@oclif/command'
 import {IConfig} from '@oclif/config'
 import {cli} from 'cli-ux'
 import {application} from 'mesg-js'
-import createApi, {API, InfoOutputs} from 'mesg-js/lib/api'
+import createApi, {API} from 'mesg-js/lib/api'
 import {hash} from 'mesg-js/lib/api/types'
 import {Application} from 'mesg-js/lib/application'
 import * as base58 from 'mesg-js/lib/util/base58'
@@ -88,18 +88,5 @@ export default abstract class extends Command {
     if (exec.error) throw new Error(exec.error)
     if (!exec.outputs) throw new Error('missing outputs')
     return this._app.decodeData(exec.outputs)
-  }
-
-  async info(): InfoOutputs {
-    return this.api.core.info()
-  }
-
-  async engineServiceInstance(key: string): Promise<hash> {
-    const info = await this.info()
-    const service = info.services.find((x: any) => x.key === key)
-    if (!service) {
-      throw new Error(`Cannot find service ${key}`)
-    }
-    return service.hash
   }
 }

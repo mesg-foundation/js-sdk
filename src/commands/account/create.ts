@@ -1,23 +1,29 @@
-import {WithPassphrase as Command} from '../../account-command'
+import {WithCredential as Command} from '../../credential-command'
 
-export default class AccountCreate extends Command {
+export default class AccountExpCreate extends Command {
   static description = 'Create an account'
+  static hidden = true
 
   static flags = {
     ...Command.flags,
   }
 
+  static args = [{
+    name: 'ACCOUNT_NAME',
+    required: true
+  }]
+
   async run() {
-    const passphrase = await this.getPassphrase()
+    const {args} = this.parse(AccountExpCreate)
+    const passphrase = await this.getCredentialPassphrase()
     this.spinner.start('Creating account')
-    const data = await this.execute({
-      instanceHash: await this.engineServiceInstance(Command.SERVICE_NAME),
-      taskKey: 'create',
-      inputs: {
-        passphrase
-      }
+    const account = await this.api.account.create({
+      name: args.ACCOUNT_NAME,
+      password: passphrase,
     })
-    this.spinner.stop(data.address)
-    return data
+    this.spinner.stop(account.address || '')
+    this.warn('Make sure to backup the mnemonic:')
+    this.log(account.mnemonic || '')
+    return account
   }
 }
