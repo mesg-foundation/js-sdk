@@ -1,4 +1,4 @@
-import {WithCredential as Command} from '../../credential-command'
+import {WithCredentialPassphrase as Command} from '../../credential-command'
 
 export default class AccountDelete extends Command {
   static description = 'Delete an account'

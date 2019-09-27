@@ -95,9 +95,6 @@
       "daemon": {
         "description": "Manage the Engine"
       },
-      "marketplace": {
-        "description": "Interact with the Marketplace"
-      },
       "account": {
         "description": "Manage accounts"
       }
