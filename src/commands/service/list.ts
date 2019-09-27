@@ -1,5 +1,5 @@
 import cli from 'cli-ux'
-import {Instance, Service, Ownership} from 'mesg-js/lib/api/types'
+import {Instance, Ownership, Service} from 'mesg-js/lib/api/types'
 import * as base58 from 'mesg-js/lib/util/base58'
 
 import Command from '../../root-command'
