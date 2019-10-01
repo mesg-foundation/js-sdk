@@ -1,9 +1,10 @@
 import {flags} from '@oclif/command'
 import {existsSync, readFileSync} from 'fs'
+import {Credential} from 'mesg-js/lib/api'
 import {hash} from 'mesg-js/lib/api/types'
 import {dirname, join} from 'path'
 
-import Command from '../../root-command'
+import {WithCredential as Command} from '../../credential-command'
 import * as compile from '../../utils/compiler'
 import {IsAlreadyExistsError} from '../../utils/error'
 import ServiceCompile from '../service/compile'
@@ -25,6 +26,8 @@ export default class ProcessCompile extends Command {
     name: 'PROCESS_FILE',
     description: 'Path of a process file'
   }]
+
+  private _credentials: Credential | null = null
 
   async run(): Promise<any> {
     const {args, flags} = this.parse(ProcessCompile)
@@ -58,16 +61,14 @@ export default class ProcessCompile extends Command {
   async sourceToInstance(dir: string, src: string, env: string[]): Promise<hash> {
     const directory = join(dirname(dir), src)
     const definition = await ServiceCompile.run([existsSync(directory) ? directory : src, '--silent'])
-    let hash: hash
-    try {
-      const resp = await this.api.service.create(definition)
+    const {hash} = await this.api.service.hash(definition)
+    if (!hash) throw new Error('invalid hash')
+    const {exists} = await this.api.service.exists({hash})
+    if (!exists) {
+      const resp = await this.api.service.create(definition, await this.credentials())
       if (!resp.hash) throw new Error('invalid hash')
-      hash = resp.hash
-    } catch (e) {
-      if (!IsAlreadyExistsError.match(e)) throw e
-      hash = new IsAlreadyExistsError(e).hash
+      if (resp.hash.toString() !== hash.toString()) throw new Error('invalid hash')
     }
-    if (!hash) throw new Error('hash cannot be empty')
     return this.serviceToInstance(hash, env)
   }
 
@@ -91,5 +92,12 @@ export default class ProcessCompile extends Command {
       if (!IsAlreadyExistsError.match(e)) throw e
       return new IsAlreadyExistsError(e).hash
     }
+  }
+
+  private async credentials(): Promise<Credential> {
+    if (!this._credentials) {
+      this._credentials = await this.getCredential()
+    }
+    return this._credentials
   }
 }

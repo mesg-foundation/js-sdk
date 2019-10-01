@@ -2,7 +2,7 @@ import {Service} from 'mesg-js/lib/api'
 import {hash} from 'mesg-js/lib/api/types'
 import * as base58 from 'mesg-js/lib/util/base58'
 
-import Command from '../../root-command'
+import {WithCredential as Command} from '../../credential-command'
 import {IsAlreadyExistsError} from '../../utils/error'
 
 import ServiceCompile from './compile'
@@ -46,16 +46,15 @@ export default class ServiceDev extends Command {
   }
 
   async createService(definition: Service): Promise<hash> {
-    try {
-      const service = await this.api.service.create(definition)
+    const {hash} = await this.api.service.hash(definition)
+    const {exists} = await this.api.service.exists({hash})
+    if (!exists) {
+      const service = await this.api.service.create(definition, await this.getCredential())
       if (!service.hash) throw new Error('invalid hash')
+      if (service.hash.toString() !== hash.toString()) throw new Error('invalid hash')
       this.serviceCreated = true
-      return service.hash
-    } catch (e) {
-      if (!IsAlreadyExistsError.match(e)) throw e
-      this.warn('service already created')
-      return new IsAlreadyExistsError(e).hash
     }
+    return hash
   }
 
   async startService(serviceHash: hash, env: string[]): Promise<hash> {

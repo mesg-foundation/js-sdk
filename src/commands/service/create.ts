@@ -27,14 +27,24 @@ export default class ServiceCreate extends Command {
     const {args, flags} = this.parse(ServiceCreate)
     const credential = await this.getCredential()
     this.spinner.start('Create service')
-    const resp = await this.api.service.create(JSON.parse(args.DEFINITION), credential)
-    if (!resp.hash) { throw new Error('invalid response') }
-    this.spinner.stop(base58.encode(resp.hash))
+    const service = JSON.parse(args.DEFINITION)
+
+    const {hash} = await this.api.service.hash(service)
+    if (!hash) throw new Error('invalid hash')
+    const {exists} = await this.api.service.exists({hash})
+    if (exists) {
+      this.warn('Service already exists')
+    } else {
+      const resp = await this.api.service.create(service, credential)
+      if (!resp.hash) throw new Error('invalid hash')
+      if (resp.hash.toString() !== hash.toString()) throw new Error('invalid hash')
+    }
+    this.spinner.stop(base58.encode(hash))
     if (flags.start) {
       this.spinner.start('Starting service')
-      const start = await ServiceStart.run([base58.encode(resp.hash)])
-      this.spinner.stop(start.hash)
+      const start = await ServiceStart.run([base58.encode(hash)])
+      this.spinner.stop(base58.encode(start.hash))
     }
-    return resp
+    return {hash}
   }
 }
