@@ -14,10 +14,10 @@ export default class AccountList extends Command {
     const {flags} = this.parse(AccountList)
 
     const {accounts} = await this.api.account.list({})
-    cli.table(accounts, {
+    cli.table(accounts || [], {
       name: {header: 'NAME', get: x => x.name},
       address: {header: 'ADDRESS', get: x => x.address},
     }, {printLine: this.log, ...flags})
-    return accounts
+    return accounts || []
   }
 }
