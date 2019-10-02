@@ -31,7 +31,7 @@
     "is-git-url": "^1.0.0",
     "js-yaml": "^3.13.1",
     "lodash.pick": "^4.4.0",
-    "mesg-js": "^4.5.0-beta.2",
+    "mesg-js": "^4.5.0-beta.5",
     "node-docker-api": "^1.1.22",
     "rimraf": "^3.0.0",
     "tar": "^4.4.11",
@@ -108,7 +108,8 @@
     "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md",
     "oclif-dev": "oclif-dev",
-    "lint": "tslint -p ./ -t stylish --fix"
+    "lint": "tslint -p ./ -t stylish --fix",
+    "build": "tsc"
   },
   "types": "lib/index.d.ts"
 }
