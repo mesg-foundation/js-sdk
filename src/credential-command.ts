@@ -1,6 +1,6 @@
 import {flags} from '@oclif/command'
 import {cli} from 'cli-ux'
-import {prompt} from 'inquirer'
+import {createPromptModule} from 'inquirer'
 import {Account, Credential} from 'mesg-js/lib/api'
 
 import Command from './root-command'
@@ -40,6 +40,7 @@ export abstract class WithCredential extends WithCredentialPassphrase {
     if (flags.account) return flags.account
     const {accounts} = await this.api.account.list({})
     if (!accounts) throw new Error('no account found, please run `mesg-cli account:create ACCOUNT_NAME`')
+    const prompt = createPromptModule({output: process.stderr})
     const {value} = (await prompt({
       type: 'list',
       name: 'value',
