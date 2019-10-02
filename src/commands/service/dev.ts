@@ -47,6 +47,7 @@ export default class ServiceDev extends Command {
 
   async createService(definition: Service): Promise<hash> {
     const {hash} = await this.api.service.hash(definition)
+    if (!hash) throw new Error('invalid hash')
     const {exists} = await this.api.service.exists({hash})
     if (!exists) {
       const service = await this.api.service.create(definition, await this.getCredential())
