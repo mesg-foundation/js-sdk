@@ -19,8 +19,7 @@ export default class ServiceList extends Command {
       this.api.instance.list({}),
       this.api.ownership.list({})
     ])
-    if (!services) return []
-    cli.table<Service>(services, {
+    cli.table<Service>(services || [], {
       hash: {header: 'HASH', get: x => x.hash ? base58.encode(x.hash) : ''},
       sid: {header: 'SID', get: x => x.sid},
       ownerships: {
