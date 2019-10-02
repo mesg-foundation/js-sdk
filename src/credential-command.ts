@@ -1,6 +1,7 @@
 import {flags} from '@oclif/command'
 import {cli} from 'cli-ux'
-import {Credential} from 'mesg-js/lib/api'
+import {prompt} from 'inquirer'
+import {Account, Credential} from 'mesg-js/lib/api'
 
 import Command from './root-command'
 
@@ -37,6 +38,19 @@ export abstract class WithCredential extends WithCredentialPassphrase {
   async getCredentialUsername(): Promise<string> {
     const {flags} = this.parse()
     if (flags.account) return flags.account
-    return cli.prompt('Type the name of the account')
+    const {accounts} = await this.api.account.list({})
+    if (!accounts) throw new Error('no account found, please run `mesg-cli account:create ACCOUNT_NAME`')
+    const {value} = (await prompt({
+      type: 'list',
+      name: 'value',
+      message: 'Select the account to use',
+      default: 'Basic',
+      choices: accounts.map((x: Account) => ({
+        name: `${x.name} ➜ ${x.address}`,
+        value: x.name,
+        short: x.name
+      }))
+    })) as { value: string }
+    return value
   }
 }
