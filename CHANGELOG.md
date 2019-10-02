@@ -8,6 +8,8 @@
 #### Fixed
 #### Removed
 
+- Remove service:delete command
+
 ## [v1.4.0](https://github.com/mesg-foundation/cli/releases/tag/v1.4.0)
 
 #### Added
