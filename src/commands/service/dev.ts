@@ -2,7 +2,7 @@ import {Service} from 'mesg-js/lib/api'
 import {hash} from 'mesg-js/lib/api/types'
 import * as base58 from 'mesg-js/lib/util/base58'
 
-import Command from '../../root-command'
+import {WithCredential as Command} from '../../credential-command'
 import {IsAlreadyExistsError} from '../../utils/error'
 
 import ServiceCompile from './compile'
@@ -31,10 +31,16 @@ export default class ServiceDev extends Command {
   async run() {
     const {args, flags} = this.parse(ServiceDev)
 
+    this.spinner.start('Starting service')
+    this.spinner.status = 'compiling'
     const definition = await ServiceCompile.run([args.SERVICE, '--silent'])
+    this.spinner.status = 'creating service'
     const serviceHash = await this.createService(definition)
+    this.spinner.status = 'starting service'
     const instanceHash = await this.startService(serviceHash, flags.env)
+    this.spinner.status = 'fetching logs'
     const stream = await ServiceLog.run([base58.encode(instanceHash)])
+    this.spinner.stop('ready')
 
     process.once('SIGINT', async () => {
       stream.destroy()
@@ -43,15 +49,15 @@ export default class ServiceDev extends Command {
   }
 
   async createService(definition: Service): Promise<hash> {
-    try {
-      const service = await this.api.service.create(definition)
+    const {hash} = await this.api.service.hash(definition)
+    if (!hash) throw new Error('invalid hash')
+    const {exists} = await this.api.service.exists({hash})
+    if (!exists) {
+      const service = await this.api.service.create(definition, await this.getCredential())
       if (!service.hash) throw new Error('invalid hash')
-      return service.hash
-    } catch (e) {
-      if (!IsAlreadyExistsError.match(e)) throw e
-      this.warn('service already created')
-      return new IsAlreadyExistsError(e).hash
+      if (service.hash.toString() !== hash.toString()) throw new Error('invalid hash')
     }
+    return hash
   }
 
   async startService(serviceHash: hash, env: string[]): Promise<hash> {
