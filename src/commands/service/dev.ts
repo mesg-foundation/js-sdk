@@ -7,7 +7,6 @@ import {IsAlreadyExistsError} from '../../utils/error'
 
 import ServiceCompile from './compile'
 import ServiceCreate from './create'
-import ServiceDelete from './delete'
 import ServiceLog from './logs'
 import ServiceStart from './start'
 import ServiceStop from './stop'
@@ -27,7 +26,6 @@ export default class ServiceDev extends Command {
     default: './'
   }]
 
-  serviceCreated = false
   instanceCreated = false
 
   async run() {
@@ -41,7 +39,6 @@ export default class ServiceDev extends Command {
     process.once('SIGINT', async () => {
       stream.destroy()
       if (this.instanceCreated) await ServiceStop.run([base58.encode(instanceHash)])
-      if (this.serviceCreated) await ServiceDelete.run([base58.encode(serviceHash), '--confirm'])
     })
   }
 
@@ -49,7 +46,6 @@ export default class ServiceDev extends Command {
     try {
       const service = await this.api.service.create(definition)
       if (!service.hash) throw new Error('invalid hash')
-      this.serviceCreated = true
       return service.hash
     } catch (e) {
       if (!IsAlreadyExistsError.match(e)) throw e
