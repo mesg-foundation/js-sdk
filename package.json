@@ -108,7 +108,8 @@
     "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md",
     "oclif-dev": "oclif-dev",
-    "lint": "tslint -p ./ -t stylish --fix"
+    "lint": "tslint -p ./ -t stylish --fix",
+    "build": "tsc"
   },
   "types": "lib/index.d.ts"
 }
