@@ -31,10 +31,16 @@ export default class ServiceDev extends Command {
   async run() {
     const {args, flags} = this.parse(ServiceDev)
 
+    this.spinner.start('Starting service')
+    this.spinner.status = 'compiling'
     const definition = await ServiceCompile.run([args.SERVICE, '--silent'])
+    this.spinner.status = 'creating service'
     const serviceHash = await this.createService(definition)
+    this.spinner.status = 'starting service'
     const instanceHash = await this.startService(serviceHash, flags.env)
+    this.spinner.status = 'fetching logs'
     const stream = await ServiceLog.run([base58.encode(instanceHash)])
+    this.spinner.stop('ready')
 
     process.once('SIGINT', async () => {
       stream.destroy()
