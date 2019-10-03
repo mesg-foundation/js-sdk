@@ -1,4 +1,6 @@
 import {flags} from '@oclif/command'
+import {homedir} from 'os'
+import {join} from 'path'
 
 import Command from '../../docker-command'
 import version from '../../version'
@@ -15,6 +17,16 @@ export default class Start extends Command {
       required: true,
       default: version.engine
     }),
+    path: flags.string({
+      description: 'Path to the mesg folder',
+      default: join(homedir(), '.mesg'),
+      required: true,
+    }),
+    pull: flags.boolean({
+      description: 'Pull the latest image of the given version',
+      default: true,
+      allowNo: true
+    }),
     'log-force-colors': flags.boolean({
       description: 'Log force colors',
       default: false
@@ -29,11 +41,28 @@ export default class Start extends Command {
       default: 'info',
       options: ['debug', 'info', 'warn', 'error', 'fatal', 'panic']
     }),
-    pull: flags.boolean({
-      description: 'Pull the latest image of the given version',
-      default: true,
-      allowNo: true
-    })
+    'genesis-validator-tx': flags.string({
+      description: 'The transaction that add the validators to the genesis',
+      required: true,
+    }),
+    peers: flags.string({
+      description: 'The list of persistent peers',
+    }),
+    'chain-id': flags.string({
+      description: 'The id of the chain',
+      default: 'mesg-chain',
+      required: true,
+    }),
+    'genesis-time': flags.string({
+      description: 'The creation time of the genesis',
+      default: '2019-01-01T00:00:00Z',
+      required: true,
+    }),
+    'p2p-port': flags.integer({
+      description: 'Port to use for p2p interaction',
+      default: 26656,
+      required: true,
+    }),
   }
 
   async run() {
@@ -58,12 +87,20 @@ export default class Start extends Command {
       from === `mesg/engine:${flags.version}`
     )
     const network = await this.getOrCreateNetwork({name: flags.name})
-    await this.createService(network, {
+    const tendermintNetwork = await this.getOrCreateNetwork({name: 'mesg-tendermint'})
+    await this.createEngineService(network, tendermintNetwork, {
       name: flags.name,
       version: flags.version,
       colors: flags['log-force-colors'],
       format: flags['log-format'],
-      level: flags['log-level']
+      level: flags['log-level'],
+      genesisValidatorTx: flags['genesis-validator-tx'],
+      genesisTime: flags['genesis-time'],
+      chainId: flags['chain-id'],
+      persistentPeers: flags.peers || '',
+      path: flags.path,
+      port: flags.port,
+      p2pPort: flags['p2p-port'],
     })
     await eventPromise
     this.spinner.stop()

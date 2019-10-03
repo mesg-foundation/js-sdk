@@ -2,8 +2,6 @@ import {flags} from '@oclif/command'
 import {existsSync, mkdirSync} from 'fs'
 import {Docker} from 'node-docker-api'
 import {Network} from 'node-docker-api/lib/network'
-import {homedir} from 'os'
-import {join} from 'path'
 import {Readable, Stream} from 'stream'
 const debug = require('debug')('docker')
 
@@ -29,6 +27,13 @@ interface ServiceOption {
   level: string
   colors: boolean
   version: string
+  port: number
+  path: string
+  genesisValidatorTx: string
+  genesisTime: string
+  chainId: string
+  persistentPeers: string
+  p2pPort: number
 }
 
 export default abstract class extends Command {
@@ -82,11 +87,10 @@ export default abstract class extends Command {
     })
   }
 
-  async createService(network: Network, options: ServiceOption) {
+  async createEngineService(network: Network, tendermintNetwork: Network, options: ServiceOption) {
     const image = `mesg/engine:${options.version}`
-    const sourcePath = join(homedir(), '.mesg')
-    if (!existsSync(sourcePath)) {
-      mkdirSync(sourcePath)
+    if (!existsSync(options.path)) {
+      mkdirSync(options.path)
     }
     return this.docker.service.create({
       Name: options.name,
@@ -105,13 +109,17 @@ export default abstract class extends Command {
             `MESG_LOG_LEVEL=${options.level}`,
             `MESG_LOG_FORCECOLORS=${options.colors}`,
             `MESG_NAME=${options.name}`,
+            `MESG_TENDERMINT_P2P_PERSISTENTPEERS=${options.persistentPeers}`,
+            `MESG_COSMOS_CHAINID=${options.chainId}`,
+            `MESG_COSMOS_GENESISVALIDATORTX=${options.genesisValidatorTx}`,
+            `MESG_COSMOS_GENESISTIME=${options.genesisTime}`,
           ],
           Mounts: [{
             Source: '/var/run/docker.sock',
             Target: '/var/run/docker.sock',
             Type: 'bind',
           }, {
-            Source: sourcePath,
+            Source: options.path,
             Target: '/root/.mesg',
             Type: 'bind',
           }],
@@ -121,6 +129,10 @@ export default abstract class extends Command {
             Target: network.id,
             Alias: options.name,
           },
+          {
+            Target: tendermintNetwork.id,
+            Alias: options.name,
+          },
         ]
       },
       EndpointSpec: {
@@ -128,8 +140,13 @@ export default abstract class extends Command {
           Protocol: 'tcp',
           PublishMode: 'ingress',
           TargetPort: 50052,
-          PublishedPort: 50052,
-        }]
+          PublishedPort: options.port,
+        }, {
+          Protocol: 'tcp',
+          PublishMode: 'ingress',
+          TargetPort: 26656,
+          PublishedPort: options.p2pPort,
+        }],
       }
     })
   }
