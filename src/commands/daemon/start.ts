@@ -27,37 +27,6 @@ export default class Start extends Command {
       default: true,
       allowNo: true
     }),
-    'log-force-colors': flags.boolean({
-      description: 'Log force colors',
-      default: false
-    }),
-    'log-format': flags.enum({
-      description: 'Log format',
-      default: 'text',
-      options: ['text', 'json']
-    }),
-    'log-level': flags.enum({
-      description: 'Log level',
-      default: 'info',
-      options: ['debug', 'info', 'warn', 'error', 'fatal', 'panic']
-    }),
-    'genesis-validator-tx': flags.string({
-      description: 'The transaction that add the validators to the genesis',
-      required: true,
-    }),
-    peers: flags.string({
-      description: 'The list of persistent peers',
-    }),
-    'chain-id': flags.string({
-      description: 'The id of the chain',
-      default: 'mesg-chain',
-      required: true,
-    }),
-    'genesis-time': flags.string({
-      description: 'The creation time of the genesis',
-      default: '2019-01-01T00:00:00Z',
-      required: true,
-    }),
     'p2p-port': flags.integer({
       description: 'Port to use for p2p interaction',
       default: 26656,
@@ -87,17 +56,9 @@ export default class Start extends Command {
       from === `mesg/engine:${flags.version}`
     )
     const network = await this.getOrCreateNetwork({name: flags.name})
-    const tendermintNetwork = await this.getOrCreateNetwork({name: 'mesg-tendermint'})
-    await this.createEngineService(network, tendermintNetwork, {
+    await this.createEngineService(network, {
       name: flags.name,
       version: flags.version,
-      colors: flags['log-force-colors'],
-      format: flags['log-format'],
-      level: flags['log-level'],
-      genesisValidatorTx: flags['genesis-validator-tx'],
-      genesisTime: flags['genesis-time'],
-      chainId: flags['chain-id'],
-      persistentPeers: flags.peers || '',
       path: flags.path,
       port: flags.port,
       p2pPort: flags['p2p-port'],

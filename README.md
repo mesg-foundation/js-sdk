@@ -19,7 +19,7 @@ $ npm install -g mesg-cli
 $ mesg-cli COMMAND
 running command...
 $ mesg-cli (-v|--version|version)
-mesg-cli/1.5.0-beta.1 darwin-x64 node-v10.16.0
+mesg-cli/1.5.0-beta.1 darwin-x64 node-v10.16.3
 $ mesg-cli --help [COMMAND]
 USAGE
   $ mesg-cli COMMAND
@@ -144,36 +144,15 @@ USAGE
   $ mesg-cli daemon:start
 
 OPTIONS
-  -h, --help                                       show CLI help
-  -p, --port=port                                  [default: 50052] Port to access the MESG engine
-  -q, --quiet                                      Display only essential information
-  --chain-id=chain-id                              (required) [default: mesg-chain] The id of the chain
-
-  --genesis-time=genesis-time                      (required) [default: 2019-01-01T00:00:00Z] The creation time of the
-                                                   genesis
-
-  --genesis-validator-tx=genesis-validator-tx      (required) The transaction that add the validators to the genesis
-
-  --host=host                                      [default: localhost] Host to access the MESG engine
-
-  --log-force-colors                               Log force colors
-
-  --log-format=(text|json)                         [default: text] Log format
-
-  --log-level=(debug|info|warn|error|fatal|panic)  [default: info] Log level
-
-  --name=name                                      (required) [default: engine] Name of the docker service running the
-                                                   engine
-
-  --p2p-port=p2p-port                              (required) [default: 26656] Port to use for p2p interaction
-
-  --path=path                                      (required) [default: /Users/nico/.mesg] Path to the mesg folder
-
-  --peers=peers                                    The list of persistent peers
-
-  --[no-]pull                                      Pull the latest image of the given version
-
-  --version=version                                (required) [default: v0.15] Version of the Engine to run
+  -h, --help           show CLI help
+  -p, --port=port      [default: 50052] Port to access the MESG engine
+  -q, --quiet          Display only essential information
+  --host=host          [default: localhost] Host to access the MESG engine
+  --name=name          (required) [default: engine] Name of the docker service running the engine
+  --p2p-port=p2p-port  (required) [default: 26656] Port to use for p2p interaction
+  --path=path          (required) [default: /Users/antho/.mesg] Path to the mesg folder
+  --[no-]pull          Pull the latest image of the given version
+  --version=version    (required) [default: v0.15] Version of the Engine to run
 ```
 
 _See code: [src/commands/daemon/start.ts](https://github.com/mesg-foundation/cli/blob/v1.5.0-beta.1/src/commands/daemon/start.ts)_

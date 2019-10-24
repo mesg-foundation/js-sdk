@@ -23,16 +23,9 @@ interface ListOption {
 
 interface ServiceOption {
   name: string
-  format: string
-  level: string
-  colors: boolean
   version: string
   port: number
   path: string
-  genesisValidatorTx: string
-  genesisTime: string
-  chainId: string
-  persistentPeers: string
   p2pPort: number
 }
 
@@ -87,7 +80,7 @@ export default abstract class extends Command {
     })
   }
 
-  async createEngineService(network: Network, tendermintNetwork: Network, options: ServiceOption) {
+  async createEngineService(network: Network, options: ServiceOption) {
     const image = `mesg/engine:${options.version}`
     if (!existsSync(options.path)) {
       mkdirSync(options.path)
@@ -105,14 +98,7 @@ export default abstract class extends Command {
             'com.docker.stack.namespace': options.name
           },
           Env: [
-            `MESG_LOG_FORMAT=${options.format}`,
-            `MESG_LOG_LEVEL=${options.level}`,
-            `MESG_LOG_FORCECOLORS=${options.colors}`,
             `MESG_NAME=${options.name}`,
-            `MESG_TENDERMINT_P2P_PERSISTENTPEERS=${options.persistentPeers}`,
-            `MESG_COSMOS_CHAINID=${options.chainId}`,
-            `MESG_COSMOS_GENESISVALIDATORTX=${options.genesisValidatorTx}`,
-            `MESG_COSMOS_GENESISTIME=${options.genesisTime}`,
           ],
           Mounts: [{
             Source: '/var/run/docker.sock',
@@ -127,10 +113,6 @@ export default abstract class extends Command {
         Networks: [
           {
             Target: network.id,
-            Alias: options.name,
-          },
-          {
-            Target: tendermintNetwork.id,
             Alias: options.name,
           },
         ]
