@@ -40,7 +40,7 @@ export default class ServiceDev extends Command {
     const instanceHash = await this.startService(serviceHash, flags.env)
     this.spinner.status = 'fetching logs'
     const stream = await ServiceLog.run([base58.encode(instanceHash)])
-    this.spinner.stop('ready')
+    this.spinner.stop(base58.encode(instanceHash))
 
     process.once('SIGINT', async () => {
       stream.destroy()
