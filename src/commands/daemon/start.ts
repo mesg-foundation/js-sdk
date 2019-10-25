@@ -64,7 +64,23 @@ export default class Start extends Command {
       p2pPort: flags['p2p-port'],
     })
     await eventPromise
+    await this.waitForAPI()
     this.spinner.stop()
     return true
+  }
+
+  async waitForAPI() {
+    try {
+      await this.api.service.list({})
+    } catch (e) {
+      // code 2: Error: 2 UNKNOWN: Stream removed
+      // code 14: Error: 14 UNAVAILABLE: failed to connect to all addresses
+      if (e.code === 2 || e.code === 14) {
+        return new Promise(resolve => {
+          setTimeout(() => this.waitForAPI().then(resolve), 1000)
+        })
+      }
+      throw e
+    }
   }
 }
