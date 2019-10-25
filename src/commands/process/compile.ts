@@ -46,7 +46,7 @@ export default class ProcessCompile extends Command {
         return this.serviceToInstance(service, env)
       }
       if (src) {
-        return this.sourceToInstance(args.PROCESS_FILE, src, env)
+        return this.sourceToInstance(args.PROCESS_FILE, src, env, flags)
       }
       throw new Error('at least one of the following parameter should be set: "instanceHash", "service" or "src"')
     }, (flags.env || []).reduce((prev, env) => ({
@@ -58,7 +58,7 @@ export default class ProcessCompile extends Command {
     return definition
   }
 
-  async sourceToInstance(dir: string, src: string, env: string[]): Promise<hash> {
+  async sourceToInstance(dir: string, src: string, env: string[], flags: any): Promise<hash> {
     const directory = join(dirname(dir), src)
     const definition = await ServiceCompile.run([existsSync(directory) ? directory : src, '--silent', ...this.flagsAsArgs(flags)])
     const {hash} = await this.api.service.hash(definition)
