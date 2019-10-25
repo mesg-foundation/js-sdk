@@ -34,16 +34,16 @@ export default class ProcessDev extends Command {
     this.spinner.start('Starting process')
     this.spinner.status = 'compiling'
     const envToArgs = (flags.env || []).reduce((prev: string[], next: string) => [...prev, '--env', next], [])
-    const definition = await ProcessCompile.run([args.PROCESS, '--silent', '--dev', ...envToArgs])
+    const definition = await ProcessCompile.run([args.PROCESS, '--silent', '--dev', ...envToArgs, ...this.flagsAsArgs(flags)])
     this.spinner.status = 'creating process'
     const processHash = await this.createProcess(definition)
     this.spinner.status = 'fetching logs'
-    const stream = await ProcessLog.run([base58.encode(processHash)])
+    const stream = await ProcessLog.run([base58.encode(processHash), ...this.flagsAsArgs(flags)])
     this.spinner.stop('ready')
 
     process.once('SIGINT', async () => {
       stream.destroy()
-      if (this.processCreated) await ProcessDelete.run([base58.encode(processHash), '--confirm'])
+      if (this.processCreated) await ProcessDelete.run([base58.encode(processHash), '--confirm', ...this.flagsAsArgs(flags)])
     })
   }
 

@@ -37,7 +37,7 @@ export default class Start extends Command {
   async run() {
     const {flags} = this.parse(Start)
 
-    const status = await Status.run(['--name', flags.name, '--silent'])
+    const status = await Status.run(['--name', flags.name, '--silent', ...this.flagsAsArgs(flags)])
     if (status === ServiceStatus.STARTED) {
       this.log('Engine is already started')
       return false

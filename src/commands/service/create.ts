@@ -34,7 +34,7 @@ export default class ServiceCreate extends Command {
     this.spinner.stop(base58.encode(resp.hash))
     if (flags.start) {
       this.spinner.start('Starting service')
-      const start = await ServiceStart.run([base58.encode(resp.hash)])
+      const start = await ServiceStart.run([base58.encode(resp.hash), ...this.flagsAsArgs(flags)])
       this.spinner.stop(base58.encode(start.hash))
     }
     return {hash: resp.hash}
