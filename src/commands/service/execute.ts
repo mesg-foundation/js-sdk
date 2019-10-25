@@ -40,7 +40,7 @@ export default class ServiceExecute extends Command {
       hash: instanceHash
     })
     if (!instance.serviceHash) { throw new Error('invalid service hash') }
-    const service = await ServiceDetail.run([base58.encode(instance.serviceHash), '--silent'])
+    const service = await ServiceDetail.run([base58.encode(instance.serviceHash), '--silent', ...this.flagsAsArgs(flags)])
 
     const task = service.tasks.find((x: any) => x.key === args.TASK)
     if (!task) {

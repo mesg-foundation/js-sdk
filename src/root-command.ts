@@ -44,6 +44,10 @@ export default abstract class extends Command {
     return cli.action
   }
 
+  flagsAsArgs({port, host}: any): string[] {
+    return ['--port', port.toString(), '--host', host.toString()]
+  }
+
   log(message?: string, ...args: any[]): void {
     if (this.parse) {
       const {flags} = this.parse()

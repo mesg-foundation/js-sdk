@@ -60,7 +60,7 @@ export default class ProcessCompile extends Command {
 
   async sourceToInstance(dir: string, src: string, env: string[]): Promise<hash> {
     const directory = join(dirname(dir), src)
-    const definition = await ServiceCompile.run([existsSync(directory) ? directory : src, '--silent'])
+    const definition = await ServiceCompile.run([existsSync(directory) ? directory : src, '--silent', ...this.flagsAsArgs(flags)])
     const {hash} = await this.api.service.hash(definition)
     if (!hash) throw new Error('invalid hash')
     const {exists} = await this.api.service.exists({hash})

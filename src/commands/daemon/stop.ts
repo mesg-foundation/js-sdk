@@ -12,7 +12,7 @@ export default class Stop extends Command {
   async run() {
     const {flags} = this.parse(Stop)
 
-    const status = await Status.run(['--name', flags.name, '--silent'])
+    const status = await Status.run(['--name', flags.name, '--silent', ...this.flagsAsArgs(flags)])
     if (status === ServiceStatus.STOPPED) {
       this.log('Engine is already stopped')
       return false

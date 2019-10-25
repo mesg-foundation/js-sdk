@@ -1,4 +1,6 @@
 import {flags} from '@oclif/command'
+import {homedir} from 'os'
+import {join} from 'path'
 
 import Command from '../../docker-command'
 import version from '../../version'
@@ -15,31 +17,27 @@ export default class Start extends Command {
       required: true,
       default: version.engine
     }),
-    'log-force-colors': flags.boolean({
-      description: 'Log force colors',
-      default: false
-    }),
-    'log-format': flags.enum({
-      description: 'Log format',
-      default: 'text',
-      options: ['text', 'json']
-    }),
-    'log-level': flags.enum({
-      description: 'Log level',
-      default: 'info',
-      options: ['debug', 'info', 'warn', 'error', 'fatal', 'panic']
+    path: flags.string({
+      description: 'Path to the mesg folder',
+      default: join(homedir(), '.mesg'),
+      required: true,
     }),
     pull: flags.boolean({
       description: 'Pull the latest image of the given version',
       default: true,
       allowNo: true
-    })
+    }),
+    'p2p-port': flags.integer({
+      description: 'Port to use for p2p interaction',
+      default: 26656,
+      required: true,
+    }),
   }
 
   async run() {
     const {flags} = this.parse(Start)
 
-    const status = await Status.run(['--name', flags.name, '--silent'])
+    const status = await Status.run(['--name', flags.name, '--silent', ...this.flagsAsArgs(flags)])
     if (status === ServiceStatus.STARTED) {
       this.log('Engine is already started')
       return false
@@ -58,12 +56,12 @@ export default class Start extends Command {
       from === `mesg/engine:${flags.version}`
     )
     const network = await this.getOrCreateNetwork({name: flags.name})
-    await this.createService(network, {
+    await this.createEngineService(network, {
       name: flags.name,
       version: flags.version,
-      colors: flags['log-force-colors'],
-      format: flags['log-format'],
-      level: flags['log-level']
+      path: flags.path,
+      port: flags.port,
+      p2pPort: flags['p2p-port'],
     })
     await eventPromise
     this.spinner.stop()
