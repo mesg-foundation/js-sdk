@@ -8,7 +8,49 @@
 #### Fixed
 #### Removed
 
-- Remove service:delete command
+
+## [v2.0.1](https://github.com/mesg-foundation/cli/releases/tag/v2.0.1)
+
+#### Fixed
+
+- ([#224](https://github.com/mesg-foundation/cli/pull/244)) Fix issue with flags on the process:compile command.
+
+## [v2.0.0](https://github.com/mesg-foundation/cli/releases/tag/v2.0.0)
+
+#### Breaking Changes
+
+- ([#157](https://github.com/mesg-foundation/cli/pull/157)) Add new account commands.
+- ([#197](https://github.com/mesg-foundation/cli/pull/197)) Remove core api, account commands and marketplace commands.
+- ([#209](https://github.com/mesg-foundation/cli/pull/209)) Remove command service:delete.
+
+#### Added
+
+- ([#181](https://github.com/mesg-foundation/cli/pull/181)) Ask credentials in service create and delete.
+- ([#207](https://github.com/mesg-foundation/cli/pull/207)) Add credential and new api.
+- ([#212](https://github.com/mesg-foundation/cli/pull/212)) Add account selection prompt.
+- ([#219](https://github.com/mesg-foundation/cli/pull/219)) Add instance hash to service dev command.
+
+#### Changed
+
+- ([#182](https://github.com/mesg-foundation/cli/pull/182)) Update packages dependencies.
+- ([#198](https://github.com/mesg-foundation/cli/pull/198)) Update description of service path.
+- ([#242](https://github.com/mesg-foundation/cli/pull/242)) Update engine to v0.16.
+- ([#243](https://github.com/mesg-foundation/cli/pull/243)) Update mesg-js to v5.0.0.
+
+#### Fixed
+
+- ([#206](https://github.com/mesg-foundation/cli/pull/206)) Fix issue with empty accounts.
+- ([#208](https://github.com/mesg-foundation/cli/pull/208)) Fix CI.
+- ([#213](https://github.com/mesg-foundation/cli/pull/213)) Improve dev command.
+- ([#214](https://github.com/mesg-foundation/cli/pull/214)) Fix list commands empty result.
+- ([#215](https://github.com/mesg-foundation/cli/pull/215)) Update command process:dev.
+- ([#216](https://github.com/mesg-foundation/cli/pull/216)) Update command daemon:start.
+- ([#240](https://github.com/mesg-foundation/cli/pull/240)) Pass flags from commands to commands.
+- ([#241](https://github.com/mesg-foundation/cli/pull/241)) Wait for engine's api to start on the command daemon:start.
+
+#### Removed
+
+- ([#184](https://github.com/mesg-foundation/cli/pull/184)) Remove useless account flag in account commands.
 
 ## [v1.4.0](https://github.com/mesg-foundation/cli/releases/tag/v1.4.0)
 
