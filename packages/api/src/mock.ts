@@ -44,6 +44,12 @@ export default (endpoint: string): API => ({
     get() { return Promise.resolve({ serviceHash: hash }) },
     list() { return Promise.resolve({ instances: [] }) }
   },
+  runner: {
+    create() { return Promise.resolve({ hash }) },
+    get() { return Promise.resolve({ hash: hash, address: '', instanceHash: hash }) },
+    list() { return Promise.resolve({ runners: [] }) },
+    delete() { return Promise.resolve({}) }
+  },
   service: {
     create() { return Promise.resolve({ hash }) },
     get() { return Promise.resolve({ sid: 'xxx', source: 'xxx' }) },
