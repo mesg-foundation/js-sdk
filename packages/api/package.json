@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
   "devDependencies": {
+    "@types/long": "^4.0.0",
     "@types/node": "^12.12.6",
     "@types/sinon": "^7.5.0",
     "ncp": "^2.0.0",
