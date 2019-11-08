@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
+  "types": "lib/index",
   "scripts": {
     "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
     "build": "npm run clean && npm run compile",
