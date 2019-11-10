@@ -1,5 +1,5 @@
 {
-  "name": "mesg-cli",
+  "name": "@mesg/cli",
   "description": "MESG CLI",
   "version": "0.0.0",
   "author": "Anthony ESTEBE @antho1404",
