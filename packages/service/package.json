@@ -2,7 +2,7 @@
   "name": "@mesg/service",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index",
   "types": "lib/index",
   "scripts": {
     "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
