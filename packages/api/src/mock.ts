@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { API } from './types'
+import { IApi } from './types'
 import { Stream } from './util/grpc';
 import { encode } from './util/encoder';
 
@@ -23,48 +23,48 @@ export const streams = {
   execution: new StreamMock<any>()
 }
 
-export default (endpoint: string): API => ({
+export default (endpoint: string): IApi => ({
   account: {
-    get() { return Promise.resolve({ }) },
-    list() { return Promise.resolve({ accounts: [] }) },
-    create() { return Promise.resolve({ name: "name", mnemonic: "mnemonic" }) },
-    delete() { return Promise.resolve({}) },
+    async get() { return {} },
+    async list() { return { accounts: [] } },
+    async create() { return { name: "name", mnemonic: "mnemonic" } },
+    async delete() { return {} },
   },
   event: {
-    create() { return Promise.resolve({ hash }) },
+    async create() { return { hash } },
     stream() { return streams.event },
   },
   execution: {
-    create() { return Promise.resolve({ hash }) },
-    get() { return Promise.resolve({ parentHash: hash, eventHash: Buffer.from('xxx'), status: 0, instanceHash: hash, taskKey: 'xxx', inputs: encode({}) }) },
+    async create() { return { hash } },
+    async get() { return { parentHash: hash, eventHash: Buffer.from('xxx'), status: 0, instanceHash: hash, taskKey: 'xxx', inputs: encode({}) } },
     stream() { return streams.execution },
-    update() { return Promise.resolve({}) }
+    async update() { return {} }
   },
   instance: {
-    get() { return Promise.resolve({ serviceHash: hash }) },
-    list() { return Promise.resolve({ instances: [] }) }
+    async get() { return { serviceHash: hash } },
+    async list() { return { instances: [] } }
   },
   runner: {
-    create() { return Promise.resolve({ hash }) },
-    get() { return Promise.resolve({ hash: hash, address: '', instanceHash: hash }) },
-    list() { return Promise.resolve({ runners: [] }) },
-    delete() { return Promise.resolve({}) }
+    async create() { return { hash } },
+    async get() { return { hash: hash, address: '', instanceHash: hash } },
+    async list() { return { runners: [] } },
+    async delete() { return {} }
   },
   service: {
-    create() { return Promise.resolve({ hash }) },
-    get() { return Promise.resolve({ sid: 'xxx', source: 'xxx' }) },
-    hash() { return Promise.resolve({ hash }) },
-    exists() { return Promise.resolve({ exists: true }) },
-    list() { return Promise.resolve({ services: [] }) },
+    async create() { return { hash } },
+    async get() { return { sid: 'xxx', source: 'xxx' } },
+    async hash() { return { hash } },
+    async exists() { return { exists: true } },
+    async list() { return { services: [] } },
   },
   process: {
-    create() { return Promise.resolve({ hash }) },
-    get() { return Promise.resolve({ }) },
-    list() { return Promise.resolve({ processes: [] }) },
-    delete() { return Promise.resolve({}) },
+    async create() { return { hash } },
+    async get() { return { } },
+    async list() { return { processes: [] } },
+    async delete() { return {} },
   },
   ownership: {
-    list() { return Promise.resolve({ ownerships: [] }) },
+    async list() { return { ownerships: [] } },
   }
 })
 

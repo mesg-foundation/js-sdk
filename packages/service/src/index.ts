@@ -1,18 +1,22 @@
 import * as YAML from 'js-yaml'
 import * as fs from 'fs'
-import api, { API, ExecutionStatus, ExecutionStreamOutputs, EventCreateOutputs, Execution, hash } from '@mesg/api';
+import API from '@mesg/api';
+import { IApi } from '@mesg/api/lib/types';
 import * as bs58 from '@mesg/api/lib/util/base58';
 import { decode, encode } from '@mesg/api/lib/util/encoder'
+import { ExecutionStreamOutputs, IExecution } from '@mesg/api/lib/execution';
+import { ExecutionStatus, hash } from '@mesg/api/lib/types';
+import { EventCreateOutputs } from '@mesg/api/lib/event';
 
 type Options = {
   token?: hash
   definition?: any
-  API?: API
+  API?: IApi
 }
 
 class Service {
   // api gives access to low level gRPC calls.
-  private API: API
+  private API: IApi
 
   private token: hash
   private definition: any
@@ -20,7 +24,7 @@ class Service {
 
   constructor(options: Options = {}) {
     this.definition = options.definition || YAML.safeLoad(fs.readFileSync('./mesg.yml').toString());
-    this.API = options.API || api(process.env.MESG_ENDPOINT);
+    this.API = options.API || new API(process.env.MESG_ENDPOINT);
     this.token = options.token || bs58.decode(process.env.MESG_TOKEN);
   }
 
@@ -49,7 +53,7 @@ class Service {
     })
   }
 
-  private async handleTaskData({ hash, taskKey, inputs }: Execution) {
+  private async handleTaskData({ hash, taskKey, inputs }: IExecution) {
     const callback = this.tasks[taskKey];
     if (!callback) {
       throw new Error(`Task ${taskKey} is not defined in your services`);

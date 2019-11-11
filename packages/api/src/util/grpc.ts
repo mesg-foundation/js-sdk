@@ -34,6 +34,10 @@ const checkStreamReady = (metadata: Metadata): Error => {
   }
 }
 
+const promisify = (client: any, method: string) => (request: any) => {
+  return new Promise((resolve, reject) => client[method](request, (err: Error, res: any) => err ? reject(err) : resolve(res)))
+}
+
 // Stream is a type for gRPC ClientReadableStream but only covers a
 // subset of its APIs.
 interface Stream<T> {
@@ -63,5 +67,6 @@ export {
   createClient,
   checkStreamReady,
   errNoStatus,
+  promisify,
   Stream
 }

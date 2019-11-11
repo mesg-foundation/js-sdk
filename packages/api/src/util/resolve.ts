@@ -1,10 +1,10 @@
-import { hash, API } from "../types";
+import { hash, IApi } from "../types";
 
 const _resolutionTable: Map<string, hash> = new Map()
 
 // returns an instanceHash based on an sid
 // throw an error if the sid doesn't exists or have if it has more or less than one instance running
-export const resolveSID = async (api: API, sid: string): Promise<hash> => {
+export const resolveSID = async (api: IApi, sid: string): Promise<hash> => {
   if (_resolutionTable.has(sid)) return _resolutionTable.get(sid)
 
   const { services } = await api.service.list({})

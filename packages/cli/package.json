@@ -10,9 +10,8 @@
   },
   "scripts": {
     "postpack": "rimraf oclif.manifest.json",
-    "posttest": "tslint -p test -t stylish",
     "prepack": "rimraf lib tsconfig.tsbuildinfo && tsc -b && oclif-dev manifest && oclif-dev readme",
-    "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
+    "test": "echo 'todo'",
     "version": "oclif-dev readme && git add README.md",
     "oclif-dev": "oclif-dev",
     "lint": "tslint -p ./ -t stylish --fix",

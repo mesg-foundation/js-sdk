@@ -2,7 +2,8 @@ import { Test } from 'tape'
 import test from 'tape'
 import * as sinon from 'sinon'
 import Service from '.'
-import Api, { API } from '@mesg/api/lib/mock'
+import Api from '@mesg/api/lib/mock'
+import { IApi } from '@mesg/api/lib/types'
 import { encode } from '@mesg/api/lib/util/encoder';
 
 const token = Buffer.from("token")
@@ -10,7 +11,7 @@ const token = Buffer.from("token")
 function newService({
   definition = {},
   api = Api(''),
-}: { definition?: any, api?: API }): Service {
+}: { definition?: any, api?: IApi }): Service {
   return new Service({
     token,
     definition,

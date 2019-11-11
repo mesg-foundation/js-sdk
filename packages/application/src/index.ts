@@ -2,21 +2,25 @@ import { v4 as uuid} from 'uuid'
 import { mesg } from "@mesg/api/lib/typedef/execution";
 import { decode, encode } from '@mesg/api/lib/util/encoder';
 import { checkStreamReady, errNoStatus, Stream } from '@mesg/api/lib/util/grpc'
-import api, { API, ExecutionCreateInputs, ExecutionCreateOutputs, EventStreamInputs, Event, ExecutionStreamInputs, Execution, ExecutionStatus, hash } from '@mesg/api';
+import API from '@mesg/api';
+import { IApi } from '@mesg/api/lib/types';
 import { resolveSID } from '@mesg/api/lib/util/resolve'
+import { hash, ExecutionStatus } from '@mesg/api/lib/types';
+import { EventStreamInputs, IEvent } from '@mesg/api/lib/event';
+import { ExecutionStreamInputs, IExecution, ExecutionCreateInputs, ExecutionCreateOutputs } from '@mesg/api/lib/execution';
 
 const defaultEndpoint = 'localhost:50052'
 
 type Options = {
-  api?: API
+  api?: IApi
 }
 
 class Application {
   // api gives access to low level gRPC calls.
-  private api: API
+  private api: IApi
 
-  constructor(_api?: API) {
-    this.api = _api || api(defaultEndpoint);
+  constructor(_api?: IApi) {
+    this.api = _api || new API(defaultEndpoint);
   }
 
   decodeData(data: mesg.protobuf.IStruct) {
@@ -27,15 +31,15 @@ class Application {
     return encode(data)
   }
 
-  resolve(sid: string): Promise<hash> {
+  async resolve(sid: string): Promise<hash> {
     return resolveSID(this.api, sid)
   }
 
-  listenEvent(request: EventStreamInputs): Stream<Event> {
+  listenEvent(request: EventStreamInputs): Stream<IEvent> {
     return this.api.event.stream(request)
   }
 
-  listenResult(request: ExecutionStreamInputs): Stream<Execution> {
+  listenResult(request: ExecutionStreamInputs): Stream<IExecution> {
     return this.api.execution.stream({
       filter: {
         ...(request.filter || {}),
@@ -47,12 +51,12 @@ class Application {
     })
   }
 
-  executeTask(request: ExecutionCreateInputs): ExecutionCreateOutputs {
+  async executeTask(request: ExecutionCreateInputs): ExecutionCreateOutputs {
     return this.api.execution.create(request)
   }
 
-  executeTaskAndWaitResult(request: ExecutionCreateInputs): Promise<Execution> {
-    return new Promise<Execution>((resolve, reject) => {
+  async executeTaskAndWaitResult(request: ExecutionCreateInputs): Promise<IExecution> {
+    return new Promise<IExecution>((resolve, reject) => {
       const tag = uuid()
       const stream = this.listenResult({
         filter: {
