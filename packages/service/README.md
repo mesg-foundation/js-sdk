@@ -1,13 +1,8 @@
 # mesg-js
 
-[Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://medium.com/mesg)
+[Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://blog.mesg.com)
 
-mesg-js is the official JavaScript library to interact with [MESG Engine](https://github.com/mesg-foundation/engine).
-
-This library can be used from an Application or a Service.
-
-# Status
-[![CircleCI](https://img.shields.io/circleci/project/github/mesg-foundation/mesg-js.svg)](https://github.com/mesg-foundation/mesg-js) [![codecov](https://codecov.io/gh/mesg-foundation/mesg-js/branch/master/graph/badge.svg)](https://codecov.io/gh/mesg-foundation/mesg-js)
+This library handles the connection with the MESG Engine, some authentication, and finally, the functions for your service to listen to tasks sent by the engine or emit events that your service needs to expose to the engine.
 
 # Contents
 
@@ -15,23 +10,19 @@ This library can be used from an Application or a Service.
 - [Service](#service)
   - [Task](#task)
   - [Event](#event)
-- [Community](#community)
-- [Contribute](#contribute)
 
 # Installation
 
 ```bash
-npm i mesg-js
+npm i @mesg/service
 ```
 
 # Service
 
-Require mesg-js as a service:
-
 ```javascript
-const service = require('@mesg/service')
+const Service = require('@mesg/service')
 
-const mesg = service()
+const mesg = new Service()
 ```
 
 ## Task
@@ -68,15 +59,3 @@ To emit an event, the service should call the `mesg.emitEvent` function with the
 ```javascript
 mesg.emitEvent('EVENT_KEY', { foo: 'bar' })
 ```
-
-# Community
-
-You can find us and other MESG users on the [forum](https://forum.mesg.com). Feel free to check existing posts and help other users of MESG.
-
-Also, be sure to check out the [blog](https://medium.com/mesg) to stay up-to-date with our articles.
-
-# Contribute
-
-Contributions are more than welcome.
-
-If you have any questions, please reach out to us directly on [Discord](https://discordapp.com/invite/5tVTHJC).

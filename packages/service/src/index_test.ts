@@ -1,7 +1,7 @@
 import { Test } from 'tape'
 import test from 'tape'
 import * as sinon from 'sinon'
-import Service from './service'
+import Service from '.'
 import Api, { API } from '@mesg/api/lib/mock'
 import { encode } from '@mesg/api/lib/util/encoder';
 
@@ -17,7 +17,6 @@ function newService({
     API: api
   })
 }
-
 
 test('listenTask() should pass task validation', function (t: Test) {
   t.plan(1);
