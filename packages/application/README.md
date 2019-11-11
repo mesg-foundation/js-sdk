@@ -1,13 +1,8 @@
 # mesg-js
 
-[Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://medium.com/mesg)
+[Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://blog.mesg.com)
 
-mesg-js is the official JavaScript library to interact with [MESG Engine](https://github.com/mesg-foundation/engine).
-
-This library can be used from an Application or a Service.
-
-# Status
-[![CircleCI](https://img.shields.io/circleci/project/github/mesg-foundation/mesg-js.svg)](https://github.com/mesg-foundation/mesg-js) [![codecov](https://codecov.io/gh/mesg-foundation/mesg-js/branch/master/graph/badge.svg)](https://codecov.io/gh/mesg-foundation/mesg-js)
+This library lets you connect to the MESG engine to listen for any event or result that you might be interested too. It also allows you to execute a task, either synchronously or asynchronously.
 
 # Contents
 
@@ -18,8 +13,6 @@ This library can be used from an Application or a Service.
   - [Listen results](#listen-results)
   - [Execute task](#execute-task)
   - [Execute task and wait result](#execute-task-and-wait-result)
-- [Community](#community)
-- [Contribute](#contribute)
 
 # Installation
 
@@ -32,9 +25,9 @@ npm i @mesg/application
 Require mesg-js as an application:
 
 ```javascript
-const application = require('@mesg/application')
+const Application = require('@mesg/application')
 
-const mesg = application()
+const mesg = new Application()
 ```
 
 ## MESG Engine endpoint
@@ -131,15 +124,3 @@ if (result.error) {
 }
 console.log('a result received:', mesg.decodeData(result.outputs))
 ```
-
-# Community
-
-You can find us and other MESG users on the [forum](https://forum.mesg.com). Feel free to check existing posts and help other users of MESG.
-
-Also, be sure to check out the [blog](https://medium.com/mesg) to stay up-to-date with our articles.
-
-# Contribute
-
-Contributions are more than welcome.
-
-If you have any questions, please reach out to us directly on [Discord](https://discordapp.com/invite/5tVTHJC).

@@ -2,7 +2,7 @@ import { Test } from 'tape'
 import test from 'tape'
 import * as sinon from 'sinon'
 import * as isUUID from 'is-uuid'
-import Application from './application';
+import Application from '.';
 import Api, { ExecutionStatus, streams } from '@mesg/api/lib/mock'
 
 test('listenEvent() should listen for events and return a stream', (t: Test) => {
