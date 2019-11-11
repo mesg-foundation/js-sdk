@@ -27,17 +27,17 @@
     "@types/long": "^4.0.0",
     "@types/node": "^12.12.6",
     "@types/sinon": "^7.5.0",
+    "@types/tape": "^4.2.33",
     "ncp": "^2.0.0",
+    "sinon": "^7.5.0",
+    "tape": "^4.11.0",
     "ts-node": "^8.4.1",
     "typescript": "^3.7.2"
   },
   "dependencies": {
     "@grpc/proto-loader": "^0.5.3",
-    "@types/tape": "^4.2.33",
     "base-x": "^3.0.7",
     "grpc": "^1.24.2",
-    "protobufjs": "^6.8.8",
-    "sinon": "^7.5.0",
-    "tape": "^4.11.0"
+    "protobufjs": "^6.8.8"
   }
 }
