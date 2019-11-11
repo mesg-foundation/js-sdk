@@ -1,8 +1,8 @@
 import {flags} from '@oclif/command'
-import {ServiceCreateOutputs} from '@mesg/api'
+import {ServiceCreateOutputs} from '@mesg/api/lib/service'
 import * as base58 from '@mesg/api/lib/util/base58'
 
-import {WithCredential as Command} from '../../credential-command'
+import Command from '../../root-command'
 
 import ServiceStart from './start'
 
@@ -25,11 +25,10 @@ export default class ServiceCreate extends Command {
 
   async run(): ServiceCreateOutputs {
     const {args, flags} = this.parse(ServiceCreate)
-    const credential = await this.getCredential()
     this.spinner.start('Create service')
     const service = JSON.parse(args.DEFINITION)
 
-    const resp = await this.api.service.create(service, credential)
+    const resp = await this.api.service.create(service)
     if (!resp.hash) throw new Error('invalid hash')
     this.spinner.stop(base58.encode(resp.hash))
     if (flags.start) {

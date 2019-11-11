@@ -1,5 +1,7 @@
 import chalk from 'chalk'
-import {Execution, ExecutionStatus, Service} from '@mesg/api'
+import { IService } from '@mesg/api/lib/service'
+import { ExecutionStatus } from '@mesg/api/lib/types'
+import { IExecution } from '@mesg/api/lib/execution'
 import * as b58 from '@mesg/api/lib/util/base58'
 import {decode} from '@mesg/api/lib/util/encoder'
 import {inspect} from 'util'
@@ -18,7 +20,7 @@ export default class ProcessLogs extends Command {
     required: true,
   }]
 
-  services: {[key: string]: Service} = {}
+  services: {[key: string]: IService} = {}
 
   async run() {
     const {args} = this.parse(ProcessLogs)
@@ -67,14 +69,14 @@ export default class ProcessLogs extends Command {
   }
 
   handlerResult(processHash: Uint8Array) {
-    return (execution: Execution) => {
+    return (execution: IExecution) => {
       if (!execution.processHash) return
       if (b58.encode(execution.processHash) !== b58.encode(processHash)) return
       this.log(this.formatResult(execution))
     }
   }
 
-  formatResult(execution: Execution) {
+  formatResult(execution: IExecution) {
     if (!execution.instanceHash) return
     const prefix = [
       `[${execution.stepID}]`,

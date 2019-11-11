@@ -1,4 +1,4 @@
-import {Process} from '@mesg/api'
+import {IProcess} from '@mesg/api/lib/process'
 import {hash} from '@mesg/api/lib/types'
 import * as base58 from '@mesg/api/lib/util/base58'
 
@@ -47,7 +47,7 @@ export default class ProcessDev extends Command {
     })
   }
 
-  async createProcess(definition: Process): Promise<hash> {
+  async createProcess(definition: IProcess): Promise<hash> {
     try {
       const process = await this.api.process.create(definition)
       if (!process.hash) throw new Error('invalid hash')

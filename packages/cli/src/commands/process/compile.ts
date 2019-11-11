@@ -1,10 +1,9 @@
 import {flags} from '@oclif/command'
 import {existsSync, readFileSync} from 'fs'
-import {Credential} from '@mesg/api'
 import {hash} from '@mesg/api/lib/types'
 import {dirname, join} from 'path'
 
-import {WithCredential as Command} from '../../credential-command'
+import Command from '../../root-command'
 import * as compile from '../../utils/compiler'
 import {IsAlreadyExistsError} from '../../utils/error'
 import ServiceCompile from '../service/compile'
@@ -26,8 +25,6 @@ export default class ProcessCompile extends Command {
     name: 'PROCESS_FILE',
     description: 'Path of a process file'
   }]
-
-  private _credentials: Credential | null = null
 
   async run(): Promise<any> {
     const {args, flags} = this.parse(ProcessCompile)
@@ -65,7 +62,7 @@ export default class ProcessCompile extends Command {
     if (!hash) throw new Error('invalid hash')
     const {exists} = await this.api.service.exists({hash})
     if (!exists) {
-      const resp = await this.api.service.create(definition, await this.credentials())
+      const resp = await this.api.service.create(definition)
       if (!resp.hash) throw new Error('invalid hash')
       if (resp.hash.toString() !== hash.toString()) throw new Error('invalid hash')
     }
@@ -92,12 +89,5 @@ export default class ProcessCompile extends Command {
       if (!IsAlreadyExistsError.match(e)) throw e
       return new IsAlreadyExistsError(e).hash
     }
-  }
-
-  private async credentials(): Promise<Credential> {
-    if (!this._credentials) {
-      this._credentials = await this.getCredential()
-    }
-    return this._credentials
   }
 }

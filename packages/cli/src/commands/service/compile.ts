@@ -1,5 +1,5 @@
 import {readFileSync} from 'fs'
-import {Service} from '@mesg/api/lib/types'
+import {IService} from '@mesg/api/lib/service'
 import {join} from 'path'
 
 import Command from '../../root-command'
@@ -23,7 +23,7 @@ export default class ServiceCompile extends Command {
 
   private readonly IPFS = ipfsClient('ipfs.app.mesg.com', '5001', {protocol: 'http'})
 
-  async run(): Promise<Service> {
+  async run(): Promise<IService> {
     const {args} = this.parse(ServiceCompile)
     this.spinner.status = 'Download sources'
     const path = await deployer(args.SERVICE)

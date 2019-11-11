@@ -1,7 +1,9 @@
 import yaml from 'js-yaml'
 import pick from 'lodash.pick'
 import * as ProcessType from '@mesg/api/lib/typedef/process'
-import {hash, Process, Service} from '@mesg/api/lib/types'
+import {hash} from '@mesg/api/lib/types'
+import {IService} from '@mesg/api/lib/service'
+import {IProcess} from '@mesg/api/lib/process'
 import {encodeField} from '@mesg/api/lib/util/encoder'
 
 const replaceVariable = (value: any, env: { [key: string]: string }) => {
@@ -32,7 +34,7 @@ const parseParams = (params: any): any => mapToArray(params).map(x => ({
   object: parseParams(x.object),
 }))
 
-export const service = async (content: Buffer): Promise<Service> => {
+export const service = async (content: Buffer): Promise<IService> => {
   const definition = decode(content, {})
   return {
     ...pick(definition, ['sid', 'name', 'description', 'repository']),
@@ -106,7 +108,7 @@ const nodeCompiler = async (
   }
 }
 
-export const process = async (content: Buffer, instanceResolver: (object: any) => Promise<hash>, envs: { [key: string]: string }): Promise<Process> => {
+export const process = async (content: Buffer, instanceResolver: (object: any) => Promise<hash>, envs: { [key: string]: string }): Promise<IProcess> => {
   const definition = decode(content, envs)
 
   let nodes = []

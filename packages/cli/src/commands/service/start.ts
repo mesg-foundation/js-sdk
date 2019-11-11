@@ -1,5 +1,5 @@
 import {flags} from '@oclif/command'
-import {RunnerCreateOutputs} from '@mesg/api'
+import {RunnerCreateOutputs} from '@mesg/api/lib/runner'
 import * as base58 from '@mesg/api/lib/util/base58'
 
 import Command from '../../root-command'

@@ -1,4 +1,4 @@
-import {ProcessCreateOutputs} from '@mesg/api'
+import {ProcessCreateOutputs} from '@mesg/api/lib/process'
 import * as base58 from '@mesg/api/lib/util/base58'
 
 import Command from '../../root-command'

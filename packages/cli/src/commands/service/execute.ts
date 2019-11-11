@@ -1,6 +1,6 @@
 import {flags} from '@oclif/command'
 import {readFileSync} from 'fs'
-import {ExecutionCreateOutputs} from '@mesg/api'
+import {ExecutionCreateOutputs} from '@mesg/api/lib/execution'
 import * as base58 from '@mesg/api/lib/util/base58'
 
 import Command from '../../root-command'

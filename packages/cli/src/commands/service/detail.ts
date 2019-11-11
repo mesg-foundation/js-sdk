@@ -1,4 +1,4 @@
-import {ServiceGetOutputs} from '@mesg/api'
+import {ServiceGetOutputs} from '@mesg/api/lib/service'
 
 import Command from '../../root-command'
 import serviceResolver from '../../utils/service-resolver'

@@ -1,8 +1,9 @@
 import {Command, flags} from '@oclif/command'
 import {IConfig} from '@oclif/config'
 import {cli} from 'cli-ux'
-import application, {Application} from '@mesg/application'
-import createApi, {API, hash} from '@mesg/api'
+import Application from '@mesg/application'
+import API from '@mesg/api'
+import {hash} from '@mesg/api/lib/types'
 import * as base58 from '@mesg/api/lib/util/base58'
 import {format, inspect} from 'util'
 
@@ -26,8 +27,8 @@ export default abstract class extends Command {
       ? new URL(process.env.DOCKER_HOST).hostname
       : flags.host
     const endpoint = `${host}:${port}`
-    this.api = createApi(endpoint)
-    this._app = application({endpoint})
+    this.api = new API(endpoint)
+    this._app = new Application(this.api)
   }
 
   get spinner() {
