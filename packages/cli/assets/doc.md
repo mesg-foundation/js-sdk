@@ -30,7 +30,7 @@ This service requires [MESG SDK](https://github.com/mesg-foundation/engine) to b
 You can install MESG SDK by running the following command or [follow the installation guide](https://docs.mesg.com/guide/start-here/installation.html).
 
 ```bash
-npm install -g mesg-cli
+npm install -g @mesg/cli
 ```
 
 ### Deploy the Service

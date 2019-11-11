@@ -1,4 +1,4 @@
-# mesg-js
+# @mesg/application
 
 [Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://blog.mesg.com)
 
@@ -17,7 +17,7 @@ This library lets you connect to the MESG engine to listen for any event or resu
 # Installation
 
 ```bash
-npm i @mesg/application
+npm install @mesg/application
 ```
 
 # Application

@@ -1,4 +1,4 @@
-# mesg-js
+# @mesg/service
 
 [Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://blog.mesg.com)
 
@@ -14,7 +14,7 @@ This library handles the connection with the MESG Engine, some authentication, a
 # Installation
 
 ```bash
-npm i @mesg/service
+npm install @mesg/service
 ```
 
 # Service
