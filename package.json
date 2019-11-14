@@ -5,6 +5,7 @@
     "lerna": "^3.18.4"
   },
   "scripts": {
-    "lerna": "lerna"
+    "lerna": "lerna",
+    "postinstall": "npm run lerna -- bootstrap && node ./postinstall.js"
   }
 }
