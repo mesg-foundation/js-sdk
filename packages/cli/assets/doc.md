@@ -51,7 +51,7 @@ To deploy this service, go to [this service page](https://marketplace.mesg.com/s
     {{#if env}}    
 ### Environment Variables
       {{#each env}}
-        - {{this}}
+- {{this}}
       {{/each}}
     {{/if}}
   {{/with}}
