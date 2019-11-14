@@ -71,7 +71,7 @@ Event key: `{{@key}}`
 | **Name** | **Key** | **Type** | **Description** | **Object** |
 | --- | --- | --- | --- | --- |
       {{#each data}}
-| **{{or name @key}}** | `{{@key}}` | `{{type}}{{#if repeated}}[]{{/if}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if object}} {{toJSON object}} {{else}} false {{/if}} |
+| **{{or name @key}}** | `{{@key}}` | `{{type}}{{#if repeated}}[]{{/if}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if object}} {{toJSON object}} {{/if}} |
       {{/each}}
     {{/if}}
   {{/each}}
