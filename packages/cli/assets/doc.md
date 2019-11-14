@@ -8,6 +8,13 @@
   - [MESG SDK](#MESG-SDK)
   - [Deploy the Service](#Service)
 - [Definitions](#Definitions)
+{{#if configuration}}
+  {{#with configuration}}
+    {{#if env}}
+- [Environment Variables](#Environment Variables)
+    {{/if}}
+  {{/with}}
+{{/if}}
 {{#if events}}
 - [Events](#Events)
   {{#each events}}
@@ -19,13 +26,6 @@
   {{#each tasks}}
   - [{{or name @key}}](#{{@key}})
   {{/each}}
-{{/if}}
-{{#if configuration}}
-  {{#with configuration}}
-    {{#if env}}
-      - [Environment Variables](#Environment Variables)
-    {{/if}}
-  {{/with}}
 {{/if}}
 
 ## Installation
@@ -46,6 +46,17 @@ To deploy this service, go to [this service page](https://marketplace.mesg.com/s
 
 ## Definitions
 
+{{#if configuration}}
+  {{#with configuration}}
+    {{#if env}}    
+### Environment Variables
+      {{#each env}}
+        - {{this}}
+      {{/each}}
+    {{/if}}
+  {{/with}}
+{{/if}}
+
 {{# if events}}
 ### Events
 
@@ -57,10 +68,10 @@ Event key: `{{@key}}`
 {{description}}
 
     {{#if data}}
-| **Name** | **Key** | **Type** | **Description** | **Repeated** | **Object** |
-| --- | --- | --- | --- | --- | --- |
+| **Name** | **Key** | **Type** | **Description** | **Object** |
+| --- | --- | --- | --- | --- |
       {{#each data}}
-| **{{or name @key}}** | `{{@key}}` | `{{type}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if repeated}} true {{else}} false {{/if}} | {{#if object}} {{toJSON object}} {{else}} false {{/if}} |
+| **{{or name @key}}** | `{{@key}}` | `{{type}}{{#if repeated}}[]{{/if}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if object}} {{toJSON object}} {{else}} false {{/if}} |
       {{/each}}
     {{/if}}
   {{/each}}
@@ -79,32 +90,21 @@ Task key: `{{@key}}`
     {{#if inputs}}
 ##### Inputs
 
-| **Name** | **Key** | **Type** | **Description** | **Repeated** | **Object** |
-| --- | --- | --- | --- | --- | --- |
+| **Name** | **Key** | **Type** | **Description** | **Object** |
+| --- | --- | --- | --- | --- |
       {{#each inputs}}
-| **{{or name @key}}** | `{{@key}}` | `{{type}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if repeated}} true {{else}} false {{/if}} | {{#if object}} {{toJSON object}} {{else}} false {{/if}} |
+| **{{or name @key}}** | `{{@key}}` | `{{type}}{{#if repeated}}[]{{/if}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if object}} {{toJSON object}} {{else}} false {{/if}} |
       {{/each}}
     {{/if}}
   
     {{#if outputs}}
 ##### Outputs
 
-| **Name** | **Key** | **Type** | **Description** | **Repeated** | **Object** |
-| --- | --- | --- | --- | --- | --- |
+| **Name** | **Key** | **Type** | **Description** | **Object** |
+| --- | --- | --- | --- | --- |
       {{#each outputs}}
-| **{{or name @key}}** | `{{@key}}` | `{{type}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if repeated}} true {{else}} false {{/if}} | {{#if object}} {{toJSON object}} {{else}} false {{/if}} |
+| **{{or name @key}}** | `{{@key}}` | `{{type}}{{#if repeated}}[]{{/if}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if object}} {{toJSON object}} {{else}} false {{/if}} |
       {{/each}}
     {{/if}}
   {{/each}}
-{{/if}}
-
-{{#if configuration}}
-  {{#with configuration}}
-    {{#if env}}    
-### Environment Variables
-      {{#each env}}
-        {{@key}}: {{this}}
-      {{/each}}
-    {{/if}}
-  {{/with}}
 {{/if}}
