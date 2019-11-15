@@ -10,8 +10,9 @@
 	Forum: https://forum.mesg.com
 	Documentation: https://docs.mesg.com
 	Github: https://github.com/mesg-foundation
+	Discord: http://discord.mesg.com/
 
-	Install the core by executing:
-	bash <(curl -s https://mesg.com/install)
+	Start the engine by executing:
+	mesg-cli daemon:start
 
 	HAPPY CODING :)
