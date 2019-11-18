@@ -24,7 +24,10 @@ export default class Logs extends Command {
     const services = await this.listServices({
       name: flags.name
     })
-    if (services.length === 0) return
+    if (services.length === 0) {
+      this.log("ERROR: No engine is running.")
+      return
+    }
     const service = services[0]
     const logs: any = await service.logs({
       stderr: true,
