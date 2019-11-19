@@ -13,17 +13,25 @@ This repository is a list of tools in javascript to interact with MESG. It conta
 
 ## Install
 
-> npm install
-> npm run lerna -- bootstrap
+```
+npm install
+npm run lerna -- bootstrap
+```
 
 ## Add a new library in a package
 
-> npm run lerna -- add [--dev] XXX [packages/yyy]
+```
+npm run lerna -- add [--dev] XXX [packages/yyy]
+```
 
 ## Build all the packages
 
-> npm run lerna -- run build
+```
+npm run lerna -- run build
+```
 
 ## Run test for all the packages
 
-> npm run lerna -- run test
+```
+npm run lerna -- run test
+```

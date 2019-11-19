@@ -15,7 +15,8 @@
     "version": "oclif-dev readme && git add README.md",
     "oclif-dev": "oclif-dev",
     "lint": "tslint -p ./ -t stylish --fix",
-    "build": "tsc -b tsconfig.json"
+    "build": "tsc -b tsconfig.json",
+	"postinstall": "node ./postinstall.js"
   },
   "bugs": {
     "url": "https://github.com/mesg-foundation/js-sdk/issues"
