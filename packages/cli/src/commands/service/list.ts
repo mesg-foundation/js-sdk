@@ -23,13 +23,13 @@ export default class ServiceList extends Command {
     cli.table(services || [], {
       hash: {header: 'HASH', get: srv => srv.hash ? base58.encode(srv.hash) : ''},
       sid: {header: 'SID', get: srv => srv.sid},
-      ownerships: {
-        header: 'OWNER',
-        get: srv => (ownerships || [])
-          .filter(own => own.serviceHash && srv.hash && own.serviceHash.toString() === srv.hash.toString())
-          .map(own => own.owner)
-          .join('\n')
-      },
+      // ownerships: {
+      //   header: 'OWNER',
+      //   get: srv => (ownerships || [])
+      //     .filter(own => own.serviceHash && srv.hash && own.serviceHash.toString() === srv.hash.toString())
+      //     .map(own => own.owner)
+      //     .join('\n')
+      // },
       instances: {
         header: 'INSTANCES',
         get: srv => (instances || [])
