@@ -10,7 +10,7 @@ export type RunnerListInputs = RunnerType.mesg.api.IListRunnerRequest
 export type RunnerListOutputs = Promise<RunnerType.mesg.api.IListRunnerResponse>
 
 export type RunnerCreateInputs = RunnerType.mesg.api.ICreateRunnerRequest
-export type RunnerCreateOutputs = Promise<IRunner>
+export type RunnerCreateOutputs = Promise<RunnerType.mesg.api.ICreateRunnerResponse>
 
 export type RunnerDeleteInputs = RunnerType.mesg.api.IDeleteRunnerRequest
 export type RunnerDeleteOutputs = Promise<RunnerType.mesg.api.IDeleteRunnerResponse>
