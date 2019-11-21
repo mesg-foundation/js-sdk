@@ -78,16 +78,22 @@ export default class ProcessCompile extends Command {
     if (match.length > 1) throw new Error(`multiple services match the following sid: ${sidOrHashStr}, provide a service's hash instead`)
     const service = match[0]
     if (!service.hash) throw new Error('invalid service')
+    
+    // get runner
+    var runnerHash: hash
     try {
-      const resp = await this.api.runner.create({
+      const {hash} = await this.api.runner.create({
         serviceHash: service.hash,
         env,
       })
-      if (!resp.hash) throw new Error('invalid hash')
-      return resp.hash
+      if (!hash) throw new Error('invalid runner created hash')
+      runnerHash = hash
     } catch (e) {
       if (!IsAlreadyExistsError.match(e)) throw e
-      return new IsAlreadyExistsError(e).hash
+      runnerHash = new IsAlreadyExistsError(e).hash
     }
+    if (!runnerHash) throw new Error('invalid runner hash')
+    const runner = await this.api.runner.get({hash: runnerHash})
+    return runner.instanceHash
   }
 }
