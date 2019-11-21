@@ -1,6 +1,7 @@
 import {hash} from '@mesg/api/lib/types'
 import * as base58 from '@mesg/api/lib/util/base58'
 
+// TODO: all the following should be replaced by grpc error code
 export class IsAlreadyExistsError extends Error {
   static ID = 'ALREADY_EXISTS'
   static regexp = new RegExp('\"(.*)\" already exists')

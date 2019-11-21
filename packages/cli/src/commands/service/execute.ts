@@ -4,8 +4,6 @@ import {ExecutionCreateOutputs} from '@mesg/api/lib/execution'
 import * as base58 from '@mesg/api/lib/util/base58'
 
 import Command from '../../root-command'
-
-import ServiceDetail from './detail'
 import {runnerResolver} from '../../utils/resolver'
 
 export default class ServiceExecute extends Command {
@@ -20,11 +18,15 @@ export default class ServiceExecute extends Command {
       multiple: true,
       helpValue: 'key=value'
     }),
+    eventHash: flags.string({
+      description: 'Event hash to create the execution with'
+    }),
   }
 
   static args = [{
-    name: 'INSTANCE_HASH',
+    name: 'RUNNER_HASH',
     required: true,
+    description: 'The hash of the runner that will execute this execution'
   }, {
     name: 'TASK',
     required: true,
@@ -36,23 +38,32 @@ export default class ServiceExecute extends Command {
 
     const runnerHash = await runnerResolver(this.api, args.RUNNER_HASH)
 
-    const instance = await this.api.instance.get({
-      hash: instanceHash
+    const runner = await this.api.runner.get({
+      hash: runnerHash
     })
-    if (!instance.serviceHash) { throw new Error('invalid service hash') }
-    const service = await ServiceDetail.run([base58.encode(instance.serviceHash), '--silent', ...this.flagsAsArgs(flags)])
+    if (!runner.instanceHash) { throw new Error('invalid runner hash') }
 
-    const task = service.tasks.find((x: any) => x.key === args.TASK)
+    const instance = await this.api.instance.get({
+      hash: runner.instanceHash
+    })
+    if (!instance.serviceHash) { throw new Error('invalid instance') }
+
+    const service = await this.api.service.get({
+      hash: instance.serviceHash
+    })
+    if (!service.hash) { throw new Error('invalid service') }
+
+    const task = service.tasks.find(x => x.key === args.TASK)
     if (!task) {
-      throw new Error(`The task ${args.TASK} does not exist in service`)
+      throw new Error(`The task ${args.TASK} does not exist in service '${service.hash}'`)
     }
-    const inputs = this.convertValue(task.inputs, this.dataFromFlags(flags))
 
     const result = await this.execute({
-      inputs,
-      instanceHash,
+      inputs: this.convertValue(task.inputs, this.dataFromFlags(flags)),
+      executorHash: runnerHash,
       tags: ['CLI'],
-      taskKey: args.TASK
+      taskKey: args.TASK,
+      eventHash: base58.decode(flags.eventHash || '6aUPZhmnFKiSsHXRaddbnqsKKi9KogbQNiKUcpivaohb'), // TODO: to improve
     })
     this.styledJSON(result)
     return result

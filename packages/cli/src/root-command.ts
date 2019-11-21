@@ -81,12 +81,13 @@ export default abstract class extends Command {
     }
   }
 
-  async execute(request: {instanceHash: hash, taskKey: string, inputs?: {[key: string]: any}, tags?: string[]}): Promise<{[key: string]: any}> {
+  async execute(request: {executorHash: hash, taskKey: string, eventHash: hash, inputs?: {[key: string]: any}, tags?: string[]}): Promise<{[key: string]: any}> {
     const exec = await this._app.executeTaskAndWaitResult({
-      instanceHash: request.instanceHash,
+      executorHash: request.executorHash,
       tags: request.tags || [],
       taskKey: request.taskKey,
-      inputs: this._app.encodeData(request.inputs || {})
+      inputs: this._app.encodeData(request.inputs || {}),
+      eventHash: request.eventHash,
     })
     if (exec.error) throw new Error(exec.error)
     if (!exec.outputs) throw new Error('missing outputs')

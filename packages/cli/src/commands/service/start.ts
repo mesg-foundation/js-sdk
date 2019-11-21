@@ -6,7 +6,7 @@ import Command from '../../root-command'
 import {serviceResolver} from '../../utils/resolver'
 
 export default class ServiceStart extends Command {
-  static description = 'Start a service by creating a new instance'
+  static description = 'Start a service by creating a new runner'
 
   static flags = {
     ...Command.flags,
@@ -24,14 +24,16 @@ export default class ServiceStart extends Command {
 
   async run(): RunnerCreateOutputs {
     const {args, flags} = this.parse(ServiceStart)
-    this.spinner.start('Start instance')
+    this.spinner.start('Starting runner')
     const serviceHash = await serviceResolver(this.api, args.SERVICE_HASH)
-    const instance = await this.api.runner.create({
+    const {hash} = await this.api.runner.create({
       serviceHash,
       env: flags.env
     })
-    if (!instance.hash) throw new Error('invalid instance')
-    this.spinner.stop(base58.encode(instance.hash))
-    return instance
+    if (!hash) throw new Error('invalid runner')
+    this.spinner.stop(base58.encode(hash))
+    const runner = await this.api.runner.get({hash})
+    this.log(`Runner started with hash ${base58.encode(hash)} and instance hash ${base58.encode(runner.instanceHash)}`)
+    return {hash}
   }
 }
