@@ -25,7 +25,7 @@ export default class Logs extends Command {
       name: flags.name
     })
     if (services.length === 0) {
-      this.log("ERROR: No engine is running.")
+      throw new Error("No engine is running.")
       return
     }
     const service = services[0]
