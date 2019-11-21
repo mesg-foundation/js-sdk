@@ -26,7 +26,6 @@ export default class Logs extends Command {
     })
     if (services.length === 0) {
       throw new Error("No engine is running.")
-      return
     }
     const service = services[0]
     const logs: any = await service.logs({
