@@ -15,6 +15,9 @@ export type ExecutionCreateOutputs = Promise<ExecutionType.mesg.api.ICreateExecu
 export type ExecutionUpdateInputs = ExecutionType.mesg.api.IUpdateExecutionRequest
 export type ExecutionUpdateOutputs = Promise<ExecutionType.mesg.api.IUpdateExecutionResponse>
 
+export type ExecutionListInputs = ExecutionType.mesg.api.IListExecutionRequest
+export type ExecutionListOutputs = Promise<ExecutionType.mesg.api.IListExecutionResponse>
+
 export default class Execution {
 
   private _client: any
@@ -33,6 +36,10 @@ export default class Execution {
 
   async update(request: ExecutionUpdateInputs): ExecutionUpdateOutputs { 
     return promisify(this._client, 'Update')(request)
+  }
+
+  async list(request: ExecutionListInputs): ExecutionListOutputs { 
+    return promisify(this._client, 'List')(request)
   }
 
   stream(request: ExecutionStreamInputs): ExecutionStreamOutputs {

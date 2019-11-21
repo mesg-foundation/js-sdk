@@ -57,6 +57,9 @@ declare namespace mesg {
 
                 /** Execution stepID */
                 stepID?: (string|null);
+
+                /** Execution executorHash */
+                executorHash?: (Uint8Array|null);
             }
 
             /** Represents an Execution. */
@@ -103,6 +106,9 @@ declare namespace mesg {
 
                 /** Execution stepID. */
                 public stepID: string;
+
+                /** Execution executorHash. */
+                public executorHash: Uint8Array;
             }
         }
 
@@ -251,6 +257,20 @@ declare namespace mesg {
                 public get(request: mesg.api.IGetExecutionRequest): Promise<mesg.types.Execution>;
 
                 /**
+                 * Calls List.
+                 * @param request ListExecutionRequest message or plain object
+                 * @param callback Node-style callback called with the error, if any, and ListExecutionResponse
+                 */
+                public list(request: mesg.api.IListExecutionRequest, callback: mesg.api.Execution.ListCallback): void;
+
+                /**
+                 * Calls List.
+                 * @param request ListExecutionRequest message or plain object
+                 * @returns Promise
+                 */
+                public list(request: mesg.api.IListExecutionRequest): Promise<mesg.api.ListExecutionResponse>;
+
+                /**
                  * Calls Stream.
                  * @param request StreamExecutionRequest message or plain object
                  * @param callback Node-style callback called with the error, if any, and Execution
@@ -296,6 +316,13 @@ declare namespace mesg {
                 type GetCallback = (error: (Error|null), response?: mesg.types.Execution) => void;
 
                 /**
+                 * Callback as used by {@link mesg.api.Execution#list}.
+                 * @param error Error, if any
+                 * @param [response] ListExecutionResponse
+                 */
+                type ListCallback = (error: (Error|null), response?: mesg.api.ListExecutionResponse) => void;
+
+                /**
                  * Callback as used by {@link mesg.api.Execution#stream}.
                  * @param error Error, if any
                  * @param [response] Execution
@@ -313,9 +340,6 @@ declare namespace mesg {
             /** Properties of a CreateExecutionRequest. */
             interface ICreateExecutionRequest {
 
-                /** CreateExecutionRequest instanceHash */
-                instanceHash?: (Uint8Array|null);
-
                 /** CreateExecutionRequest taskKey */
                 taskKey?: (string|null);
 
@@ -324,6 +348,21 @@ declare namespace mesg {
 
                 /** CreateExecutionRequest tags */
                 tags?: (string[]|null);
+
+                /** CreateExecutionRequest parentHash */
+                parentHash?: (Uint8Array|null);
+
+                /** CreateExecutionRequest eventHash */
+                eventHash?: (Uint8Array|null);
+
+                /** CreateExecutionRequest processHash */
+                processHash?: (Uint8Array|null);
+
+                /** CreateExecutionRequest stepID */
+                stepID?: (string|null);
+
+                /** CreateExecutionRequest executorHash */
+                executorHash?: (Uint8Array|null);
             }
 
             /** Represents a CreateExecutionRequest. */
@@ -335,9 +374,6 @@ declare namespace mesg {
                  */
                 constructor(properties?: mesg.api.ICreateExecutionRequest);
 
-                /** CreateExecutionRequest instanceHash. */
-                public instanceHash: Uint8Array;
-
                 /** CreateExecutionRequest taskKey. */
                 public taskKey: string;
 
@@ -346,6 +382,21 @@ declare namespace mesg {
 
                 /** CreateExecutionRequest tags. */
                 public tags: string[];
+
+                /** CreateExecutionRequest parentHash. */
+                public parentHash: Uint8Array;
+
+                /** CreateExecutionRequest eventHash. */
+                public eventHash: Uint8Array;
+
+                /** CreateExecutionRequest processHash. */
+                public processHash: Uint8Array;
+
+                /** CreateExecutionRequest stepID. */
+                public stepID: string;
+
+                /** CreateExecutionRequest executorHash. */
+                public executorHash: Uint8Array;
             }
 
             /** Properties of a CreateExecutionResponse. */
@@ -424,6 +475,9 @@ declare namespace mesg {
 
                     /** Filter tags */
                     tags?: (string[]|null);
+
+                    /** Filter executorHash */
+                    executorHash?: (Uint8Array|null);
                 }
 
                 /** Represents a Filter. */
@@ -446,6 +500,9 @@ declare namespace mesg {
 
                     /** Filter tags. */
                     public tags: string[];
+
+                    /** Filter executorHash. */
+                    public executorHash: Uint8Array;
                 }
             }
 
@@ -496,6 +553,40 @@ declare namespace mesg {
                  * @param [properties] Properties to set
                  */
                 constructor(properties?: mesg.api.IUpdateExecutionResponse);
+            }
+
+            /** Properties of a ListExecutionRequest. */
+            interface IListExecutionRequest {
+            }
+
+            /** Represents a ListExecutionRequest. */
+            class ListExecutionRequest implements IListExecutionRequest {
+
+                /**
+                 * Constructs a new ListExecutionRequest.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: mesg.api.IListExecutionRequest);
+            }
+
+            /** Properties of a ListExecutionResponse. */
+            interface IListExecutionResponse {
+
+                /** ListExecutionResponse executions */
+                executions?: (mesg.types.IExecution[]|null);
+            }
+
+            /** Represents a ListExecutionResponse. */
+            class ListExecutionResponse implements IListExecutionResponse {
+
+                /**
+                 * Constructs a new ListExecutionResponse.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: mesg.api.IListExecutionResponse);
+
+                /** ListExecutionResponse executions. */
+                public executions: mesg.types.IExecution[];
             }
         }
     }

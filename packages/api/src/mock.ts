@@ -38,7 +38,8 @@ export default (endpoint: string): IApi => ({
     async create() { return { hash } },
     async get() { return { parentHash: hash, eventHash: Buffer.from('xxx'), status: 0, instanceHash: hash, taskKey: 'xxx', inputs: encode({}) } },
     stream() { return streams.execution },
-    async update() { return {} }
+    async update() { return {} },
+    async list() { return { executions: [] } },
   },
   instance: {
     async get() { return { serviceHash: hash } },
