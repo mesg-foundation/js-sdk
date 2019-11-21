@@ -4,9 +4,9 @@ import {ExecutionCreateOutputs} from '@mesg/api/lib/execution'
 import * as base58 from '@mesg/api/lib/util/base58'
 
 import Command from '../../root-command'
-import instanceResolver from '../../utils/instance-resolver'
 
 import ServiceDetail from './detail'
+import {runnerResolver} from '../../utils/resolver'
 
 export default class ServiceExecute extends Command {
   static description = 'Execute a task on a running service'
@@ -34,7 +34,7 @@ export default class ServiceExecute extends Command {
   async run(): ExecutionCreateOutputs {
     const {args, flags} = this.parse(ServiceExecute)
 
-    const instanceHash = await instanceResolver(this.api, args.INSTANCE_HASH)
+    const runnerHash = await runnerResolver(this.api, args.RUNNER_HASH)
 
     const instance = await this.api.instance.get({
       hash: instanceHash

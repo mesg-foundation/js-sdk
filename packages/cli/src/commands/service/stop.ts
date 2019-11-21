@@ -2,7 +2,7 @@ import {flags} from '@oclif/command'
 import cli from 'cli-ux'
 
 import Command from '../../root-command'
-import instanceResolver from '../../utils/instance-resolver'
+import {runnerResolver} from '../../utils/resolver'
 
 export default class ServiceStop extends Command {
   static description = 'Stop one or more running service'
@@ -34,8 +34,8 @@ export default class ServiceStop extends Command {
     }
     this.spinner.start('Stop running services')
     for (const hash of argv) {
-      const instanceHash = await instanceResolver(this.api, hash)
       await this.api.runner.delete({hash: instanceHash, deleteData: flags['delete-data']})
+      const runnerHash = await runnerResolver(this.api, hash)
     }
     this.spinner.stop(argv.join(', '))
     return argv

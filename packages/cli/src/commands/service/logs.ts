@@ -9,7 +9,7 @@ import {Docker} from 'node-docker-api'
 
 import Command from '../../root-command'
 import {parseLog} from '../../utils/docker'
-import instanceResolver from '../../utils/instance-resolver'
+import {runnerResolver} from '../../utils/resolver'
 
 export interface Log {
   dependency: string

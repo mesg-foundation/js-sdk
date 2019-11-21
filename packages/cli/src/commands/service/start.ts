@@ -3,7 +3,7 @@ import {RunnerCreateOutputs} from '@mesg/api/lib/runner'
 import * as base58 from '@mesg/api/lib/util/base58'
 
 import Command from '../../root-command'
-import serviceResolver from '../../utils/service-resolver'
+import {serviceResolver} from '../../utils/resolver'
 
 export default class ServiceStart extends Command {
   static description = 'Start a service by creating a new instance'
