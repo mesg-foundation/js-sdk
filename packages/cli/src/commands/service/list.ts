@@ -14,26 +14,22 @@ export default class ServiceList extends Command {
 
   async run(): Promise<IInstance[]> {
     const {flags} = this.parse(ServiceList)
-    const [{services}, {instances}, {ownerships}] = await Promise.all([
+    const [{services}, {instances}, {runners}] = await Promise.all([
       this.api.service.list({}),
       this.api.instance.list({}),
-      this.api.ownership.list({})
+      this.api.runner.list({}),
     ])
     cli.table(services || [], {
-      hash: {header: 'HASH', get: x => x.hash ? base58.encode(x.hash) : ''},
-      sid: {header: 'SID', get: x => x.sid},
-      ownerships: {
-        header: 'OWNER',
-        get: x => (ownerships || [])
-          .filter(y => y.serviceHash && x.hash && y.serviceHash.toString() === x.hash.toString())
-          .map(y => y.owner)
-          .join('\n')
-      },
+      hash: {header: 'HASH', get: srv => srv.hash ? base58.encode(srv.hash) : ''},
+      sid: {header: 'SID', get: srv => srv.sid},
       instances: {
         header: 'INSTANCES',
-        get: x => (instances || [])
-          .filter(y => y.serviceHash && x.hash && y.serviceHash.toString() === x.hash.toString())
-          .map(y => y.hash && base58.encode(y.hash))
+        get: srv => (instances || [])
+          .filter(inst => inst.serviceHash && srv.hash && inst.serviceHash.toString() === srv.hash.toString())
+          .map(inst => base58.encode(inst.hash) + '. Runners: ' + (runners || [])
+            .filter(run => run.instanceHash && inst.hash && run.instanceHash.toString() === inst.hash.toString())
+            .map(run => run.hash && base58.encode(run.hash))
+            .join(" - "))
           .join('\n')
       },
     }, {printLine: this.log, ...flags})

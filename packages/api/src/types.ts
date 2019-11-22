@@ -1,6 +1,6 @@
 import { AccountGetInputs, AccountGetOutputs, AccountListInputs, AccountListOutputs, AccountCreateInputs, AccountCreateOutputs, AccountDeleteInputs, AccountDeleteOutputs } from './account'
 import { EventCreateInputs, EventCreateOutputs, EventStreamInputs, EventStreamOutputs } from './event'
-import { ExecutionGetInputs, ExecutionGetOutputs, ExecutionStreamInputs, ExecutionStreamOutputs, ExecutionCreateInputs, ExecutionCreateOutputs, ExecutionUpdateInputs, ExecutionUpdateOutputs } from './execution'
+import { ExecutionGetInputs, ExecutionGetOutputs, ExecutionStreamInputs, ExecutionStreamOutputs, ExecutionCreateInputs, ExecutionCreateOutputs, ExecutionUpdateInputs, ExecutionUpdateOutputs, ExecutionListInputs, ExecutionListOutputs } from './execution'
 import { InstanceGetInputs, InstanceGetOutputs, InstanceListInputs, InstanceListOutputs } from './instance'
 import { RunnerGetInputs, RunnerGetOutputs, RunnerListInputs, RunnerListOutputs, RunnerCreateInputs, RunnerCreateOutputs, RunnerDeleteInputs, RunnerDeleteOutputs } from './runner'
 import { ServiceGetInputs, ServiceGetOutputs, ServiceHashInputs, ServiceHashOutputs, ServiceExistsInputs, ServiceExistsOutputs, ServiceListInputs, ServiceListOutputs, ServiceCreateInputs, ServiceCreateOutputs } from './service'
@@ -33,6 +33,7 @@ export type IApi = {
     stream: (request: ExecutionStreamInputs) => ExecutionStreamOutputs
     create: (request: ExecutionCreateInputs) => ExecutionCreateOutputs
     update: (request: ExecutionUpdateInputs) => ExecutionUpdateOutputs
+    list: (request: ExecutionListInputs) => ExecutionListOutputs
   }
   instance: {
     get: (request: InstanceGetInputs) => InstanceGetOutputs

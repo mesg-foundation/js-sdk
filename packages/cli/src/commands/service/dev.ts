@@ -26,7 +26,7 @@ export default class ServiceDev extends Command {
     default: './'
   }]
 
-  instanceCreated = false
+  runnerCreated = false
 
   async run() {
     const {args, flags} = this.parse(ServiceDev)
@@ -34,17 +34,17 @@ export default class ServiceDev extends Command {
     this.spinner.start('Starting service')
     this.spinner.status = 'compiling'
     const definition = await ServiceCompile.run([args.SERVICE, '--silent', ...this.flagsAsArgs(flags)])
-    this.spinner.status = 'creating service'
+    this.spinner.status = 'creating'
     const serviceHash = await this.createService(definition)
-    this.spinner.status = 'starting service'
-    const instanceHash = await this.startService(serviceHash, flags.env)
+    this.spinner.status = 'starting'
+    const runnerHash = await this.startService(serviceHash, flags.env)
     this.spinner.status = 'fetching logs'
-    const stream = await ServiceLog.run([base58.encode(instanceHash), ...this.flagsAsArgs(flags)])
-    this.spinner.stop(base58.encode(instanceHash))
+    const stream = await ServiceLog.run([base58.encode(runnerHash), ...this.flagsAsArgs(flags)])
+    this.spinner.stop(base58.encode(runnerHash))
 
     process.once('SIGINT', async () => {
       stream.destroy()
-      if (this.instanceCreated) await ServiceStop.run([base58.encode(instanceHash), ...this.flagsAsArgs(flags)])
+      if (this.runnerCreated) await ServiceStop.run([base58.encode(runnerHash), ...this.flagsAsArgs(flags)])
     })
   }
 
@@ -62,13 +62,13 @@ export default class ServiceDev extends Command {
 
   async startService(serviceHash: hash, env: string[]): Promise<hash> {
     try {
-      const instance = await this.api.runner.create({
+      const {hash} = await this.api.runner.create({
         serviceHash,
         env
       })
-      if (!instance.hash) throw new Error('invalid hash')
-      this.instanceCreated = true
-      return instance.hash
+      if (!hash) throw new Error('invalid hash')
+      this.runnerCreated = true
+      return hash
     } catch (e) {
       if (!IsAlreadyExistsError.match(e)) throw e
       this.warn('service already started')

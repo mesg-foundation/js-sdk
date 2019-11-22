@@ -60,7 +60,7 @@ class Application {
       const tag = uuid()
       const stream = this.listenResult({
         filter: {
-          instanceHash: request.instanceHash,
+          executorHash: request.executorHash,
           tags: [tag]
         }
       })

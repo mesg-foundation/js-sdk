@@ -6,14 +6,16 @@ import Api from '@mesg/api/lib/mock'
 import { IApi } from '@mesg/api/lib/types'
 import { encode } from '@mesg/api/lib/util/encoder';
 
-const token = Buffer.from("token")
+const runnerHash = Buffer.from("runnerHash")
+const instanceHash = Buffer.from("instanceHash")
 
 function newService({
   definition = {},
   api = Api(''),
 }: { definition?: any, api?: IApi }): Service {
   return new Service({
-    token,
+    runnerHash,
+    instanceHash,
     definition,
     API: api
   })
@@ -75,7 +77,7 @@ test('listenTask() should listen for tasks', function (t: Test) {
   const service = newService({ definition, api });
   service.listenTask({ 'task1': () => ({}), 'task2': () => ({}) });
   t.ok(spy.calledOnce);
-  t.equal(spy.getCall(0).args[0].filter.instanceHash, token);
+  t.equal(spy.getCall(0).args[0].filter.executorHash, runnerHash);
   spy.restore();
 });
 
@@ -111,7 +113,7 @@ test('emitEvent() should emit an event', function (t: Test) {
   const service = newService({ api });
   t.doesNotThrow(() => service.emitEvent(key, data));
   const args = spy.getCall(0).args[0];
-  t.equal(args.instanceHash, token);
+  t.equal(args.instanceHash, instanceHash);
   t.equal(args.key, key);
   t.equal(JSON.stringify(args.data), JSON.stringify(encode(data)));
   spy.restore();
