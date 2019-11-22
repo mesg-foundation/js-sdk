@@ -14,22 +14,14 @@ export default class ServiceList extends Command {
 
   async run(): Promise<IInstance[]> {
     const {flags} = this.parse(ServiceList)
-    const [{services}, {instances}, {ownerships}, {runners}] = await Promise.all([
+    const [{services}, {instances}, {runners}] = await Promise.all([
       this.api.service.list({}),
       this.api.instance.list({}),
-      this.api.ownership.list({}),
       this.api.runner.list({}),
     ])
     cli.table(services || [], {
       hash: {header: 'HASH', get: srv => srv.hash ? base58.encode(srv.hash) : ''},
       sid: {header: 'SID', get: srv => srv.sid},
-      // ownerships: {
-      //   header: 'OWNER',
-      //   get: srv => (ownerships || [])
-      //     .filter(own => own.serviceHash && srv.hash && own.serviceHash.toString() === srv.hash.toString())
-      //     .map(own => own.owner)
-      //     .join('\n')
-      // },
       instances: {
         header: 'INSTANCES',
         get: srv => (instances || [])
