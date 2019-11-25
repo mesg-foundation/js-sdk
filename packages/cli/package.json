@@ -110,9 +110,6 @@
       },
       "daemon": {
         "description": "Manage the Engine"
-      },
-      "account": {
-        "description": "Manage accounts"
       }
     }
   }
