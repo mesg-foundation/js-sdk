@@ -19,7 +19,7 @@ $ npm install -g @mesg/cli
 $ mesg-cli COMMAND
 running command...
 $ mesg-cli (-v|--version|version)
-@mesg/cli/0.0.0 darwin-x64 node-v12.13.0
+@mesg/cli/0.1.0-alpha.0 darwin-x64 node-v12.13.0
 $ mesg-cli --help [COMMAND]
 USAGE
   $ mesg-cli COMMAND
@@ -45,12 +45,12 @@ USAGE
 * [`mesg-cli service:detail SERVICE_HASH`](#mesg-cli-servicedetail-service_hash)
 * [`mesg-cli service:dev [SERVICE]`](#mesg-cli-servicedev-service)
 * [`mesg-cli service:doc [SERVICE]`](#mesg-cli-servicedoc-service)
-* [`mesg-cli service:execute INSTANCE_HASH TASK`](#mesg-cli-serviceexecute-instance_hash-task)
+* [`mesg-cli service:execute RUNNER_HASH TASK`](#mesg-cli-serviceexecute-runner_hash-task)
 * [`mesg-cli service:init DIR`](#mesg-cli-serviceinit-dir)
 * [`mesg-cli service:list`](#mesg-cli-servicelist)
-* [`mesg-cli service:logs INSTANCE_HASH`](#mesg-cli-servicelogs-instance_hash)
+* [`mesg-cli service:logs RUNNER_HASH`](#mesg-cli-servicelogs-runner_hash)
 * [`mesg-cli service:start SERVICE_HASH`](#mesg-cli-servicestart-service_hash)
-* [`mesg-cli service:stop INSTANCE_HASH...`](#mesg-cli-servicestop-instance_hash)
+* [`mesg-cli service:stop RUNNER_HASH...`](#mesg-cli-servicestop-runner_hash)
 
 ## `mesg-cli daemon:logs`
 
@@ -70,7 +70,7 @@ OPTIONS
   --tail=tail      [default: -1] Display the last N lines
 ```
 
-_See code: [src/commands/daemon/logs.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/daemon/logs.ts)_
+_See code: [src/commands/daemon/logs.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/daemon/logs.ts)_
 
 ## `mesg-cli daemon:start`
 
@@ -92,7 +92,7 @@ OPTIONS
   --version=version    (required) [default: v0.16] Version of the Engine to run
 ```
 
-_See code: [src/commands/daemon/start.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/daemon/start.ts)_
+_See code: [src/commands/daemon/start.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/daemon/start.ts)_
 
 ## `mesg-cli daemon:status`
 
@@ -110,7 +110,7 @@ OPTIONS
   --name=name      (required) [default: engine] Name of the docker service running the engine
 ```
 
-_See code: [src/commands/daemon/status.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/daemon/status.ts)_
+_See code: [src/commands/daemon/status.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/daemon/status.ts)_
 
 ## `mesg-cli daemon:stop`
 
@@ -128,7 +128,7 @@ OPTIONS
   --name=name      (required) [default: engine] Name of the docker service running the engine
 ```
 
-_See code: [src/commands/daemon/stop.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/daemon/stop.ts)_
+_See code: [src/commands/daemon/stop.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/daemon/stop.ts)_
 
 ## `mesg-cli help [COMMAND]`
 
@@ -167,7 +167,7 @@ OPTIONS
   --host=host      [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/process/compile.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/process/compile.ts)_
+_See code: [src/commands/process/compile.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/process/compile.ts)_
 
 ## `mesg-cli process:create DEFINITION`
 
@@ -187,7 +187,7 @@ OPTIONS
   --host=host      [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/process/create.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/process/create.ts)_
+_See code: [src/commands/process/create.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/process/create.ts)_
 
 ## `mesg-cli process:delete PROCESS_HASH...`
 
@@ -205,7 +205,7 @@ OPTIONS
   --host=host      [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/process/delete.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/process/delete.ts)_
+_See code: [src/commands/process/delete.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/process/delete.ts)_
 
 ## `mesg-cli process:detail PROCESS_HASH`
 
@@ -222,7 +222,7 @@ OPTIONS
   --host=host      [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/process/detail.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/process/detail.ts)_
+_See code: [src/commands/process/detail.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/process/detail.ts)_
 
 ## `mesg-cli process:dev [PROCESS]`
 
@@ -244,7 +244,7 @@ OPTIONS
   --host=host      [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/process/dev.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/process/dev.ts)_
+_See code: [src/commands/process/dev.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/process/dev.ts)_
 
 ## `mesg-cli process:list`
 
@@ -268,7 +268,7 @@ OPTIONS
   --sort=sort        property to sort by (prepend '-' for descending)
 ```
 
-_See code: [src/commands/process/list.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/process/list.ts)_
+_See code: [src/commands/process/list.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/process/list.ts)_
 
 ## `mesg-cli process:logs PROCESS_HASH`
 
@@ -285,7 +285,7 @@ OPTIONS
   --host=host      [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/process/logs.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/process/logs.ts)_
+_See code: [src/commands/process/logs.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/process/logs.ts)_
 
 ## `mesg-cli service:compile [SERVICE]`
 
@@ -305,7 +305,7 @@ OPTIONS
   --host=host      [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/service/compile.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/service/compile.ts)_
+_See code: [src/commands/service/compile.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/service/compile.ts)_
 
 ## `mesg-cli service:create DEFINITION`
 
@@ -326,7 +326,7 @@ OPTIONS
   --start          Automatically start the service once created
 ```
 
-_See code: [src/commands/service/create.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/service/create.ts)_
+_See code: [src/commands/service/create.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/service/create.ts)_
 
 ## `mesg-cli service:detail SERVICE_HASH`
 
@@ -343,7 +343,7 @@ OPTIONS
   --host=host      [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/service/detail.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/service/detail.ts)_
+_See code: [src/commands/service/detail.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/service/detail.ts)_
 
 ## `mesg-cli service:dev [SERVICE]`
 
@@ -365,7 +365,7 @@ OPTIONS
   --start          Automatically start the service once created
 ```
 
-_See code: [src/commands/service/dev.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/service/dev.ts)_
+_See code: [src/commands/service/dev.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/service/dev.ts)_
 
 ## `mesg-cli service:doc [SERVICE]`
 
@@ -386,30 +386,31 @@ OPTIONS
   --host=host      [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/service/doc.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/service/doc.ts)_
+_See code: [src/commands/service/doc.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/service/doc.ts)_
 
-## `mesg-cli service:execute INSTANCE_HASH TASK`
+## `mesg-cli service:execute RUNNER_HASH TASK`
 
 Execute a task on a running service
 
 ```
 USAGE
-  $ mesg-cli service:execute INSTANCE_HASH TASK
+  $ mesg-cli service:execute RUNNER_HASH TASK
 
 ARGUMENTS
-  INSTANCE_HASH
-  TASK           Task key
+  RUNNER_HASH  The hash of the runner that will execute this execution
+  TASK         Task key
 
 OPTIONS
-  -d, --data=key=value  Task inputs
-  -h, --help            show CLI help
-  -j, --json=json       Path to a JSON file containing the task inputs
-  -p, --port=port       [default: 50052] Port to access the MESG engine
-  -q, --quiet           Display only essential information
-  --host=host           [default: localhost] Host to access the MESG engine
+  -d, --data=key=value   Task inputs
+  -h, --help             show CLI help
+  -j, --json=json        Path to a JSON file containing the task inputs
+  -p, --port=port        [default: 50052] Port to access the MESG engine
+  -q, --quiet            Display only essential information
+  --eventHash=eventHash  Event hash to create the execution with
+  --host=host            [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/service/execute.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/service/execute.ts)_
+_See code: [src/commands/service/execute.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/service/execute.ts)_
 
 ## `mesg-cli service:init DIR`
 
@@ -430,7 +431,7 @@ OPTIONS
   --host=host              [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/service/init.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/service/init.ts)_
+_See code: [src/commands/service/init.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/service/init.ts)_
 
 ## `mesg-cli service:list`
 
@@ -454,15 +455,15 @@ OPTIONS
   --sort=sort        property to sort by (prepend '-' for descending)
 ```
 
-_See code: [src/commands/service/list.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/service/list.ts)_
+_See code: [src/commands/service/list.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/service/list.ts)_
 
-## `mesg-cli service:logs INSTANCE_HASH`
+## `mesg-cli service:logs RUNNER_HASH`
 
 Fetch the logs of a service
 
 ```
 USAGE
-  $ mesg-cli service:logs INSTANCE_HASH
+  $ mesg-cli service:logs RUNNER_HASH
 
 OPTIONS
   -h, --help       show CLI help
@@ -477,11 +478,11 @@ OPTIONS
   --task=task      Display a specific task results
 ```
 
-_See code: [src/commands/service/logs.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/service/logs.ts)_
+_See code: [src/commands/service/logs.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/service/logs.ts)_
 
 ## `mesg-cli service:start SERVICE_HASH`
 
-Start a service by creating a new instance
+Start a service by creating a new runner
 
 ```
 USAGE
@@ -495,15 +496,15 @@ OPTIONS
   --host=host      [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/service/start.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/service/start.ts)_
+_See code: [src/commands/service/start.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/service/start.ts)_
 
-## `mesg-cli service:stop INSTANCE_HASH...`
+## `mesg-cli service:stop RUNNER_HASH...`
 
 Stop one or more running service
 
 ```
 USAGE
-  $ mesg-cli service:stop INSTANCE_HASH...
+  $ mesg-cli service:stop RUNNER_HASH...
 
 OPTIONS
   -h, --help       show CLI help
@@ -514,5 +515,5 @@ OPTIONS
   --host=host      [default: localhost] Host to access the MESG engine
 ```
 
-_See code: [src/commands/service/stop.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.0.0/src/commands/service/stop.ts)_
+_See code: [src/commands/service/stop.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.1.0-alpha.0/src/commands/service/stop.ts)_
 <!-- commandsstop -->
