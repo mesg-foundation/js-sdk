@@ -8,6 +8,9 @@
   "bin": {
     "mesg-cli": "./bin/run"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "postpack": "rimraf oclif.manifest.json",
     "prepack": "rimraf lib tsconfig.tsbuildinfo && tsc -b && oclif-dev manifest && oclif-dev readme",
@@ -16,7 +19,7 @@
     "oclif-dev": "oclif-dev",
     "lint": "tslint -p ./ -t stylish --fix",
     "build": "tsc -b tsconfig.json",
-	"postinstall": "node ./postinstall.js"
+    "postinstall": "node ./postinstall.js"
   },
   "bugs": {
     "url": "https://github.com/mesg-foundation/js-sdk/issues"

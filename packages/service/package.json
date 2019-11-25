@@ -4,6 +4,9 @@
   "description": "",
   "main": "lib/index",
   "types": "lib/index",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
     "build": "npm run clean && npm run compile",
