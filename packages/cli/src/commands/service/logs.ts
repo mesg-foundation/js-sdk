@@ -44,7 +44,7 @@ export default class ServiceLogs extends Command {
     }),
     tail: flags.integer({
       description: 'Display the last N lines',
-      default: -1
+      default: 10000
     }),
     follow: flags.boolean({
       description: 'Follow log output',
