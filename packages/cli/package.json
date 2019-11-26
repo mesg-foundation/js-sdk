@@ -19,7 +19,7 @@
     "oclif-dev": "oclif-dev",
     "lint": "tslint -p ./ -t stylish --fix",
     "build": "tsc -b tsconfig.json",
-    "postinstall": "node ./postinstall.js"
+    "postinstall": "./postinstall"
   },
   "bugs": {
     "url": "https://github.com/mesg-foundation/js-sdk/issues"
@@ -93,7 +93,8 @@
     "/lib",
     "/assets",
     "/npm-shrinkwrap.json",
-    "/oclif.manifest.json"
+    "/oclif.manifest.json",
+    "./postinstall"
   ],
   "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
   "license": "ISC",
