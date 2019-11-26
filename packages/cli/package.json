@@ -94,7 +94,7 @@
     "/assets",
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json",
-    "./postinstall"
+    "/postinstall"
   ],
   "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
   "license": "ISC",
