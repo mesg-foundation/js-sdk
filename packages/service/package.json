@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
   "dependencies": {
-    "@mesg/api": "^0.0.0",
+    "@mesg/api": "^0.1.0-alpha.1",
     "js-yaml": "^3.13.1"
   },
   "devDependencies": {

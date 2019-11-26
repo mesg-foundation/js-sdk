@@ -29,8 +29,8 @@
     "url": "git+https://github.com/mesg-foundation/js-sdk.git"
   },
   "dependencies": {
-    "@mesg/api": "^0.0.0",
-    "@mesg/application": "^0.0.0",
+    "@mesg/api": "^0.1.0-alpha.1",
+    "@mesg/application": "^0.1.0-alpha-1",
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.13.3",
     "@oclif/errors": "^1.2.2",
