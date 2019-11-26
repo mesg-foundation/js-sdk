@@ -8,7 +8,7 @@ import Process from './process'
 import Service from './service'
 import Runner from './runner'
 
-export default class API implements IApi {
+class API implements IApi {
 
   account: Account
   event: Event
@@ -30,3 +30,6 @@ export default class API implements IApi {
     this.runner = new Runner(endpoint)
   }
 } 
+
+export default API;
+(module).exports = API;

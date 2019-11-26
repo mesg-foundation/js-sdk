@@ -102,6 +102,7 @@ interface EventData {
 }
 
 export default Service;
+(module).exports = Service;
 export {
   Tasks,
   TaskInputs,
