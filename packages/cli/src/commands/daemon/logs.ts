@@ -10,7 +10,7 @@ export default class Logs extends Command {
     ...Command.flags,
     tail: flags.integer({
       description:  'Display the last N lines',
-      default: -1
+      default: 10000
     }),
     follow: flags.boolean({
       description: 'Follow logs',
