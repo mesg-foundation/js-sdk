@@ -1,6 +1,6 @@
 {
   "name": "@mesg/service",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0",
   "description": "",
   "main": "lib/index",
   "types": "lib/index",
@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
   "dependencies": {
-    "@mesg/api": "^0.1.0-alpha.2",
+    "@mesg/api": "^0.1.0",
     "js-yaml": "^3.13.1"
   },
   "devDependencies": {
