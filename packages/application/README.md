@@ -36,13 +36,13 @@ By default, the library connects to the MESG Engine from the endpoint `localhost
 
 ## Resolve SID
 
-Instead of hard-coding `instanceHash` in your application's env, your application can resolve dynamically using the service's SID.
+Instead of hard-coding `runnerHash` in your application's env, your application can resolve dynamically using the service's SID.
 
 ```javascript
-const instanceHash = await mesg.resolve('SID_OF_THE_SERVICE')
+const runnerHash = await mesg.resolveRunner('SID_OF_THE_SERVICE')
 
 const result = await mesg.executeTaskAndWaitResult({
-  instanceHash,
+  executorHash: runnerHash,
   .....
 })
 ```
@@ -70,11 +70,11 @@ mesg.listenEvent({
 Listen results from a service.
 
 ```javascript
-const instanceHash = await mesg.resolve('SID_OF_THE_SERVICE')
+const runnerHash = await mesg.resolveRunner('SID_OF_THE_SERVICE')
 
 mesg.listenResult({
   filter: {
-    instanceHash: instanceHash,
+    executorHash: runnerHash,
     taskKey: 'TASK_KEY_FILTER', // optional
     tags: ['TAG_FILTER'] // optional
   }
@@ -93,10 +93,10 @@ mesg.listenResult({
 Execute task on a service.
 
 ```javascript
-const instanceHash = await mesg.resolve('SID_OF_THE_SERVICE')
+const runnerHash = await mesg.resolveRunner('SID_OF_THE_SERVICE')
 
 const execution = await mesg.executeTask({
-  instanceHash: instanceHash,
+  executorHash: runnerHash,
   taskKey: 'TASK_KEY',
   inputs: mesg.encodeData({ key: 'INPUT_DATA' }),
   tags: ['ASSOCIATE_TAG'] // optional
@@ -110,10 +110,10 @@ Execute task on a service and wait for its result.
 This can be considered as a shortcut for using both `executeTask()` and `listenResult()` at same time.
 
 ```javascript
-const instanceHash = await mesg.resolve('SID_OF_THE_SERVICE')
+const runnerHash = await mesg.resolveRunner('SID_OF_THE_SERVICE')
 
 const result = await mesg.executeTaskAndWaitResult({
-  instanceHash: instanceHash,
+  executorHash: runnerHash,
   taskKey: 'TASK_KEY',
   inputs: mesg.encodeData({ key: 'INPUT_DATA' }),
   tags: ['ASSOCIATE_TAG'] // optional

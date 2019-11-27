@@ -4,6 +4,9 @@
 
 #### Breaking Changes
 #### Added
+
+- Add `resolveRunner` function
+
 #### Changed
 #### Fixed
 #### Removed
