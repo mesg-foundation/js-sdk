@@ -4,7 +4,7 @@ import { decode, encode } from '@mesg/api/lib/util/encoder';
 import { checkStreamReady, errNoStatus, Stream } from '@mesg/api/lib/util/grpc'
 import API from '@mesg/api';
 import { IApi } from '@mesg/api/lib/types';
-import { resolveSID } from '@mesg/api/lib/util/resolve'
+import { resolveSID, resolveSIDRunner } from '@mesg/api/lib/util/resolve'
 import { hash, ExecutionStatus } from '@mesg/api/lib/types';
 import { EventStreamInputs, IEvent } from '@mesg/api/lib/event';
 import { ExecutionStreamInputs, IExecution, ExecutionCreateInputs, ExecutionCreateOutputs } from '@mesg/api/lib/execution';
@@ -33,6 +33,10 @@ class Application {
 
   async resolve(sid: string): Promise<hash> {
     return resolveSID(this.api, sid)
+  }
+
+  async resolveRunner(sid: string): Promise<hash> {
+    return resolveSIDRunner(this.api, sid)
   }
 
   listenEvent(request: EventStreamInputs): Stream<IEvent> {
