@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@mesg/api": "^0.1.0",
-    "@mesg/application": "^0.1.0",
+    "@mesg/application": "^0.2.0",
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.13.3",
     "@oclif/errors": "^1.2.2",
