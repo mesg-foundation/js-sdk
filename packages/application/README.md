@@ -97,6 +97,7 @@ const runnerHash = await mesg.resolveRunner('SID_OF_THE_SERVICE')
 
 const execution = await mesg.executeTask({
   executorHash: runnerHash,
+  eventHash: event.hash,
   taskKey: 'TASK_KEY',
   inputs: mesg.encodeData({ key: 'INPUT_DATA' }),
   tags: ['ASSOCIATE_TAG'] // optional
@@ -114,6 +115,7 @@ const runnerHash = await mesg.resolveRunner('SID_OF_THE_SERVICE')
 
 const result = await mesg.executeTaskAndWaitResult({
   executorHash: runnerHash,
+  eventHash: event.hash,
   taskKey: 'TASK_KEY',
   inputs: mesg.encodeData({ key: 'INPUT_DATA' }),
   tags: ['ASSOCIATE_TAG'] // optional
