@@ -4,11 +4,14 @@
 
 #### Breaking Changes
 #### Added
-
-- Add `resolveRunner` function
-
 #### Changed
 #### Fixed
 #### Removed
 
-This library has been moved from https://github.com/mesg-foundation/mesg-js, please check https://github.com/mesg-foundation/mesg-js/blob/master/CHANGELOG.md for previous updates
+## [v0.2.0](https://github.com/mesg-foundation/js-sdk/releases/tag/v0.2.0)
+
+#### Added
+
+- Add `resolveRunner` function
+
+This library has been moved from https://github.com/mesg-foundation/mesg-js, please check https://github.com/mesg-foundation/mesg-js/blob/master/CHANGELOG.md for previous updates 
