@@ -16,8 +16,8 @@ declare namespace mesg {
                 /** Process hash */
                 hash?: (Uint8Array|null);
 
-                /** Process key */
-                key?: (string|null);
+                /** Process name */
+                name?: (string|null);
 
                 /** Process nodes */
                 nodes?: (mesg.types.Process.INode[]|null);
@@ -38,8 +38,8 @@ declare namespace mesg {
                 /** Process hash. */
                 public hash: Uint8Array;
 
-                /** Process key. */
-                public key: string;
+                /** Process name. */
+                public name: string;
 
                 /** Process nodes. */
                 public nodes: mesg.types.Process.INode[];
@@ -52,6 +52,9 @@ declare namespace mesg {
 
                 /** Properties of a Node. */
                 interface INode {
+
+                    /** Node key */
+                    key?: (string|null);
 
                     /** Node result */
                     result?: (mesg.types.Process.Node.IResult|null);
@@ -78,6 +81,9 @@ declare namespace mesg {
                      */
                     constructor(properties?: mesg.types.Process.INode);
 
+                    /** Node key. */
+                    public key: string;
+
                     /** Node result. */
                     public result?: (mesg.types.Process.Node.IResult|null);
 
@@ -102,9 +108,6 @@ declare namespace mesg {
                     /** Properties of a Result. */
                     interface IResult {
 
-                        /** Result key */
-                        key?: (string|null);
-
                         /** Result instanceHash */
                         instanceHash?: (Uint8Array|null);
 
@@ -121,9 +124,6 @@ declare namespace mesg {
                          */
                         constructor(properties?: mesg.types.Process.Node.IResult);
 
-                        /** Result key. */
-                        public key: string;
-
                         /** Result instanceHash. */
                         public instanceHash: Uint8Array;
 
@@ -133,9 +133,6 @@ declare namespace mesg {
 
                     /** Properties of an Event. */
                     interface IEvent {
-
-                        /** Event key */
-                        key?: (string|null);
 
                         /** Event instanceHash */
                         instanceHash?: (Uint8Array|null);
@@ -153,9 +150,6 @@ declare namespace mesg {
                          */
                         constructor(properties?: mesg.types.Process.Node.IEvent);
 
-                        /** Event key. */
-                        public key: string;
-
                         /** Event instanceHash. */
                         public instanceHash: Uint8Array;
 
@@ -165,9 +159,6 @@ declare namespace mesg {
 
                     /** Properties of a Task. */
                     interface ITask {
-
-                        /** Task key */
-                        key?: (string|null);
 
                         /** Task instanceHash */
                         instanceHash?: (Uint8Array|null);
@@ -185,9 +176,6 @@ declare namespace mesg {
                          */
                         constructor(properties?: mesg.types.Process.Node.ITask);
 
-                        /** Task key. */
-                        public key: string;
-
                         /** Task instanceHash. */
                         public instanceHash: Uint8Array;
 
@@ -197,9 +185,6 @@ declare namespace mesg {
 
                     /** Properties of a Map. */
                     interface IMap {
-
-                        /** Map key */
-                        key?: (string|null);
 
                         /** Map outputs */
                         outputs?: (mesg.types.Process.Node.Map.IOutput[]|null);
@@ -213,9 +198,6 @@ declare namespace mesg {
                          * @param [properties] Properties to set
                          */
                         constructor(properties?: mesg.types.Process.Node.IMap);
-
-                        /** Map key. */
-                        public key: string;
 
                         /** Map outputs. */
                         public outputs: mesg.types.Process.Node.Map.IOutput[];
@@ -291,9 +273,6 @@ declare namespace mesg {
                     /** Properties of a Filter. */
                     interface IFilter {
 
-                        /** Filter key */
-                        key?: (string|null);
-
                         /** Filter conditions */
                         conditions?: (mesg.types.Process.Node.Filter.ICondition[]|null);
                     }
@@ -306,9 +285,6 @@ declare namespace mesg {
                          * @param [properties] Properties to set
                          */
                         constructor(properties?: mesg.types.Process.Node.IFilter);
-
-                        /** Filter key. */
-                        public key: string;
 
                         /** Filter conditions. */
                         public conditions: mesg.types.Process.Node.Filter.ICondition[];
@@ -594,8 +570,8 @@ declare namespace mesg {
             /** Properties of a CreateProcessRequest. */
             interface ICreateProcessRequest {
 
-                /** CreateProcessRequest key */
-                key?: (string|null);
+                /** CreateProcessRequest name */
+                name?: (string|null);
 
                 /** CreateProcessRequest nodes */
                 nodes?: (mesg.types.Process.INode[]|null);
@@ -613,8 +589,8 @@ declare namespace mesg {
                  */
                 constructor(properties?: mesg.api.ICreateProcessRequest);
 
-                /** CreateProcessRequest key. */
-                public key: string;
+                /** CreateProcessRequest name. */
+                public name: string;
 
                 /** CreateProcessRequest nodes. */
                 public nodes: mesg.types.Process.INode[];
