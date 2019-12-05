@@ -18,10 +18,6 @@ jobs:
         uses: dcodeIO/setup-node-nvm@master
         with:
           node-version: ${{ matrix.node }}
-      - name: Use NVM
-        uses: dcodeIO/setup-node-nvm@master
-        with:
-          node-version: "${{ steps.nvm.outputs.NVMRC }}"
       - name: Upgrade NPM
         run: |
           npm i -g npm@$NPM
