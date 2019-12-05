@@ -6,13 +6,18 @@ env:
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        node: ['10.x', 'lts/*', 'node']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v1
-      - name: Read .nvmrc
-        run: echo "##[set-output name=NVMRC;]$(cat .nvmrc)"
-        id: nvm
+      - name: Setup Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+        uses: dcodeIO/setup-node-nvm@master
+        with:
+          node-version: ${{ matrix.node }}
       - name: Use NVM
         uses: dcodeIO/setup-node-nvm@master
         with:
@@ -22,6 +27,6 @@ jobs:
           npm i -g npm@$NPM
       - name: Unit test
         run: |
-          npm run ci
+          npm ci
           npm run build
           npm run test
