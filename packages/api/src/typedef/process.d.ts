@@ -187,7 +187,7 @@ declare namespace mesg {
                     interface IMap {
 
                         /** Map outputs */
-                        outputs?: (mesg.types.Process.Node.Map.IOutput[]|null);
+                        outputs?: ({ [k: string]: mesg.types.Process.Node.Map.IOutput }|null);
                     }
 
                     /** Represents a Map. */
@@ -200,7 +200,7 @@ declare namespace mesg {
                         constructor(properties?: mesg.types.Process.Node.IMap);
 
                         /** Map outputs. */
-                        public outputs: mesg.types.Process.Node.Map.IOutput[];
+                        public outputs: { [k: string]: mesg.types.Process.Node.Map.IOutput };
                     }
 
                     namespace Map {
@@ -208,14 +208,26 @@ declare namespace mesg {
                         /** Properties of an Output. */
                         interface IOutput {
 
-                            /** Output key */
-                            key?: (string|null);
+                            /** Output null */
+                            "null"?: (mesg.types.Process.Node.Map.Output.Null|null);
+
+                            /** Output stringConst */
+                            stringConst?: (string|null);
+
+                            /** Output doubleConst */
+                            doubleConst?: (number|null);
+
+                            /** Output boolConst */
+                            boolConst?: (boolean|null);
 
                             /** Output ref */
                             ref?: (mesg.types.Process.Node.Map.Output.IReference|null);
 
-                            /** Output constant */
-                            constant?: (mesg.protobuf.IValue|null);
+                            /** Output list */
+                            list?: (mesg.types.Process.Node.Map.Output.IList|null);
+
+                            /** Output map */
+                            map?: (mesg.types.Process.Node.Map.Output.IMap|null);
                         }
 
                         /** Represents an Output. */
@@ -227,20 +239,77 @@ declare namespace mesg {
                              */
                             constructor(properties?: mesg.types.Process.Node.Map.IOutput);
 
-                            /** Output key. */
-                            public key: string;
+                            /** Output null. */
+                            public null: mesg.types.Process.Node.Map.Output.Null;
+
+                            /** Output stringConst. */
+                            public stringConst: string;
+
+                            /** Output doubleConst. */
+                            public doubleConst: number;
+
+                            /** Output boolConst. */
+                            public boolConst: boolean;
 
                             /** Output ref. */
                             public ref?: (mesg.types.Process.Node.Map.Output.IReference|null);
 
-                            /** Output constant. */
-                            public constant?: (mesg.protobuf.IValue|null);
+                            /** Output list. */
+                            public list?: (mesg.types.Process.Node.Map.Output.IList|null);
+
+                            /** Output map. */
+                            public map?: (mesg.types.Process.Node.Map.Output.IMap|null);
 
                             /** Output value. */
-                            public value?: ("ref"|"constant");
+                            public value?: ("null"|"stringConst"|"doubleConst"|"boolConst"|"ref"|"list"|"map");
                         }
 
                         namespace Output {
+
+                            /** Null enum. */
+                            enum Null {
+                                NULL_VALUE = 0
+                            }
+
+                            /** Properties of a List. */
+                            interface IList {
+
+                                /** List outputs */
+                                outputs?: (mesg.types.Process.Node.Map.IOutput[]|null);
+                            }
+
+                            /** Represents a List. */
+                            class List implements IList {
+
+                                /**
+                                 * Constructs a new List.
+                                 * @param [properties] Properties to set
+                                 */
+                                constructor(properties?: mesg.types.Process.Node.Map.Output.IList);
+
+                                /** List outputs. */
+                                public outputs: mesg.types.Process.Node.Map.IOutput[];
+                            }
+
+                            /** Properties of a Map. */
+                            interface IMap {
+
+                                /** Map outputs */
+                                outputs?: ({ [k: string]: mesg.types.Process.Node.Map.IOutput }|null);
+                            }
+
+                            /** Represents a Map. */
+                            class Map implements IMap {
+
+                                /**
+                                 * Constructs a new Map.
+                                 * @param [properties] Properties to set
+                                 */
+                                constructor(properties?: mesg.types.Process.Node.Map.Output.IMap);
+
+                                /** Map outputs. */
+                                public outputs: { [k: string]: mesg.types.Process.Node.Map.IOutput };
+                            }
 
                             /** Properties of a Reference. */
                             interface IReference {
@@ -360,108 +429,6 @@ declare namespace mesg {
                     /** Edge dst. */
                     public dst: string;
                 }
-            }
-        }
-
-        /** Namespace protobuf. */
-        namespace protobuf {
-
-            /** Properties of a Struct. */
-            interface IStruct {
-
-                /** Struct fields */
-                fields?: ({ [k: string]: mesg.protobuf.IValue }|null);
-            }
-
-            /** Represents a Struct. */
-            class Struct implements IStruct {
-
-                /**
-                 * Constructs a new Struct.
-                 * @param [properties] Properties to set
-                 */
-                constructor(properties?: mesg.protobuf.IStruct);
-
-                /** Struct fields. */
-                public fields: { [k: string]: mesg.protobuf.IValue };
-            }
-
-            /** Properties of a Value. */
-            interface IValue {
-
-                /** Value nullValue */
-                nullValue?: (mesg.protobuf.NullValue|null);
-
-                /** Value numberValue */
-                numberValue?: (number|null);
-
-                /** Value stringValue */
-                stringValue?: (string|null);
-
-                /** Value boolValue */
-                boolValue?: (boolean|null);
-
-                /** Value structValue */
-                structValue?: (mesg.protobuf.IStruct|null);
-
-                /** Value listValue */
-                listValue?: (mesg.protobuf.IListValue|null);
-            }
-
-            /** Represents a Value. */
-            class Value implements IValue {
-
-                /**
-                 * Constructs a new Value.
-                 * @param [properties] Properties to set
-                 */
-                constructor(properties?: mesg.protobuf.IValue);
-
-                /** Value nullValue. */
-                public nullValue: mesg.protobuf.NullValue;
-
-                /** Value numberValue. */
-                public numberValue: number;
-
-                /** Value stringValue. */
-                public stringValue: string;
-
-                /** Value boolValue. */
-                public boolValue: boolean;
-
-                /** Value structValue. */
-                public structValue?: (mesg.protobuf.IStruct|null);
-
-                /** Value listValue. */
-                public listValue?: (mesg.protobuf.IListValue|null);
-
-                /** Value kind. */
-                public kind?: ("nullValue"|"numberValue"|"stringValue"|"boolValue"|"structValue"|"listValue");
-            }
-
-            /** NullValue enum. */
-            enum NullValue {
-                NULL_VALUE = 0
-            }
-
-            /** Properties of a ListValue. */
-            interface IListValue {
-
-                /** ListValue values */
-                values?: (mesg.protobuf.IValue[]|null);
-            }
-
-            /** Represents a ListValue. */
-            class ListValue implements IListValue {
-
-                /**
-                 * Constructs a new ListValue.
-                 * @param [properties] Properties to set
-                 */
-                constructor(properties?: mesg.protobuf.IListValue);
-
-                /** ListValue values. */
-                public values: mesg.protobuf.IValue[];
             }
         }
 
