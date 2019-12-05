@@ -3,42 +3,55 @@ import {IProcess} from '@mesg/api/lib/process'
 import {hash} from '@mesg/api/lib/types'
 import decode from './decode'
 
-const compileInstance = async (def: any, opts: any): Promise<{instanceHash: Uint8Array}> => ({
-  instanceHash: opts.instanceResolver ? await opts.instanceResolver(def) : def.instanceHash
-})
+const compileInstance = async (def: any, opts: any): Promise<Uint8Array> => opts.instanceResolver
+  ? await opts.instanceResolver(def)
+  : def.instanceHash
 
 const compileResult = async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.IResult> => ({
-  ...compileInstance(def, opts),
+  instanceHash: await compileInstance(def, opts),
   taskKey: def.taskKey
 })
 
 const compileEvent = async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.IEvent> => ({
-  ...compileInstance(def, opts),
+  instanceHash: await compileInstance(def, opts),
   eventKey: def.eventKey
 })
 
 const compileTask = async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.ITask> => ({
-  ...compileInstance(def, opts),
+  instanceHash: await compileInstance(def, opts),
   taskKey: def.taskKey
 })
 
-const compileMap = async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.IMap> => ({})
-// const map = async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.IMap> => {
-//   outputs: Object.keys(def).reduce((prev, value) => ({
-//     ...prev,
-//     key,
-//     ...(typeof def[key] === 'object' && def[key].key  // if the value is an object containing an attribute key
-//       ? {
-//         ref: {
-//           key: def[key].key,
-//           nodeKey: def[key].stepKey || opts.defaultNodeKey,
-//         }
-//       }
-//       : {
-//         constant: encodeField(def[key])
-//       })
-//   }), {})
-// }
+const compileMapOutput = (def: any, opts: any): ProcessType.mesg.types.Process.Node.Map.IOutput => {
+  if (def === null) return { null: 0 /* ProcessType.mesg.types.Process.Node.Map.Output.Null.NULL_VALUE */ }
+  if (typeof def === 'number') return { doubleConst: def }
+  if (typeof def === 'boolean') return { boolConst: def }
+  if (typeof def === 'string') return { stringConst: def }
+  if (typeof def === 'object' && !!def.key) return {
+    ref: {
+      key: def.key,
+      nodeKey: def.stepKey || opts.defaultNodeKey
+    }
+  }
+  if (Array.isArray(def)) return {
+    list: {
+      outputs: def.map(item => compileMapOutput(item, opts))
+    }
+  }
+  return {
+    map: {
+      outputs: Object.keys(def).reduce((prev, key) => ({
+        ...prev,
+        [key]: compileMapOutput(def[key], opts)
+      }), {})
+    }
+  }
+}
+
+const compileMap = async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.IMap> => {
+  if (typeof def !== 'object' || Array.isArray(def)) throw new Error('Map output should be a map')
+  return compileMapOutput(def, opts).map
+}
 
 const compileFilter = async (def: any): Promise<ProcessType.mesg.types.Process.Node.IFilter> => ({
   conditions: Object.keys(def.conditions).map(key => ({
