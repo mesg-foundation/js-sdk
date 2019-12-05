@@ -9,8 +9,7 @@
   },
   "scripts": {
     "lerna": "lerna",
-    "postinstall": "./install-all.sh",
-    "ci": "./ci-all.sh",
+    "postinstall": "lerna bootstrap",
     "build": "lerna run build",
     "test": "lerna run test"
   }
