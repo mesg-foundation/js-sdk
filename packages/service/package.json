@@ -4,6 +4,7 @@
   "description": "",
   "main": "lib/index",
   "types": "lib/index",
+  "files": ["lib"],
   "publishConfig": {
     "access": "public"
   },
