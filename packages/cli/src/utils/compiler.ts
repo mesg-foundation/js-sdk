@@ -60,26 +60,21 @@ const nodeCompiler = async (
     defaultNodeKey?: string | null,
     instanceResolver?(object: any): Promise<hash>
   }
-) => {
+): Promise<ProcessType.mesg.types.Process.Node> => {
   const nodes = {
-    result: async (def: any, key: string, opts: any): Promise<ProcessType.mesg.types.Process.Node.IResult> => ({
-      key,
+    result: async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.IResult> => ({
       taskKey: def.taskKey,
       instanceHash: opts.instanceResolver ? await opts.instanceResolver(def) : def.instanceHash
     }),
-    event: async (def: any, key: string, opts: any): Promise<ProcessType.mesg.types.Process.Node.IEvent> => ({
-      key,
+    event: async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.IEvent> => ({
       eventKey: def.eventKey,
       instanceHash: opts.instanceResolver ? await opts.instanceResolver(def) : def.instanceHash
     }),
-    task: async (def: any, key: string, opts: any): Promise<ProcessType.mesg.types.Process.Node.ITask> => ({
-      key,
-      taskKey:
-      def.taskKey,
+    task: async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.ITask> => ({
+      taskKey: def.taskKey,
       instanceHash: opts.instanceResolver ? await opts.instanceResolver(def) : def.instanceHash
     }),
-    map: async (def: any, key: string, opts: any): Promise<ProcessType.mesg.types.Process.Node.IMap> => ({
-      key,
+    map: async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.IMap> => ({
       outputs: Object.keys(def).map(key => ({
         key,
         ...(typeof def[key] === 'object' && def[key].key  // if the value is an object containing an attribute key
@@ -94,8 +89,7 @@ const nodeCompiler = async (
           })
       }))
     }),
-    filter: async (def: any, key: string): Promise<ProcessType.mesg.types.Process.Node.IFilter> => ({
-      key,
+    filter: async (def: any): Promise<ProcessType.mesg.types.Process.Node.IFilter> => ({
       conditions: Object.keys(def.conditions).map(key => ({
         key,
         predicate: 1, // EQ
@@ -104,7 +98,8 @@ const nodeCompiler = async (
     })
   }
   return {
-    [type]: await nodes[type](def, key, opts)
+    key,
+    [type]: await nodes[type](def, opts)
   }
 }
 
@@ -147,7 +142,7 @@ export const process = async (content: Buffer, instanceResolver: (object: any) =
   }
 
   return {
-    key: definition.key,
+    name: definition.name || definition.key,
     nodes,
     edges,
   }

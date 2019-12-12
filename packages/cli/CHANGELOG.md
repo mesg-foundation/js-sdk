@@ -5,6 +5,9 @@
 #### Breaking Changes
 #### Added
 #### Changed
+
+- Update process's compilation based on the latest API
+
 #### Fixed
 #### Removed
 
