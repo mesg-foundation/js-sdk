@@ -1,0 +1,28 @@
+name: ci
+on: [push]
+env:
+  NPM: '6.13.1'
+  CI: true
+jobs:
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        node: ['10', '12', '13']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v1
+      - name: Setup Node.js ${{ matrix.node-version }} on ${{ matrix.os }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Upgrade NPM
+        run: |
+          npm i -g npm@$NPM
+      - name: Unit test
+        run: |
+          npm ci
+          npm run build
+          npm run test
