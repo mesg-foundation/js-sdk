@@ -1,9 +1,9 @@
 import {readFileSync} from 'fs'
 import {IService} from '@mesg/api/lib/service'
+import {service as serviceCompiler} from '@mesg/compiler'
 import {join} from 'path'
 
 import Command from '../../root-command'
-import * as compile from '../../utils/compiler'
 import deployer, {createTar} from '../../utils/deployer'
 
 const ipfsClient = require('ipfs-http-client')
@@ -27,7 +27,7 @@ export default class ServiceCompile extends Command {
     const {args} = this.parse(ServiceCompile)
     this.spinner.status = 'Download sources'
     const path = await deployer(args.SERVICE)
-    const definition = await compile.service(readFileSync(join(path, 'mesg.yml')))
+    const definition = await serviceCompiler(readFileSync(join(path, 'mesg.yml')))
     definition.source = await this.deploySources(path)
     this.styledJSON(definition)
     this.spinner.stop()
