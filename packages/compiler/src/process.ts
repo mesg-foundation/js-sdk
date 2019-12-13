@@ -22,6 +22,30 @@ const compileTask = async (def: any, opts: any): Promise<ProcessType.mesg.types.
   taskKey: def.taskKey
 })
 
+const extractPathsFromKey = (key: string): string[] => {
+  return key.replace(/\[(\d)\]/g, val => `.${val}`).split('.')
+}
+
+const extractPathFromPaths = (paths: string[]): ProcessType.mesg.types.Process.Node.Map.Output.Reference.Path => {
+  if (paths.length === 0) return null
+  const [currentPath, ...nextPaths] = paths
+  const indexRegex = /^\[(\d)\]$/
+  if (indexRegex.test(currentPath)) {
+    return {
+      selector: "index",
+      key: null,
+      index: parseInt(indexRegex.exec(currentPath)[1], 10),
+      path: extractPathFromPaths(nextPaths)
+    }
+  }
+  return {
+    selector: "key",
+    index: null,
+    key: currentPath,
+    path: extractPathFromPaths(nextPaths),
+  }
+}
+
 const compileMapOutput = (def: any, opts: any): ProcessType.mesg.types.Process.Node.Map.IOutput => {
   if (def === null) return { null: 0 /* ProcessType.mesg.types.Process.Node.Map.Output.Null.NULL_VALUE */ }
   if (typeof def === 'number') return { doubleConst: def }
@@ -29,7 +53,7 @@ const compileMapOutput = (def: any, opts: any): ProcessType.mesg.types.Process.N
   if (typeof def === 'string') return { stringConst: def }
   if (typeof def === 'object' && !!def.key) return {
     ref: {
-      key: def.key,
+      path: extractPathFromPaths(extractPathsFromKey(def.key)),
       nodeKey: def.stepKey || opts.defaultNodeKey
     }
   }
