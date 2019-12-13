@@ -8,6 +8,8 @@
 - `CreateProcessRequest` now accepts a `name` instead of a `key`.
 - `Execution` contains a `nodeKey` instead of `stepID`
 
+- Process map reference definition has changed, `key` disappeared in favor of path (that contains a key, and index and a path) in order to access to nested data
+
 #### Added
 
 - Add proto validation information
