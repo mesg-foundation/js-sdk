@@ -60,14 +60,14 @@ message Process {
           NULL_VALUE = 0;
         }
 
-        // ListOutput is a list of output as message, so it can be used in oneof.
+        // List is a list of output as message, so it can be used in oneof.
         message List {
           repeated Output outputs = 1 [
             (gogoproto.moretags) = 'hash:"name:1" validate:"dive,required"'
           ];
         }
 
-        // ListOutput is a list of output as message, so it can be used in oneof.
+        // Map is a map of output as message, so it can be used in oneof.
         message Map {
           map<string, Output> outputs = 1 [
             (gogoproto.moretags) = 'hash:"name:1" validate:"dive,required"'
@@ -75,20 +75,34 @@ message Process {
         }
 
         message Reference {
-          // Key of the node in the graph. If empty, will be using the src of the edge.
+          message Path {
+            oneof selector {
+              string key = 1 [
+                (gogoproto.moretags) = 'hash:"name:1" validate:"printascii"'
+              ];
+              uint64 index = 2 [
+                (gogoproto.moretags) = 'hash:"name:2"'
+              ];
+            }
+
+            // Path can be nil if on the leaf
+            Path path = 3 [
+              (gogoproto.moretags) = 'hash:"name:3"'
+            ];
+          }
+
           string nodeKey = 1 [
             (gogoproto.moretags) = 'hash:"name:1" validate:"required"'
           ];
 
-          // Key of a specific parameter of the referenced node's output data.
-          string key = 2 [
-            (gogoproto.moretags) = 'hash:"name:2" validate:"required"'
+          Path path = 2 [
+            (gogoproto.moretags) = 'hash:"name:2"'
           ];
         }
 
         oneof value {
           Null null = 1 [
-            (gogoproto.moretags) = 'hash:"name:1" validate:"required_without=Ref Constant List Map"'
+            (gogoproto.moretags) = 'hash:"name:1"'
           ];
 
           string string_const = 2 [
@@ -96,7 +110,7 @@ message Process {
           ];
 
           double double_const = 3 [
-            (gogoproto.moretags) = 'hash:"name:3"'
+            (gogoproto.moretags) = 'hash:"name:3" amino:"unsafe"'
           ];
 
           bool bool_const = 4 [
@@ -105,17 +119,17 @@ message Process {
 
           // Input defined as reference.
           Reference ref = 5 [
-            (gogoproto.moretags) = 'hash:"name:5" validate:"required_without=Null Constant List Map"'
+            (gogoproto.moretags) = 'hash:"name:5"'
           ];
 
           // Outputs represent array.
           List list = 6 [
-            (gogoproto.moretags) = 'hash:"name:6" validate:"required_without=Null Ref Constant Map"'
+            (gogoproto.moretags) = 'hash:"name:6"'
           ];
 
           // Outputs represent a field.
           Map map = 7 [
-            (gogoproto.moretags) = 'hash:"name:6" validate:"required_without=Null Ref Constant List"'
+            (gogoproto.moretags) = 'hash:"name:7"'
           ];
         }
       }
