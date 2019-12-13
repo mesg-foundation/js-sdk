@@ -54,4 +54,19 @@ steps:
       ref:                        # reference
         key: dataX
         stepKey: eventTrigger
+      ref_nested:
+        stepKey: eventTrigger
+        key: dataX.foo
+      ref_list:
+        stepKey: eventTrigger
+        key: dataY[0]
+      ref_nested_list:
+        stepKey: eventTrigger
+        key: dataX.bar[0]
+      ref_list_nested:
+        stepKey: eventTrigger
+        key: dataY[0].bar
+      ref_list_list:
+        stepKey: eventTrigger
+        key: dataY[0][1]
       
