@@ -1,4 +1,3 @@
-import { AccountGetInputs, AccountGetOutputs, AccountListInputs, AccountListOutputs, AccountCreateInputs, AccountCreateOutputs, AccountDeleteInputs, AccountDeleteOutputs } from './account'
 import { EventCreateInputs, EventCreateOutputs, EventStreamInputs, EventStreamOutputs } from './event'
 import { ExecutionGetInputs, ExecutionGetOutputs, ExecutionStreamInputs, ExecutionStreamOutputs, ExecutionCreateInputs, ExecutionCreateOutputs, ExecutionUpdateInputs, ExecutionUpdateOutputs, ExecutionListInputs, ExecutionListOutputs } from './execution'
 import { InstanceGetInputs, InstanceGetOutputs, InstanceListInputs, InstanceListOutputs } from './instance'
@@ -18,12 +17,6 @@ export const ExecutionStatus = {
 }
 
 export type IApi = {
-  account: {
-    get: (request: AccountGetInputs) => AccountGetOutputs
-    list: (request: AccountListInputs) => AccountListOutputs
-    create: (request: AccountCreateInputs) => AccountCreateOutputs
-    delete: (request: AccountDeleteInputs) => AccountDeleteOutputs
-  },
   event: {
     create: (request: EventCreateInputs) => EventCreateOutputs
     stream: (request: EventStreamInputs) => EventStreamOutputs

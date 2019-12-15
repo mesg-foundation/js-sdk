@@ -1,5 +1,4 @@
 import { IApi } from './types'
-import Account from './account'
 import Event from './event'
 import Execution from './execution'
 import Instance from './instance'
@@ -10,7 +9,6 @@ import Runner from './runner'
 
 class API implements IApi {
 
-  account: Account
   event: Event
   execution: Execution
   instance: Instance
@@ -20,7 +18,6 @@ class API implements IApi {
   runner: Runner
 
   constructor(endpoint: string) {
-    this.account = new Account(endpoint)
     this.event = new Event(endpoint)
     this.execution = new Execution(endpoint)
     this.instance = new Instance(endpoint)
