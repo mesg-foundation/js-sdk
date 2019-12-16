@@ -317,8 +317,8 @@ declare namespace mesg {
                                 /** Reference nodeKey */
                                 nodeKey?: (string|null);
 
-                                /** Reference key */
-                                key?: (string|null);
+                                /** Reference path */
+                                path?: (mesg.types.Process.Node.Map.Output.Reference.IPath|null);
                             }
 
                             /** Represents a Reference. */
@@ -333,8 +333,46 @@ declare namespace mesg {
                                 /** Reference nodeKey. */
                                 public nodeKey: string;
 
-                                /** Reference key. */
-                                public key: string;
+                                /** Reference path. */
+                                public path?: (mesg.types.Process.Node.Map.Output.Reference.IPath|null);
+                            }
+
+                            namespace Reference {
+
+                                /** Properties of a Path. */
+                                interface IPath {
+
+                                    /** Path key */
+                                    key?: (string|null);
+
+                                    /** Path index */
+                                    index?: (number|Long|null);
+
+                                    /** Path path */
+                                    path?: (mesg.types.Process.Node.Map.Output.Reference.IPath|null);
+                                }
+
+                                /** Represents a Path. */
+                                class Path implements IPath {
+
+                                    /**
+                                     * Constructs a new Path.
+                                     * @param [properties] Properties to set
+                                     */
+                                    constructor(properties?: mesg.types.Process.Node.Map.Output.Reference.IPath);
+
+                                    /** Path key. */
+                                    public key: string;
+
+                                    /** Path index. */
+                                    public index: (number|Long);
+
+                                    /** Path path. */
+                                    public path?: (mesg.types.Process.Node.Map.Output.Reference.IPath|null);
+
+                                    /** Path selector. */
+                                    public selector?: ("key"|"index");
+                                }
                             }
                         }
                     }
