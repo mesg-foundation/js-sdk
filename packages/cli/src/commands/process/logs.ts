@@ -79,7 +79,7 @@ export default class ProcessLogs extends Command {
   formatResult(execution: IExecution) {
     if (!execution.instanceHash) return
     const prefix = [
-      `[${execution.stepID}]`,
+      `[${execution.nodeKey}]`,
       b58.encode(execution.instanceHash),
       this.services[b58.encode(execution.instanceHash)].sid,
       execution.taskKey,
