@@ -19,8 +19,11 @@ declare namespace mesg {
                 /** Ownership owner */
                 owner?: (string|null);
 
-                /** Ownership serviceHash */
-                serviceHash?: (Uint8Array|null);
+                /** Ownership resourceHash */
+                resourceHash?: (Uint8Array|null);
+
+                /** Ownership resource */
+                resource?: (mesg.types.Ownership.Resource|null);
             }
 
             /** Represents an Ownership. */
@@ -38,11 +41,21 @@ declare namespace mesg {
                 /** Ownership owner. */
                 public owner: string;
 
-                /** Ownership serviceHash. */
-                public serviceHash: Uint8Array;
+                /** Ownership resourceHash. */
+                public resourceHash: Uint8Array;
 
                 /** Ownership resource. */
-                public resource?: "serviceHash";
+                public resource: mesg.types.Ownership.Resource;
+            }
+
+            namespace Ownership {
+
+                /** Resource enum. */
+                enum Resource {
+                    None = 0,
+                    Service = 1,
+                    Process = 2
+                }
             }
         }
 

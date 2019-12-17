@@ -1,10 +1,10 @@
 import {flags} from '@oclif/command'
+import {process as compileProcess} from '@mesg/compiler'
 import {existsSync, readFileSync} from 'fs'
 import {hash} from '@mesg/api/lib/types'
 import {dirname, join} from 'path'
 
 import Command from '../../root-command'
-import * as compile from '../../utils/compiler'
 import {IsAlreadyExistsError} from '../../utils/error'
 import ServiceCompile from '../service/compile'
 
@@ -28,7 +28,7 @@ export default class ProcessCompile extends Command {
 
   async run(): Promise<any> {
     const {args, flags} = this.parse(ProcessCompile)
-    const definition = await compile.process(readFileSync(args.PROCESS_FILE), async (instanceObject: any) => {
+    const definition = await compileProcess(readFileSync(args.PROCESS_FILE), async (instanceObject: any) => {
       if (instanceObject.instanceHash) {
         return instanceObject.instanceHash
       }

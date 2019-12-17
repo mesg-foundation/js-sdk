@@ -1,0 +1,42 @@
+{
+  "name": "@mesg/compiler",
+  "version": "0.0.0",
+  "description": "MESG Compiler",
+  "main": "lib/index",
+  "types": "lib/index",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
+    "build": "npm run clean && npm run compile",
+    "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo",
+    "compile": "tsc -b tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mesg-foundation/js-sdk.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mesg-foundation/js-sdk/issues"
+  },
+  "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
+  "dependencies": {
+    "@mesg/api": "^0.1.0",
+    "js-yaml": "^3.13.1",
+    "lodash.pick": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^3.12.1",
+    "@types/lodash.pick": "^4.4.6",
+    "@types/long": "^4.0.0",
+    "@types/sinon": "^7.5.1",
+    "@types/tape": "^4.2.33",
+    "sinon": "^7.5.0",
+    "tape": "^4.11.0",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.3"
+  }
+}

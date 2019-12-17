@@ -55,8 +55,8 @@ declare namespace mesg {
                 /** Execution processHash */
                 processHash?: (Uint8Array|null);
 
-                /** Execution stepID */
-                stepID?: (string|null);
+                /** Execution nodeKey */
+                nodeKey?: (string|null);
 
                 /** Execution executorHash */
                 executorHash?: (Uint8Array|null);
@@ -104,8 +104,8 @@ declare namespace mesg {
                 /** Execution processHash. */
                 public processHash: Uint8Array;
 
-                /** Execution stepID. */
-                public stepID: string;
+                /** Execution nodeKey. */
+                public nodeKey: string;
 
                 /** Execution executorHash. */
                 public executorHash: Uint8Array;
@@ -358,8 +358,8 @@ declare namespace mesg {
                 /** CreateExecutionRequest processHash */
                 processHash?: (Uint8Array|null);
 
-                /** CreateExecutionRequest stepID */
-                stepID?: (string|null);
+                /** CreateExecutionRequest nodeKey */
+                nodeKey?: (string|null);
 
                 /** CreateExecutionRequest executorHash */
                 executorHash?: (Uint8Array|null);
@@ -392,8 +392,8 @@ declare namespace mesg {
                 /** CreateExecutionRequest processHash. */
                 public processHash: Uint8Array;
 
-                /** CreateExecutionRequest stepID. */
-                public stepID: string;
+                /** CreateExecutionRequest nodeKey. */
+                public nodeKey: string;
 
                 /** CreateExecutionRequest executorHash. */
                 public executorHash: Uint8Array;
