@@ -4,6 +4,10 @@
   "description": "",
   "main": "lib/index",
   "types": "lib/index",
+  "files": [
+    "/lib",
+    "/npm-shrinkwrap.json"
+  ],
   "publishConfig": {
     "access": "public"
   },

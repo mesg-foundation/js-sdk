@@ -2,6 +2,8 @@
 
 ## [Unreleased](https://github.com/mesg-foundation/js-sdk/releases/tag/vX.X.X)
 
+Updated the `files` section in `package.json` with `lib` and `npm-shrinkwrap.json`
+
 #### Breaking Changes
 
 - The key in the process's nodes had been moved from the node resource to the root of the node. 
