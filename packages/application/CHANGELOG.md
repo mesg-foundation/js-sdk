@@ -1,20 +1,20 @@
 # Changelog
 
-## [Unreleased](https://github.com/mesg-foundation/js-sdk/releases/tag/vX.X.X)
-
+## [Unreleased](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fapplication%40X.X.X)
 
 #### Breaking Changes
-#### Added
-#### Changed
-#### Fixed
+#### Improvements
+#### Bug fixes
+
+## [v0.2.1](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fapplication%400.2.1)
+
+#### Bug fixes
 
 Updated the `files` section in `package.json` with `lib` and `npm-shrinkwrap.json`
 
-#### Removed
+## [v0.2.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fapplication%400.2.0)
 
-## [v0.2.0](https://github.com/mesg-foundation/js-sdk/releases/tag/v0.2.0)
-
-#### Added
+#### Improvements
 
 - Add `resolveRunner` function
 
