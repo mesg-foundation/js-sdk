@@ -2,12 +2,14 @@
 
 ## [Unreleased](https://github.com/mesg-foundation/js-sdk/releases/tag/vX.X.X)
 
-Updated the `files` section in `package.json` with `lib` and `npm-shrinkwrap.json`
 
 #### Breaking Changes
 #### Added
 #### Changed
 #### Fixed
+
+Updated the `files` section in `package.json` with `lib` and `npm-shrinkwrap.json`
+
 #### Removed
 
 ## [v0.2.0](https://github.com/mesg-foundation/js-sdk/releases/tag/v0.2.0)
