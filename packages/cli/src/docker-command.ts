@@ -27,6 +27,7 @@ interface ServiceOption {
   port: number
   path: string
   p2pPort: number
+  rpcPort: number
 }
 
 export default abstract class extends Command {
@@ -128,6 +129,11 @@ export default abstract class extends Command {
           PublishMode: 'ingress',
           TargetPort: 26656,
           PublishedPort: options.p2pPort,
+        }, {
+          Protocol: 'tcp',
+          PublishMode: 'ingress',
+          TargetPort: 26657,
+          PublishedPort: options.rpcPort,
         }],
       }
     })

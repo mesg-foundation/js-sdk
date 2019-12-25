@@ -4,6 +4,9 @@
 
 #### Breaking Changes
 #### Improvements
+
+- Add `rpc-port` flag to the `daemon:start` command to expose the RPC API
+
 #### Bug fixes
 
 ## [v0.1.1](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%400.1.1)

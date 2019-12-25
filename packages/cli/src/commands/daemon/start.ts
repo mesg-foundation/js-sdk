@@ -32,6 +32,11 @@ export default class Start extends Command {
       default: 26656,
       required: true,
     }),
+    'rpc-port': flags.integer({
+      description: 'Port to interact with the RPC API',
+      default: 26657,
+      required: true,
+    }),
   }
 
   async run() {
@@ -62,6 +67,7 @@ export default class Start extends Command {
       path: flags.path,
       port: flags.port,
       p2pPort: flags['p2p-port'],
+      rpcPort: flags['rpc-port']
     })
     await eventPromise
     await this.waitForAPI()
