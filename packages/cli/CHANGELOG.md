@@ -6,6 +6,8 @@
 #### Improvements
 #### Bug fixes
 
+- [#163](https://github.com/mesg-foundation/js-sdk/pull/163) Fixes encoding of hash in not existing task error in command `service:execute`.
+
 ## [v0.1.1](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%400.1.1)
 
 #### Improvements
