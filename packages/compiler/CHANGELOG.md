@@ -6,6 +6,8 @@
 #### Improvements
 #### Bug fixes
 
+- Add more tests to compile processes, ensure multi step processes
+
 ## [v0.1.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcompiler%400.1.0)
 
 #### Improvements

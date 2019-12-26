@@ -9,6 +9,7 @@ steps:
       foo: bar
       hello: world
   - type: task
+    key: task1
     instanceHash: $(env:INSTANCE_HASH)
     taskKey: taskX
     inputs:
@@ -69,4 +70,21 @@ steps:
       ref_list_list:
         stepKey: eventTrigger
         key: dataY[0][1]
-      
+  - type: task
+    key: task2
+    instanceHash: $(env:INSTANCE_HASH)
+    taskKey: taskY
+    inputs: {}
+  - type: task
+    key: ref-task1-and-task2
+    instanceHash: $(env:INSTANCE_HASH)
+    taskKey: taskZ
+    inputs:
+      a:
+        stepKey: task1
+        key: resultA
+      b:
+        stepKey: task2
+        key: resultB
+      c:
+        key: resultC
