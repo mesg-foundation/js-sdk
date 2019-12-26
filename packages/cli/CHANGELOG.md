@@ -6,6 +6,10 @@
 #### Improvements
 #### Bug fixes
 
+## [v0.1.2](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%400.1.2)
+
+- [#161](https://github.com/mesg-foundation/js-sdk/pull/161) Use Engine v0.18.
+
 ## [v0.1.1](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%400.1.1)
 
 #### Improvements
