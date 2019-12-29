@@ -55,7 +55,7 @@ export default class ServiceExecute extends Command {
 
     const task = service.tasks.find(x => x.key === args.TASK)
     if (!task) {
-      throw new Error(`The task ${args.TASK} does not exist in service '${service.hash}'`)
+      throw new Error(`The task ${args.TASK} does not exist in service '${base58.encode(service.hash)}'`)
     }
 
     const result = await this.execute({

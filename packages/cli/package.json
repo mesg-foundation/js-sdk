@@ -1,7 +1,7 @@
 {
   "name": "@mesg/cli",
   "description": "MESG CLI",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Anthony ESTEBE @antho1404",
   "main": "lib/index",
   "types": "lib/index",
