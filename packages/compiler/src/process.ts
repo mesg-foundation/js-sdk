@@ -114,18 +114,17 @@ export default async (content: Buffer, instanceResolver: (object: any) => Promis
   let edges = []
 
   let previousKey: string | null = null
-  let previousKeyWithOutputs: string | null = null
   let i = 0
   for (const step of definition.steps) {
     step.key = step.key || `node-${i}`
     if (step.inputs) {
       const mapKey = `${step.key}-inputs`
-      const mapNode = await nodeCompiler('map', step.inputs, mapKey, {defaultNodeKey: previousKeyWithOutputs})
+      const mapNode = await nodeCompiler('map', step.inputs, mapKey, {defaultNodeKey: previousKey})
       nodes.push(mapNode)
       if (previousKey) {
         edges.push({src: previousKey, dst: mapKey})
       }
-      previousKeyWithOutputs = previousKey = mapKey
+      previousKey = mapKey
       i++
     }
     const type = step.type !== 'trigger'
@@ -137,9 +136,6 @@ export default async (content: Buffer, instanceResolver: (object: any) => Promis
     nodes.push(stepNode)
     if (previousKey) {
       edges.push({src: previousKey, dst: step.key})
-    }
-    if (type !== 'filter') {
-      previousKeyWithOutputs = step.key
     }
     previousKey = step.key
     i++
