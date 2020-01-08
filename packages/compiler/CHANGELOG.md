@@ -4,6 +4,9 @@
 
 #### Breaking Changes
 #### Improvements
+
+- Add json-schema validation for process compilation
+
 #### Bug fixes
 
 - Add more tests to compile processes, ensure multi step processes

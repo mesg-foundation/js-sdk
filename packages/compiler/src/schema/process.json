@@ -11,6 +11,9 @@
     "name": {
       "type": "string"
     },
+    "key": {
+      "type": "string"
+    },
     "steps": {
       "type": "array",
       "items": {
@@ -82,8 +85,7 @@
                   "type": "array",
                   "uniqueItems": true,
                   "items": {
-                    "type": "string",
-                    "pattern": "^[A-Z_]+=.*$"
+                    "type": "string"
                   }
                 }
               }
