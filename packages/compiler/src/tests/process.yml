@@ -70,6 +70,8 @@ steps:
       ref_list_list:
         stepKey: eventTrigger
         key: dataY[0][1]
+      implicit_ref:
+        key: dataX
   - type: task
     key: task2
     instanceHash: $(env:INSTANCE_HASH)
