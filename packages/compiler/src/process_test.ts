@@ -4,7 +4,7 @@ import { readFileSync } from 'fs';
 import compile from './process'
 
 test('valid compilation', async (t: Test) => {
-  t.plan(112)
+  t.plan(114)
   const env = { INSTANCE_HASH: 'xxx' }
   const res = await compile(
     readFileSync('src/tests/process.yml'),
@@ -44,7 +44,7 @@ test('valid compilation', async (t: Test) => {
 
   // Test map
   t.equal(mapTask1.key, "task1-inputs")
-  t.equal(Object.keys(mapTask1.map.outputs).length, 12)
+  t.equal(Object.keys(mapTask1.map.outputs).length, 13)
   // Test constants
   t.equal(mapTask1.map.outputs["constant_str"].stringConst, "constant_str")
   t.equal(mapTask1.map.outputs["constant_null"].null, 0)
@@ -59,7 +59,7 @@ test('valid compilation', async (t: Test) => {
   t.equal(list[3].map.outputs["foo"].stringConst, "bar")
   t.equal(list[3].map.outputs["number"].doubleConst, 42)
   t.equal(list[4].ref.path.key, "dataX")
-  t.equal(list[4].ref.nodeKey, "eventTrigger")
+  t.equal(list[4].ref.nodeKey, "node-1")
   // Test map
   const inputMap = mapTask1.map.outputs["constant_map"].map.outputs
   t.equal(Object.keys(inputMap).length, 7)
@@ -73,7 +73,7 @@ test('valid compilation', async (t: Test) => {
   t.equal(inputMap["constant_list"].list.outputs[2].doubleConst, 42)
   t.equal(inputMap["constant_list"].list.outputs[3].map.outputs["foo"].stringConst, "bar")
   t.equal(inputMap["constant_list"].list.outputs[4].ref.path.key, "dataX")
-  t.equal(inputMap["constant_list"].list.outputs[4].ref.nodeKey, "eventTrigger")
+  t.equal(inputMap["constant_list"].list.outputs[4].ref.nodeKey, "node-1")
   t.equal(inputMap["constant_map"].map.outputs["constant_str"].stringConst, "constant_str")
   t.equal(inputMap["constant_map"].map.outputs["constant_null"].null, 0)
   t.equal(inputMap["constant_map"].map.outputs["constant_number"].doubleConst, 42)
@@ -83,7 +83,7 @@ test('valid compilation', async (t: Test) => {
   t.equal(inputMap["constant_map"].map.outputs["constant_list"].list.outputs[2].doubleConst, 42)
   t.equal(inputMap["constant_map"].map.outputs["constant_list"].list.outputs[3].map.outputs["foo"].stringConst, "bar")
   t.equal(inputMap["constant_map"].map.outputs["constant_list"].list.outputs[4].ref.path.key, "dataX")
-  t.equal(inputMap["constant_map"].map.outputs["constant_list"].list.outputs[4].ref.nodeKey, "eventTrigger")
+  t.equal(inputMap["constant_map"].map.outputs["constant_list"].list.outputs[4].ref.nodeKey, "node-1")
   t.equal(inputMap["constant_map"].map.outputs["ref"].ref.path.key, "dataX")
   t.equal(inputMap["constant_map"].map.outputs["ref"].ref.nodeKey, "eventTrigger")
   // Test ref
@@ -136,6 +136,10 @@ test('valid compilation', async (t: Test) => {
   t.equal(ref_list_list.path.path.path.key, null)
   t.equal(ref_list_list.path.path.path.path, null)
   t.equal(ref_list_list.path.path.path.index, 1)
+  // Test implicit ref
+  const implicit_ref = mapTask1.map.outputs["implicit_ref"].ref
+  t.equal(implicit_ref.nodeKey, "node-1")
+  t.equal(implicit_ref.path.key, "dataX")
 
   // Test task1
   t.isEquivalent(task1.task.instanceHash, Buffer.from(env.INSTANCE_HASH))
