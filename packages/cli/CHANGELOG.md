@@ -5,7 +5,7 @@
 #### Breaking Changes
 #### Improvements
 
-- [](https://github.com/mesg-foundation/js-sdk/pull/) Fetch and configure the engine to start on a specific network.
+- [#168](https://github.com/mesg-foundation/js-sdk/pull/168) Fetch and configure the engine to start on a specific network.
 
 #### Bug fixes
 
