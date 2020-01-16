@@ -1,4 +1,6 @@
 import {flags} from '@oclif/command'
+import {mkdirSync, existsSync, writeFileSync} from 'fs'
+import fetch from 'node-fetch'
 import {homedir} from 'os'
 import {join} from 'path'
 
@@ -32,6 +34,11 @@ export default class Start extends Command {
       default: 26656,
       required: true,
     }),
+    network: flags.string({
+      description: 'Name of the network to connect to',
+      default: 'mesg-dev-chain',
+      required: true
+    })
   }
 
   async run() {
@@ -55,11 +62,13 @@ export default class Start extends Command {
       Action === 'start' &&
       from === `mesg/engine:${flags.version}`
     )
-    const network = await this.getOrCreateNetwork({name: flags.name})
-    await this.createEngineService(network, {
+    const configPath = join(flags.path, flags.network)
+    await this.prepareNetwork(flags.network, configPath)
+    const dockerNetwork = await this.getOrCreateNetwork({ name: flags.name })
+    await this.createEngineService(dockerNetwork, {
       name: flags.name,
       version: flags.version,
-      path: flags.path,
+      path: configPath,
       port: flags.port,
       p2pPort: flags['p2p-port'],
     })
@@ -82,5 +91,27 @@ export default class Start extends Command {
       }
       throw e
     }
+  }
+
+  async prepareNetwork(network: string, path: string) {
+    mkdirSync(path, {recursive: true})
+    if (network === "mesg-dev-chain") return // This is the default network, the engine will setup everything
+
+    const updateConfig = async (path: string, file: string, remote: string) => {
+      if (!existsSync(path)) mkdirSync(path, {recursive: true})
+      if (existsSync(join(path, file))) return
+      const data = await (await fetch(remote)).text()
+      writeFileSync(join(path, file), data)
+    }
+
+    await updateConfig(
+      path, 'config.yml',
+      `https://raw.githubusercontent.com/mesg-foundation/networks/master/networks/${network}/config.yml`
+    )
+
+    await updateConfig(
+      join(path, 'tendermint', 'config'), 'genesis.json',
+      `https://raw.githubusercontent.com/mesg-foundation/networks/master/networks/${network}/genesis.json`
+    )
   }
 }

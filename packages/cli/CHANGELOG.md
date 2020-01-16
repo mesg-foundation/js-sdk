@@ -4,6 +4,9 @@
 
 #### Breaking Changes
 #### Improvements
+
+- [](https://github.com/mesg-foundation/js-sdk/pull/) Fetch and configure the engine to start on a specific network.
+
 #### Bug fixes
 
 - [#163](https://github.com/mesg-foundation/js-sdk/pull/163) Fixes encoding of hash in not existing task error in command `service:execute`.
