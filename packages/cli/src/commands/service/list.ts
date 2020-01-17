@@ -14,7 +14,8 @@ export default class ServiceList extends Command {
 
   async run(): Promise<IInstance[]> {
     const {flags} = this.parse(ServiceList)
-    const [{services}, {instances}, {runners}] = await Promise.all([
+
+    const [services, instances, runners] = await Promise.all([
       this.api.service.list({}),
       this.api.instance.list({}),
       this.api.runner.list({}),

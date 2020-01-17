@@ -2,21 +2,36 @@ import {Command, flags} from '@oclif/command'
 import {IConfig} from '@oclif/config'
 import {cli} from 'cli-ux'
 import Application from '@mesg/application'
+import { RpcClient } from 'tendermint'
 import API from '@mesg/api'
 import {hash} from '@mesg/api/lib/types'
 import * as base58 from '@mesg/api/lib/util/base58'
 import {format, inspect} from 'util'
+import {IService} from '@mesg/api/lib/service'
+import {IInstance} from '@mesg/api/lib/instance'
+import {IRunner} from '@mesg/api/lib/runner'
 
 export default abstract class extends Command {
   static flags = {
     help: flags.help({char: 'h'}),
     quiet: flags.boolean({char: 'q', description: 'Display only essential information'}),
     silent: flags.boolean({hidden: true}),
-    port: flags.integer({char: 'p', default: 50052, description: 'Port to access the MESG engine'}),
+    port: flags.integer({char: 'p', default: 26657, description: 'Port to access the MESG engine'}),
     host: flags.string({default: 'localhost', description: 'Host to access the MESG engine'})
   }
 
-  public api: API
+  public api: {
+    service: {
+      list: (filter: any) => Promise<IService[]>,
+      get: (hash: string) => Promise<IService>
+    },
+    instance: {
+      list: (filter: any) => Promise<IInstance[]>
+    },
+    runner: {
+      list: (filter: any) => Promise<IRunner[]>
+    }
+  }
   private readonly _app: Application
 
   constructor(argv: string[], config: IConfig) {
@@ -26,9 +41,24 @@ export default abstract class extends Command {
     const host = process.env.DOCKER_HOST
       ? new URL(process.env.DOCKER_HOST).hostname
       : flags.host
-    const endpoint = `${host}:${port}`
-    this.api = new API(endpoint)
-    this._app = new Application(this.api)
+    const client = new RpcClient(`http://${host}:${port}`)
+    const query = async (path: string) => {
+      const res = await client.abciQuery({ path: `0x${Buffer.from(path).toString('hex')}` })
+      return JSON.parse(Buffer.from(res.response.value, 'base64').toString())
+    }
+    this.api = {
+      service: {
+        list: () => query('/custom/service/list'),
+        get: (hash) => query(`/custom/service/get/${hash}`)
+      },
+      instance: {
+        list: () => query('/custom/instance/list')
+      },
+      runner: {
+        list: () => query('/custom/runner/list')
+      }
+    }
+    this._app = new Application()
   }
 
   get spinner() {
