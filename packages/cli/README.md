@@ -86,7 +86,7 @@ OPTIONS
   -q, --quiet          Display only essential information
   --host=host          [default: localhost] Host to access the MESG engine
   --name=name          (required) [default: engine] Name of the docker service running the engine
-  --network=network    (required) [default: mesg-dev-chain] Name of the network to connect to
+  --network=network    Name of the network to connect to
   --p2p-port=p2p-port  (required) [default: 26656] Port to use for p2p interaction
   --path=path          (required) [default: /Users/USER/.mesg] Path to the mesg folder
   --[no-]pull          Pull the latest image of the given version
