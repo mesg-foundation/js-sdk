@@ -6,6 +6,10 @@
 #### Improvements
 #### Bug fixes
 
+## [v0.1.1](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcompiler%400.1.1)
+
+#### Bug fixes
+
 - [#158](https://github.com/mesg-foundation/js-sdk/pull/158) Add more tests to compile processes, ensure multi step processes
 - [#165](https://github.com/mesg-foundation/js-sdk/pull/165) Fix issue with trigger > filter > task's reference
 
