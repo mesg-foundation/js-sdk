@@ -35,9 +35,7 @@ export default class Start extends Command {
       required: true,
     }),
     network: flags.string({
-      description: 'Name of the network to connect to',
-      default: 'mesg-dev-chain',
-      required: true
+      description: 'Name of the network to connect to'
     })
   }
 
@@ -94,7 +92,7 @@ export default class Start extends Command {
 
   async prepareNetwork(network: string, path: string) {
     mkdirSync(path, {recursive: true})
-    if (network === "mesg-dev-chain") return // This is the default network, the engine will setup everything
+    if (!network) return // This is the default network, the engine will setup everything
 
     const updateConfig = async (path: string, file: string, remote: string) => {
       if (!existsSync(path)) mkdirSync(path, {recursive: true})
