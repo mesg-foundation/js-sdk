@@ -62,13 +62,12 @@ export default class Start extends Command {
       Action === 'start' &&
       from === `mesg/engine:${flags.version}`
     )
-    const configPath = join(flags.path, flags.network)
-    await this.prepareNetwork(flags.network, configPath)
+    await this.prepareNetwork(flags.network, flags.path)
     const dockerNetwork = await this.getOrCreateNetwork({ name: flags.name })
     await this.createEngineService(dockerNetwork, {
       name: flags.name,
       version: flags.version,
-      path: configPath,
+      path: flags.path,
       port: flags.port,
       p2pPort: flags['p2p-port'],
     })
