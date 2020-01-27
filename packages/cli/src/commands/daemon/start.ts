@@ -97,18 +97,21 @@ export default class Start extends Command {
     const updateConfig = async (path: string, file: string, remote: string) => {
       if (!existsSync(path)) mkdirSync(path, {recursive: true})
       if (existsSync(join(path, file))) return
-      const data = await (await fetch(remote)).text()
+      const response = await fetch(remote)
+      if (response.status !== 200) throw new Error(`network ${network} doesn't exists`)
+      const data = await response.text()
       writeFileSync(join(path, file), data)
     }
 
+    const networkEndpoint = "https://raw.githubusercontent.com/mesg-foundation/networks/master/networks"
     await updateConfig(
       path, 'config.yml',
-      `https://raw.githubusercontent.com/mesg-foundation/networks/master/networks/${network}/config.yml`
+      `${networkEndpoint}/${network}/config.yml`
     )
 
     await updateConfig(
       join(path, 'tendermint', 'config'), 'genesis.json',
-      `https://raw.githubusercontent.com/mesg-foundation/networks/master/networks/${network}/genesis.json`
+      `${networkEndpoint}/${network}/genesis.json`
     )
   }
 }
