@@ -1,6 +1,6 @@
 {
   "name": "@mesg/compiler",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MESG Compiler",
   "main": "lib/index",
   "types": "lib/index",
