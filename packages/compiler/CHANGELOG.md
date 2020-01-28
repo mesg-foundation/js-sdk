@@ -4,6 +4,9 @@
 
 #### Breaking Changes
 #### Improvements
+
+- Add json-schema validation for process compilation
+
 #### Bug fixes
 
 ## [v0.1.1](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcompiler%400.1.1)

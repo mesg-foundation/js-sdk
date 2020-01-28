@@ -2,6 +2,9 @@ import * as ProcessType from '@mesg/api/lib/typedef/process'
 import {IProcess} from '@mesg/api/lib/process'
 import {hash} from '@mesg/api/lib/types'
 import decode from './decode'
+import {Process} from './schema/process'
+import validate from './validate'
+const schema = require('./schema/process.json')
 
 const compileInstance = async (def: any, opts: any): Promise<Uint8Array> => opts.instanceResolver
   ? await opts.instanceResolver(def)
@@ -108,8 +111,9 @@ const nodeCompiler = async (
 }
 
 export default async (content: Buffer, instanceResolver: (object: any) => Promise<hash>, envs: { [key: string]: string }): Promise<IProcess> => {
-  const definition = decode(content, envs)
-
+  const definition = decode(content, envs) as Process
+  validate(schema, definition)
+  
   let nodes = []
   let edges = []
 
@@ -117,7 +121,7 @@ export default async (content: Buffer, instanceResolver: (object: any) => Promis
   let i = 0
   for (const step of definition.steps) {
     step.key = step.key || `node-${i}`
-    if (step.inputs) {
+    if (step.type === 'task' && step.inputs) {
       const mapKey = `${step.key}-inputs`
       const mapNode = await nodeCompiler('map', step.inputs, mapKey, {defaultNodeKey: previousKey})
       nodes.push(mapNode)
