@@ -82,17 +82,8 @@ export type Value =
     );
 
 export interface Process {
-  /**
-   * Name of the process.
-   */
   name: string;
-  /**
-   * [DEPRECATED] Please use name instead
-   */
   key?: string;
-  /**
-   * List of steps that your process will execute. A process needs to start with a trigger and have a list of tasks and filters
-   */
   steps: (Trigger | Filter | Task)[];
 }
 export interface Step {
