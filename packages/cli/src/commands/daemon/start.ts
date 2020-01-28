@@ -98,7 +98,7 @@ export default class Start extends Command {
       if (!existsSync(path)) mkdirSync(path, {recursive: true})
       if (existsSync(join(path, file))) return
       const response = await fetch(remote)
-      if (response.status !== 200) throw new Error(`network ${network} doesn't exists`)
+      if (response.status !== 200) throw new Error(`network "${network}" doesn't exist`)
       const data = await response.text()
       writeFileSync(join(path, file), data)
     }
