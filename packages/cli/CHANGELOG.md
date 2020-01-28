@@ -4,6 +4,9 @@
 
 #### Breaking Changes
 #### Improvements
+
+- [#168](https://github.com/mesg-foundation/js-sdk/pull/168) Fetch and configure the engine to start on a specific network.
+
 #### Bug fixes
 
 ## [v0.1.3](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%400.1.3)
