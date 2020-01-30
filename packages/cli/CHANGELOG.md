@@ -6,6 +6,8 @@
 #### Improvements
 #### Bug fixes
 
+- [](https://github.com/mesg-foundation/js-sdk/pull/) Fix docker filtering issue on docker services prefixed with "engine"
+
 ## [v0.2.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%400.2.0)
 
 #### Improvements
