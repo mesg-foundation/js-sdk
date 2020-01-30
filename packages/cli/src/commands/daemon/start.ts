@@ -1,4 +1,6 @@
 import {flags} from '@oclif/command'
+import {mkdirSync, existsSync, writeFileSync} from 'fs'
+import fetch from 'node-fetch'
 import {homedir} from 'os'
 import {join} from 'path'
 
@@ -32,6 +34,9 @@ export default class Start extends Command {
       default: 26656,
       required: true,
     }),
+    network: flags.string({
+      description: 'Name of the network to connect to'
+    })
   }
 
   async run() {
@@ -55,8 +60,9 @@ export default class Start extends Command {
       Action === 'start' &&
       from === `mesg/engine:${flags.version}`
     )
-    const network = await this.getOrCreateNetwork({name: flags.name})
-    await this.createEngineService(network, {
+    await this.prepareNetwork(flags.network, flags.path)
+    const dockerNetwork = await this.getOrCreateNetwork({ name: flags.name })
+    await this.createEngineService(dockerNetwork, {
       name: flags.name,
       version: flags.version,
       path: flags.path,
@@ -82,5 +88,30 @@ export default class Start extends Command {
       }
       throw e
     }
+  }
+
+  async prepareNetwork(network: string, path: string) {
+    mkdirSync(path, {recursive: true})
+    if (!network) return // This is the default network, the engine will setup everything
+
+    const updateConfig = async (path: string, file: string, remote: string) => {
+      if (!existsSync(path)) mkdirSync(path, {recursive: true})
+      if (existsSync(join(path, file))) return
+      const response = await fetch(remote)
+      if (response.status !== 200) throw new Error(`network "${network}" doesn't exist`)
+      const data = await response.text()
+      writeFileSync(join(path, file), data)
+    }
+
+    const networkEndpoint = "https://raw.githubusercontent.com/mesg-foundation/networks/master/networks"
+    await updateConfig(
+      path, 'config.yml',
+      `${networkEndpoint}/${network}/config.yml`
+    )
+
+    await updateConfig(
+      join(path, 'tendermint', 'config'), 'genesis.json',
+      `${networkEndpoint}/${network}/genesis.json`
+    )
   }
 }

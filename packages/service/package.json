@@ -1,9 +1,16 @@
 {
   "name": "@mesg/service",
-  "version": "0.0.0",
+  "version": "0.1.1",
   "description": "",
   "main": "lib/index",
   "types": "lib/index",
+  "files": [
+    "/lib",
+    "/npm-shrinkwrap.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
     "build": "npm run clean && npm run compile",
@@ -21,7 +28,7 @@
   },
   "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
   "dependencies": {
-    "@mesg/api": "^0.0.0",
+    "@mesg/api": "^0.2.0",
     "js-yaml": "^3.13.1"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 import {ServiceGetOutputs} from '@mesg/api/lib/service'
 
 import Command from '../../root-command'
-import serviceResolver from '../../utils/service-resolver'
+import {serviceResolver} from '../../utils/resolver'
 
 export default class ServiceDetail extends Command {
   static description = 'Display detailed information on a service'

@@ -40,13 +40,13 @@ test('executeTask() should execute a task', (t: Test) => {
   const application = new Application(api);
   const spy = sinon.spy(api.execution, 'create')
   application.executeTask({
-    instanceHash: Buffer.from('1'),
+    executorHash: Buffer.from('1'),
     taskKey: '2',
     inputs: application.encodeData({ foo: 'bar' }),
     tags: ['4', '5']
   })
   const req = spy.getCall(0).args[0]
-  t.ok(Buffer.from('1').equals(req.instanceHash))
+  t.ok(Buffer.from('1').equals(req.executorHash))
   t.equal(req.taskKey, '2')
   t.equal(application.decodeData(req.inputs).foo, 'bar')
   t.same(req.tags, ['4', '5'])
@@ -60,7 +60,7 @@ test('executeTask() should resolve promise with reply', (t: Test) => {
   const reply = { hash: Buffer.from('1') }
   const stub = sinon.stub(api.execution, 'create').callsFake(res => Promise.resolve(reply))
   application.executeTask({
-    instanceHash: Buffer.from('2'),
+    executorHash: Buffer.from('2'),
     taskKey: '3',
     inputs: {}
   }).then(reply => t.ok(Buffer.from('1').equals(reply.hash)))
@@ -73,7 +73,7 @@ test('executeTask() should reject promise with err', (t: Test) => {
   const application = new Application(api);
   const stub = sinon.stub(api.execution, 'create').callsFake(() => Promise.reject(new Error('1')))
   application.executeTask({
-    instanceHash: Buffer.from('2'),
+    executorHash: Buffer.from('2'),
     taskKey: '3',
     inputs: {}
   }).catch((err) => t.equal(err.message, '1'))
@@ -85,9 +85,9 @@ test('executeTaskAndWaitResult() should listen for results', (t: Test) => {
   const api = Api('');
   const application = new Application(api);
   const spy = sinon.spy(api.execution, 'stream')
-  application.executeTaskAndWaitResult({ instanceHash: Buffer.from('1'), taskKey: '2', inputs: {} })
+  application.executeTaskAndWaitResult({ executorHash: Buffer.from('1'), taskKey: '2', inputs: {} })
   const req = spy.getCall(0).args[0]
-  t.ok(Buffer.from('1').equals(req.filter.instanceHash))
+  t.ok(Buffer.from('1').equals(req.filter.executorHash))
   spy.restore()
 });
 
@@ -96,7 +96,7 @@ test('executeTaskAndWaitResult() should reject and cancel result stream on `erro
   const api = Api('');
   const application = new Application(api);
   const spy = sinon.spy(streams.execution, 'cancel')
-  application.executeTaskAndWaitResult({ instanceHash: Buffer.from('2'), taskKey: '3', inputs: {} })
+  application.executeTaskAndWaitResult({ executorHash: Buffer.from('2'), taskKey: '3', inputs: {} })
     .catch((err) => t.equal(err, '1'))
   streams.execution.emit('error', '1')
   t.ok(spy.called)
@@ -108,7 +108,7 @@ test('executeTaskAndWaitResult() should resolve and cancel result stream on firs
   const api = Api('');
   const application = new Application(api);
   const spy = sinon.spy(streams.execution, 'cancel')
-  application.executeTaskAndWaitResult({ instanceHash: Buffer.from('2'), taskKey: '3', inputs: {} })
+  application.executeTaskAndWaitResult({ executorHash: Buffer.from('2'), taskKey: '3', inputs: {} })
     .then((result) => t.equal(result.hash, '2'))
   streams.execution.emit('data', { hash: '2' })
   t.ok(spy.called)
@@ -120,10 +120,10 @@ test('executeTaskAndWaitResult() should execute task', (t: Test) => {
   const api = Api('');
   const application = new Application(api);
   const spy = sinon.spy(api.execution, 'create')
-  application.executeTaskAndWaitResult({ instanceHash: Buffer.from('2'), taskKey: '3', inputs: application.encodeData({ foo: 'bar' }) })
+  application.executeTaskAndWaitResult({ executorHash: Buffer.from('2'), taskKey: '3', inputs: application.encodeData({ foo: 'bar' }) })
   streams.execution.emit('metadata', { get() { return ['ready'] } })
   const req = spy.getCall(0).args[0]
-  t.ok(Buffer.from('2').equals(req.instanceHash))
+  t.ok(Buffer.from('2').equals(req.executorHash))
   t.equal(req.taskKey, '3')
   t.equal(application.decodeData(req.inputs).foo, 'bar')
   t.ok(isUUID.v4(req.tags[0]))

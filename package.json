@@ -1,10 +1,16 @@
 {
-  "name": "root",
+  "name": "js-sdk",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
-    "lerna": "^3.18.4"
+    "lerna": "^3.19.0"
   },
   "scripts": {
-    "lerna": "lerna"
+    "lerna": "lerna",
+    "postinstall": "lerna bootstrap",
+    "build": "lerna run build",
+    "test": "lerna run test"
   }
 }

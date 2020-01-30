@@ -9,7 +9,8 @@ import { ExecutionStatus, hash } from '@mesg/api/lib/types';
 import { EventCreateOutputs } from '@mesg/api/lib/event';
 
 type Options = {
-  token?: hash
+  runnerHash?: hash
+  instanceHash?: hash
   definition?: any
   API?: IApi
 }
@@ -18,14 +19,16 @@ class Service {
   // api gives access to low level gRPC calls.
   private API: IApi
 
-  private token: hash
+  private runnerHash: hash
+  private instanceHash: hash
   private definition: any
   private tasks: Tasks
 
   constructor(options: Options = {}) {
     this.definition = options.definition || YAML.safeLoad(fs.readFileSync('./mesg.yml').toString());
     this.API = options.API || new API(process.env.MESG_ENDPOINT);
-    this.token = options.token || bs58.decode(process.env.MESG_TOKEN);
+    this.runnerHash = options.runnerHash || bs58.decode(process.env.MESG_RUNNER_HASH);
+    this.instanceHash = options.instanceHash || bs58.decode(process.env.MESG_INSTANCE_HASH);
   }
 
   listenTask({ ...tasks }: Tasks): ExecutionStreamOutputs {
@@ -36,7 +39,7 @@ class Service {
     this.validateTaskNames();
     const stream = this.API.execution.stream({
       filter: {
-        instanceHash: this.token,
+        executorHash: this.runnerHash,
         statuses: [ExecutionStatus.IN_PROGRESS],
       }
     });
@@ -47,7 +50,7 @@ class Service {
   emitEvent(event: string, data: EventData): EventCreateOutputs {
     if (!data) throw new Error('data object must be send while emitting event')
     return this.API.event.create({
-      instanceHash: this.token,
+      instanceHash: this.instanceHash,
       key: event,
       data: encode(data)
     })
@@ -99,6 +102,7 @@ interface EventData {
 }
 
 export default Service;
+(module).exports = Service;
 export {
   Tasks,
   TaskInputs,

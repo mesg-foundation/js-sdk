@@ -9,7 +9,7 @@ import {Docker} from 'node-docker-api'
 
 import Command from '../../root-command'
 import {parseLog} from '../../utils/docker'
-import instanceResolver from '../../utils/instance-resolver'
+import {runnerResolver} from '../../utils/resolver'
 
 export interface Log {
   dependency: string
@@ -44,7 +44,7 @@ export default class ServiceLogs extends Command {
     }),
     tail: flags.integer({
       description: 'Display the last N lines',
-      default: -1
+      default: 10000
     }),
     follow: flags.boolean({
       description: 'Follow log output',
@@ -54,7 +54,7 @@ export default class ServiceLogs extends Command {
   }
 
   static args = [{
-    name: 'INSTANCE_HASH',
+    name: 'RUNNER_HASH',
     required: true,
   }]
 
@@ -63,13 +63,17 @@ export default class ServiceLogs extends Command {
   async run() {
     const {args, flags} = this.parse(ServiceLogs)
 
-    const instanceHash = await instanceResolver(this.api, args.INSTANCE_HASH)
+    const runnerHash = await runnerResolver(this.api, args.RUNNER_HASH)
+    const runner = await this.api.runner.get({hash: runnerHash})
+    if (!runner.hash) {
+      throw new Error('runner is invalid')
+    }
 
     const streams: (() => any)[] = []
 
     const dockerServices = await this.docker.service.list({
       filters: {
-        label: [`mesg.instance=${base58.encode(instanceHash)}`]
+        label: [`mesg.runner=${base58.encode(runnerHash)}`]
       }
     })
     for (const service of dockerServices) {
@@ -90,7 +94,7 @@ export default class ServiceLogs extends Command {
     if (flags.results) {
       const results = this.api.execution.stream({
         filter: {
-          instanceHash,
+          executorHash: runnerHash,
           statuses: [
             ExecutionStatus.COMPLETED,
             ExecutionStatus.FAILED,
@@ -107,7 +111,7 @@ export default class ServiceLogs extends Command {
     if (flags.events) {
       const events = this.api.event.stream({
         filter: {
-          instanceHash,
+          instanceHash: runner.instanceHash,
           key: flags.event,
         }
       })

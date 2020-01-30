@@ -17,7 +17,7 @@ export default class ProcessList extends Command {
     const {processes} = await this.api.process.list({})
     cli.table(processes || [], {
       hash: {header: 'HASH', get: x => x.hash ? base58.encode(x.hash) : ''},
-      key: {header: 'KEY', get: x => x.key},
+      name: {header: 'NAME', get: x => x.name},
     }, {printLine: this.log, ...flags})
     return processes || []
   }
