@@ -7,7 +7,6 @@ import {decode} from '@mesg/api/lib/util/encoder'
 import {inspect} from 'util'
 import Command from '../../docker-command'
 import {parseLog} from '../../utils/docker'
-import { flags } from '@oclif/command'
 
 export default class ProcessLogs extends Command {
   static description = 'Log the executions related to a process'
