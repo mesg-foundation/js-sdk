@@ -5,8 +5,9 @@ import { IExecution } from '@mesg/api/lib/execution'
 import * as b58 from '@mesg/api/lib/util/base58'
 import {decode} from '@mesg/api/lib/util/encoder'
 import {inspect} from 'util'
-
-import Command from '../../root-command'
+import Command from '../../docker-command'
+import {parseLog} from '../../utils/docker'
+import { flags } from '@oclif/command'
 
 export default class ProcessLogs extends Command {
   static description = 'Log the executions related to a process'
@@ -23,7 +24,7 @@ export default class ProcessLogs extends Command {
   services: {[key: string]: IService} = {}
 
   async run() {
-    const {args} = this.parse(ProcessLogs)
+    const {args, flags} = this.parse(ProcessLogs)
 
     const process = await this.api.process.get({
       hash: b58.decode(args.PROCESS_HASH)
@@ -61,6 +62,24 @@ export default class ProcessLogs extends Command {
       .on('data', this.handlerResult(process.hash))
       .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
 
+    const engines = await this.listServices({
+      name: flags.name
+    });
+    if (engines.length === 0) {
+      throw new Error("No engine is running.")
+    }
+    const engine = engines[0];
+    const logs: any = await engine.logs({
+      stderr: true,
+      stdout: true
+    })
+    logs.on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => {
+      if (x.includes("module=orchestrator")) this.log(x)
+    }))
+    logs.on('error', (error: Error) => {
+      throw error
+    })
+    
     return {
       destroy: () => {
         streams.forEach(s => s())
