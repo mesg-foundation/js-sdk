@@ -47,6 +47,16 @@ export default abstract class extends Command {
     })
   }
 
+  async listService(options: ListOption) {
+    const engines = await this.listServices({
+      name: options.name
+    });
+    if (engines.length === 0) {
+      throw new Error("No engine is running.")
+    }
+    return engines[0];
+  }
+
   async waitForEvent(matchFilter: (event: Event) => boolean) {
     return new Promise(async resolve => {
       const events = (await this.docker.events()) as Readable

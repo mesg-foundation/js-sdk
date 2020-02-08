@@ -1,3 +1,4 @@
+import {flags} from '@oclif/command'
 import chalk from 'chalk'
 import { IService } from '@mesg/api/lib/service'
 import { ExecutionStatus } from '@mesg/api/lib/types'
@@ -13,6 +14,15 @@ export default class ProcessLogs extends Command {
 
   static flags = {
     ...Command.flags,
+    tail: flags.integer({
+      description:  'Display the last N lines',
+      default: 10000
+    }),
+    follow: flags.boolean({
+      description: 'Follow logs',
+      allowNo: true,
+      default: true
+    })
   }
 
   static args = [{
@@ -60,25 +70,21 @@ export default class ProcessLogs extends Command {
     results
       .on('data', this.handlerResult(process.hash))
       .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
-
-    const engines = await this.listServices({
-      name: flags.name
-    });
-    if (engines.length === 0) {
-      throw new Error("No engine is running.")
-    }
-    const engine = engines[0];
-    const logs: any = await engine.logs({
+    const logs: any = await (await this.listService({ name: flags.name })).logs({
       stderr: true,
-      stdout: true
+      stdout: true,
+      follow: flags.follow,
+      tail: flags.tail && flags.tail >= 0 ? flags.tail : 'all'
     })
-    logs.on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => {
-      if (x.includes("module=orchestrator")) this.log(x)
-    }))
-    logs.on('error', (error: Error) => {
-      throw error
-    })
-    
+    logs
+      .on(
+        'data',
+        (buffer: Buffer) => parseLog(buffer).forEach(x => {
+          if (x.includes("module=orchestrator")) {
+            this.log(x)
+          }
+        })
+      )
     return {
       destroy: () => {
         streams.forEach(s => s())

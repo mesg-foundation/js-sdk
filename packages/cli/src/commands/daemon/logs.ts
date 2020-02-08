@@ -21,14 +21,7 @@ export default class Logs extends Command {
 
   async run() {
     const {flags} = this.parse(Logs)
-    const services = await this.listServices({
-      name: flags.name
-    })
-    if (services.length === 0) {
-      throw new Error("No engine is running.")
-    }
-    const service = services[0]
-    const logs: any = await service.logs({
+    const logs: any = await (await this.listService({ name: flags.name })).logs({
       stderr: true,
       stdout: true,
       follow: flags.follow,
