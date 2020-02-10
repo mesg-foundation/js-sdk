@@ -6,6 +6,7 @@ import {Readable, Stream} from 'stream'
 const debug = require('debug')('docker')
 
 import Command from './root-command'
+import { ListOptions } from 'tar'
 
 interface Event {
   Type: string
@@ -19,6 +20,12 @@ interface NetworkOption {
 
 interface ListOption {
   name: string
+}
+
+interface LogsOption {
+  name: string,
+  follow: boolean,
+  tail: number
 }
 
 interface ServiceOption {
@@ -47,14 +54,17 @@ export default abstract class extends Command {
     })
   }
 
-  async listService(options: ListOption) {
-    const engines = await this.listServices({
-      name: options.name
-    });
+  async logs(options: LogsOption): Promise<any> {
+    const engines = await this.listServices({ name: options.name });
     if (engines.length === 0) {
       throw new Error("No engine is running.")
     }
-    return engines[0];
+    return (engines[0]).logs({
+      stderr: true,
+      stdout: true,
+      follow: options.follow,
+      tail: options.tail && options.tail >= 0 ? options.tail : 'all'
+    })
   }
 
   async waitForEvent(matchFilter: (event: Event) => boolean) {

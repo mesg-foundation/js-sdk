@@ -70,21 +70,16 @@ export default class ProcessLogs extends Command {
     results
       .on('data', this.handlerResult(process.hash))
       .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
-    const logs: any = await (await this.listService({ name: flags.name })).logs({
-      stderr: true,
-      stdout: true,
-      follow: flags.follow,
-      tail: flags.tail && flags.tail >= 0 ? flags.tail : 'all'
-    })
+    const logs: any = await this.logs(flags);
+    streams.push(() => logs.destroy())
     logs
-      .on(
-        'data',
-        (buffer: Buffer) => parseLog(buffer).forEach(x => {
+      .on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => {
           if (x.includes("module=orchestrator")) {
             this.log(x)
           }
         })
       )
+      .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
     return {
       destroy: () => {
         streams.forEach(s => s())
