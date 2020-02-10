@@ -21,6 +21,12 @@ interface ListOption {
   name: string
 }
 
+interface LogsOption {
+  name: string,
+  follow: boolean,
+  tail: number
+}
+
 interface ServiceOption {
   name: string
   version: string
@@ -44,6 +50,19 @@ export default abstract class extends Command {
   async listServices(options: ListOption) {
     return this.docker.service.list({
       filters: {name: [options.name]}
+    })
+  }
+
+  async logs(options: LogsOption): Promise<any> {
+    const engines = await this.listServices({ name: options.name });
+    if (engines.length === 0) {
+      throw new Error("No engine is running.")
+    }
+    return (engines[0]).logs({
+      stderr: true,
+      stdout: true,
+      follow: options.follow,
+      tail: options.tail && options.tail >= 0 ? options.tail : 'all'
     })
   }
 

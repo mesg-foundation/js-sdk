@@ -1,3 +1,4 @@
+import {flags} from '@oclif/command'
 import chalk from 'chalk'
 import { IService } from '@mesg/api/lib/service'
 import { ExecutionStatus } from '@mesg/api/lib/types'
@@ -5,14 +6,23 @@ import { IExecution } from '@mesg/api/lib/execution'
 import * as b58 from '@mesg/api/lib/util/base58'
 import {decode} from '@mesg/api/lib/util/encoder'
 import {inspect} from 'util'
-
-import Command from '../../root-command'
+import Command from '../../docker-command'
+import {parseLog} from '../../utils/docker'
 
 export default class ProcessLogs extends Command {
   static description = 'Log the executions related to a process'
 
   static flags = {
     ...Command.flags,
+    tail: flags.integer({
+      description:  'Display the last N lines',
+      default: 10000
+    }),
+    follow: flags.boolean({
+      description: 'Follow logs',
+      allowNo: true,
+      default: true
+    })
   }
 
   static args = [{
@@ -23,7 +33,7 @@ export default class ProcessLogs extends Command {
   services: {[key: string]: IService} = {}
 
   async run() {
-    const {args} = this.parse(ProcessLogs)
+    const {args, flags} = this.parse(ProcessLogs)
 
     const process = await this.api.process.get({
       hash: b58.decode(args.PROCESS_HASH)
@@ -60,7 +70,16 @@ export default class ProcessLogs extends Command {
     results
       .on('data', this.handlerResult(process.hash))
       .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
-
+    const logs: any = await this.logs(flags);
+    streams.push(() => logs.destroy())
+    logs
+      .on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => {
+          if (x.includes("module=orchestrator")) {
+            this.log(x)
+          }
+        })
+      )
+      .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
     return {
       destroy: () => {
         streams.forEach(s => s())

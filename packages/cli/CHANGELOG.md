@@ -11,6 +11,7 @@
 #### Improvements
 
 - [#168](https://github.com/mesg-foundation/js-sdk/pull/168) Fetch and configure the engine to start on a specific network.
+- [#173](https://github.com/mesg-foundation/js-sdk/pull/173) Add module=orchestrator engine errors to process:logs.
 
 ## [v0.1.3](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%400.1.3)
 
