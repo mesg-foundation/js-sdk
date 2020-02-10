@@ -6,7 +6,6 @@ import {Readable, Stream} from 'stream'
 const debug = require('debug')('docker')
 
 import Command from './root-command'
-import { ListOptions } from 'tar'
 
 interface Event {
   Type: string
