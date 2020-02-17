@@ -48,9 +48,12 @@ export default abstract class extends Command {
   private readonly docker: Docker = new Docker(null)
 
   async listServices(options: ListOption) {
-    return this.docker.service.list({
+    // docker service ls --filter doesn't do an exact match https://github.com/moby/moby/issues/32985
+    const res = await this.docker.service.list({
       filters: {name: [options.name]}
     })
+    return res
+      .filter(x => (x.data as any)['Spec']['Name'] === options.name)
   }
 
   async logs(options: LogsOption): Promise<any> {
