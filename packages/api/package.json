@@ -12,7 +12,7 @@
     "access": "public"
   },
   "scripts": {
-    "test": "ts-node ./node_modules/tape/bin/tape src/instance.test.ts",
+    "test": "ts-node ./node_modules/tape/bin/tape src/ownership.test.ts",
     "build": "npm run clean && npm run compile",
     "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo",
     "compile": "tsc -b tsconfig.json && ncp ./src/protobuf/ ./lib/protobuf/ && ncp ./src/gogo/ ./lib/gogo/ && ncp src/typedef lib/typedef"

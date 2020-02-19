@@ -24,7 +24,7 @@ class API {
     this.event = new Event(endpoint)
     this.execution = new Execution(endpoint)
     this.instance = new Instance(lcdEndpoint)
-    this.ownership = new Ownership(endpoint)
+    this.ownership = new Ownership(lcdEndpoint)
     this.process = new Process(endpoint)
     this.service = new Service(lcdEndpoint)
     this.runner = new Runner(endpoint)
