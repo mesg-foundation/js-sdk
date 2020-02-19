@@ -4,7 +4,7 @@ import { resolve } from 'url'
 export default class LCDClient {
   private _endpoint: string
 
-  constructor(endpoint: string) {
+  constructor(endpoint: string = "http://localhost:1317") {
     this._endpoint = endpoint
   }
 

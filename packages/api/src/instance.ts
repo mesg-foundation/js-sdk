@@ -1,27 +1,17 @@
-import { createClient, promisify } from './util/grpc'
-import * as InstanceType from './typedef/instance'
+import LCDClient from './util/lcdClient'
 
-export type IInstance = InstanceType.mesg.types.IInstance
+export type IInstance = {
+  hash: string;
+  serviceHash: string;
+  envHash: string;
+}
 
-export type InstanceGetInputs = InstanceType.mesg.api.IGetInstanceRequest
-export type InstanceGetOutputs = Promise<IInstance>
-
-export type InstanceListInputs = InstanceType.mesg.api.IListInstanceRequest
-export type InstanceListOutputs = Promise<InstanceType.mesg.api.IListInstanceResponse>
-
-export default class Instance {
-
-  private _client: any
-
-  constructor(endpoint: string) {
-    this._client = createClient('Instance', './protobuf/api/instance.proto', endpoint)
+export default class Instance extends LCDClient {
+  async get(hash: string): Promise<IInstance> {
+    return (await this.query(`/instance/get/${hash}`)).result
   }
 
-  async get(request: InstanceGetInputs): InstanceGetOutputs { 
-    return promisify(this._client, 'Get')(request)
-  }
-
-  async list(request: InstanceListInputs): InstanceListOutputs { 
-    return promisify(this._client, 'List')(request)
+  async list(filter?: { serviceHash?: string }): Promise<IInstance[]> {
+    return (await this.query(`/instance/list`, filter)).result
   }
 }

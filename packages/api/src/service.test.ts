@@ -5,8 +5,8 @@ import Account from './account';
 import Transaction from './transaction';
 
 const lcdEndpoint = 'http://localhost:1317'
-const serviceAPI = new Service(lcdEndpoint)
-const accountAPI = new Account(lcdEndpoint)
+const serviceAPI = new Service()
+const accountAPI = new Account()
 const address = "mesgtest19k9xsdy42f4a7f7777wj4rs5eh9622h2z7mzdh"
 const mnemonic = "afford problem shove post clump space govern reward fringe input owner knock toddler orange castle course pepper fox youth field ritual wife weapon desert"
 const service = {
