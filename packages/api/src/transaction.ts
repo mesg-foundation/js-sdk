@@ -67,11 +67,6 @@ export default class Transaction {
   }
 
   addSignature(ecpairPriv: Buffer): Transaction {
-    console.log()
-    console.log()
-    console.log(JSON.stringify(this._stdTx, null, 2))
-    console.log()
-    console.log()
     const hash = createHash('sha256')
       .update(JSON.stringify(this._stdTx))
       .digest('hex')
@@ -90,17 +85,12 @@ export default class Transaction {
   }
 
   async broadcast(endpoint: string, mode: 'block' | 'sync' | 'async') {
-    console.log(JSON.stringify({
-      tx: this._tx,
-      mode
-    }))
     const client = new LCDClient(endpoint)
     const res = await client.postRequest('/txs', {
       tx: this._tx,
       mode
     })
-    console.log(res)
-    if (res.raw_log) throw new Error(res.raw_log)
+    if (res.code > 0) throw new Error(res.raw_log)
     return res
   }
 

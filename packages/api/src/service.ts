@@ -7,7 +7,7 @@ export interface IService {
   sid?: string | null;
   name?: string | null;
   description?: string | null;
-  configuration?: mesg.types.Service.IConfiguration | null;
+  configuration: mesg.types.Service.IConfiguration;
   tasks?: mesg.types.Service.ITask[] | null;
   events?: mesg.types.Service.IEvent[] | null;
   dependencies?: mesg.types.Service.IDependency[] | null;
