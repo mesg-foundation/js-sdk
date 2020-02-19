@@ -1,48 +1,45 @@
-import { createClient, promisify } from './util/grpc'
-import * as ServiceType from './typedef/service'
+import { mesg } from './typedef/service'
+import LCDClient from './util/lcdClient'
+import { IMsg } from './transaction'
 
-export type IService = ServiceType.mesg.types.IService
+export interface IService {
+  hash?: string;
+  sid?: string | null;
+  name?: string | null;
+  description?: string | null;
+  configuration?: mesg.types.Service.IConfiguration | null;
+  tasks?: mesg.types.Service.ITask[] | null;
+  events?: mesg.types.Service.IEvent[] | null;
+  dependencies?: mesg.types.Service.IDependency[] | null;
+  repository?: string | null;
+  source?: string | null;
+}
 
-export type ServiceGetInputs = ServiceType.mesg.api.IGetServiceRequest
-export type ServiceGetOutputs = Promise<IService>
+export default class Service extends LCDClient {
 
-export type ServiceHashInputs = ServiceType.mesg.api.ICreateServiceRequest
-export type ServiceHashOutputs = Promise<ServiceType.mesg.api.IHashServiceResponse>
-
-export type ServiceExistsInputs = ServiceType.mesg.api.IExistsServiceRequest
-export type ServiceExistsOutputs = Promise<ServiceType.mesg.api.IExistsServiceResponse>
-
-export type ServiceListInputs = ServiceType.mesg.api.IListServiceRequest
-export type ServiceListOutputs = Promise<ServiceType.mesg.api.IListServiceResponse>
-
-export type ServiceCreateInputs = ServiceType.mesg.api.ICreateServiceRequest
-export type ServiceCreateOutputs = Promise<ServiceType.mesg.api.ICreateServiceResponse>
-
-export default class Service {
-
-  private _client: any
-
-  constructor(endpoint: string) {
-    this._client = createClient('Service', './protobuf/api/service.proto', endpoint)
+  createMsg(owner: string, service: IService): IMsg {
+    return {
+      type: 'service/CreateService',
+      value: {
+        owner,
+        request: service
+      }
+    }
   }
 
-  async create(request: ServiceCreateInputs): ServiceCreateOutputs {
-    return promisify(this._client, 'Create')(request)
+  async get(hash: string): Promise<IService> {
+    return (await this.query(`/service/get/${hash}`)).result
   }
 
-  async get(request: ServiceGetInputs): ServiceGetOutputs { 
-    return promisify(this._client, 'Get')(request)
+  async exists(hash: string): Promise<boolean> {
+    return (await this.query(`/service/exist/${hash}`)).result
   }
-  
-  async exists(request: ServiceExistsInputs): ServiceExistsOutputs { 
-    return promisify(this._client, 'Exists')(request)
+
+  async hash(request: IService): Promise<string> {
+    return (await this.query(`/service/hash`, request, 'POST')).result
   }
-  
-  async hash(request: ServiceHashInputs): ServiceHashOutputs { 
-    return promisify(this._client, 'Hash')(request)
-  }
-  
-  async list(request: ServiceListInputs): ServiceListOutputs { 
-    return promisify(this._client, 'List')(request)
+
+  async list(): Promise<IService[]> {
+    return (await this.query('/service/list')).result || []
   }
 }
