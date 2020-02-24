@@ -13,9 +13,9 @@ export type ITx = {
   memo: string
 }
 
-export type IMsg = {
+export type IMsg<T> = {
   type: string
-  value: any
+  value: T
 }
 
 export type ICoin = {
@@ -34,11 +34,11 @@ export type IFee = {
 }
 
 export type IStdTx = {
-  msgs?: IMsg[]
+  msgs: IMsg<any>[]
   fee: IFee
   chain_id: string
-  account_number: number | string
-  sequence: number | string
+  account_number: string
+  sequence: string
   memo?: string
 }
 

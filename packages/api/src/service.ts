@@ -15,9 +15,14 @@ export interface IService {
   source?: string | null;
 }
 
+export type IMsgCreate = {
+  owner: string,
+  request: IService
+}
+
 export default class Service extends LCDClient {
 
-  createMsg(owner: string, service: IService): IMsg {
+  createMsg(owner: string, service: IService): IMsg<IMsgCreate> {
     return {
       type: 'service/CreateService',
       value: {
