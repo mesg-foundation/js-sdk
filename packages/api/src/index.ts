@@ -18,14 +18,13 @@ class API {
   service: Service
   runner: Runner
 
-  constructor(endpoint: string) {
-    const lcdEndpoint = "http://localhost:1317"
+  constructor(endpoint: string, lcdEndpoint: string = "http://localhost:1317") {
     this.account = new Account(lcdEndpoint)
     this.event = new Event(endpoint)
     this.execution = new Execution(endpoint, lcdEndpoint)
     this.instance = new Instance(lcdEndpoint)
     this.ownership = new Ownership(lcdEndpoint)
-    this.process = new Process(endpoint)
+    this.process = new Process(lcdEndpoint)
     this.service = new Service(lcdEndpoint)
     this.runner = new Runner(lcdEndpoint)
   }

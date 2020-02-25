@@ -1,41 +1,84 @@
-import { createClient, promisify } from './util/grpc'
 import * as ProcessType from './typedef/process'
+import LCDClient from './util/lcdClient'
+import { IMsg } from './transaction'
 
-export type IProcess = ProcessType.mesg.types.IProcess
+export type IResult = {
+  instanceHash: string;
+  taskKey: string;
+}
 
-export type ProcessGetInputs = ProcessType.mesg.api.IGetProcessRequest
-export type ProcessGetOutputs = Promise<IProcess>
+export type IEvent = {
+  instanceHash: string;
+  eventKey: string;
+}
 
-export type ProcessListInputs = ProcessType.mesg.api.IListProcessRequest
-export type ProcessListOutputs = Promise<ProcessType.mesg.api.IListProcessResponse>
+export type ITask = {
+  instanceHash: string;
+  taskKey: string;
+}
 
-export type ProcessCreateInputs = ProcessType.mesg.api.ICreateProcessRequest
-export type ProcessCreateOutputs = Promise<ProcessType.mesg.api.ICreateProcessResponse>
+export type INode = {
+  key: string;
+  result?: IResult | null;
+  event?: IEvent | null;
+  task?: ITask | null;
+  map?: ProcessType.mesg.types.Process.Node.IMap | null;
+  filter?: ProcessType.mesg.types.Process.Node.IFilter | null;
+}
 
-export type ProcessDeleteInputs = ProcessType.mesg.api.IDeleteProcessRequest
-export type ProcessDeleteOutputs = Promise<ProcessType.mesg.api.IDeleteProcessResponse>
+export type IProcess = {
+  name: string;
+  nodes: INode[];
+  edges: ProcessType.mesg.types.Process.IEdge[];
+}
 
-export default class Process {
+export type IProcessRequest = {
+  name: string;
+  nodes: INode[];
+  edges: ProcessType.mesg.types.Process.IEdge[];
+}
 
-  private _client: any
+export type IMsgCreate = {
+  owner: string;
+  request: IProcessRequest;
+}
 
-  constructor(endpoint: string) {
-    this._client = createClient('Process', './protobuf/api/process.proto', endpoint)
+export type IMsgDelete = {
+  owner: string;
+  request: {
+    hash: string;
+  }
+}
+
+export default class Process extends LCDClient {
+
+  createMsg(owner: string, process: IProcessRequest): IMsg<IMsgCreate> {
+    return {
+      type: 'process/CreateProcess',
+      value: {
+        owner,
+        request: process
+      }
+    }
   }
 
-  async create(request: ProcessCreateInputs): ProcessCreateOutputs {
-    return promisify(this._client, 'Create')(request)
+  deleteMsg(owner: string, hash: string): IMsg<IMsgDelete> {
+    return {
+      type: 'process/DeleteProcess',
+      value: {
+        owner,
+        request: {
+          hash
+        }
+      }
+    }
   }
 
-  async get(request: ProcessGetInputs): ProcessGetOutputs { 
-    return promisify(this._client, 'Get')(request)
-  }
-  
-  async list(request: ProcessListInputs): ProcessListOutputs { 
-    return promisify(this._client, 'List')(request)
+  async get(hash: string): Promise<IProcess> {
+    return (await this.query(`/process/get/${hash}`)).result
   }
 
-  async delete(request: ProcessDeleteInputs): ProcessDeleteOutputs { 
-    return promisify(this._client, 'Delete')(request)
+  async list(): Promise<IProcess[]> {
+    return (await this.query('/process/list')).result || []
   }
 }

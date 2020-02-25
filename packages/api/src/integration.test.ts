@@ -268,13 +268,59 @@ test('execution', async (tt: Test) => {
     t.assert(executions[0].hash === executionHash)
   });
 
-  tt.test('execution get', async (t: Test) => {
-    t.plan(5)
-    const execution = await api.execution.get(executionHash)
-    t.assert(execution.hash === executionHash)
-    t.assert(execution.executorHash === runnerHash)
-    t.assert(execution.instanceHash === instanceHash)
-    t.assert(execution.eventHash === eventHash)
-    t.assert(execution.taskKey === 'execute')
-  });
-})
+    tt.test('execution get', async (t: Test) => {
+      t.plan(5)
+      const execution = await api.execution.get(executionHash)
+      t.assert(execution.hash === executionHash)
+      t.assert(execution.executorHash === runnerHash)
+      t.assert(execution.instanceHash === instanceHash)
+      t.assert(execution.eventHash === eventHash)
+      t.assert(execution.taskKey === 'execute')
+    });
+  })
+
+  test('process', async (tt: Test) => {
+    tt.test('process create', async (t: Test) => {
+      t.plan(3)
+
+      const account = await api.account.get(address)
+      const tx = new Transaction({
+        account_number: account.account_number.toString(),
+        sequence: account.sequence.toString(),
+        chain_id,
+        memo: '',
+        fee: {
+          amount: [{ denom: 'atto', amount: '64738' }],
+          gas: '64738'
+        },
+        msgs: [
+          api.process.createMsg(account.address, {
+            name: 'test',
+            nodes: [{
+              key: 'trigger',
+              result: {
+                instanceHash,
+                taskKey: 'execute'
+              }
+            }, {
+              key: 'task',
+              task: {
+                instanceHash,
+                taskKey: 'execute'
+              }
+            }],
+            edges: [{
+              src: 'trigger',
+              dst: 'task'
+            }]
+          })
+        ]
+      })
+      const res = await tx
+        .addSignatureFromMnemonic(mnemonic)
+        .broadcast(lcdEndpoint, 'block')
+      t.assert(res.height > 0)
+      t.assert(res.txhash !== '')
+      t.assert(!res.code)
+    })
+  })
