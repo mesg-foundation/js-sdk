@@ -3,6 +3,8 @@ import test from 'tape'
 import Transaction from './transaction';
 import API from '.';
 import { Resource } from './ownership';
+import * as b58 from './util/base58';
+import { encode } from './util/encoder';
 
 const lcdEndpoint = "http://localhost:1317"
 const api = new API('localhost:50052')
@@ -29,7 +31,7 @@ const serviceHash = "8K1X1rfEL1WCwpm2zBwsWH3bijyNuYWTN3LKoBP4Bkfy"
 const runnerHash = "5aTCivi9sjtpwSxeFAMLD2rgTUHt3EC2etX383dgaPC4"
 const instanceHash = "4zw8Mz2rUURbp33zRz8F7HcvFVoxtpLnmdpDpinNcRzw"
 const eventHash = "6aUPZhmnFKiSsHXRaddbnqsKKi9KogbQNiKUcpivaohb"
-const executionHash = "8KaReNzKWAN6Tvah8c5DcmHG7uJ76WDVL635zWMdidSo"
+const executionHash = "ErrDsCUCRTucQeynBqxabyMTCkiBicRzuMKqaArhomyN"
 
 test('service', async (tt: Test) => {
   tt.test('service hash', async (t: Test) => {
@@ -200,7 +202,22 @@ test('instance', async (tt: Test) => {
 })
 
 test('execution', async (tt: Test) => {
-  // tt.test('execution create', async function (t: Test) {
+
+  tt.test('execution create', async (t: Test) => {
+    t.plan(1)
+    const execution = await api.execution.create({
+      eventHash: b58.decode(eventHash),
+      executorHash: b58.decode(runnerHash),
+      inputs: encode({
+        code: 'module.export = inputs => inputs * 2',
+        inputs: 21
+      }),
+      taskKey: 'execute'
+    })
+    t.assert(b58.encode(execution.hash) === executionHash)
+  })
+
+  // tt.test('execution create', async (t: Test) => {
   //   t.plan(1)
 
   //   const account = await api.account.get(address)
@@ -233,14 +250,25 @@ test('execution', async (tt: Test) => {
   //   t.assert(res.height > 0)
   // })
 
-  tt.test('execution list', async function (t: Test) {
+  // tt.test('execution update', async (t: Test) => {
+  //   t.plan(1)
+  //   await api.execution.update({
+  //     hash: b58.decode(executionHash),
+  //     outputs: encode({
+  //       result: 42
+  //     })
+  //   })
+  //   t.pass()
+  // })
+
+  tt.test('execution list', async (t: Test) => {
     t.plan(2)
     const executions = await api.execution.list()
     t.assert(executions.length === 1)
     t.assert(executions[0].hash === executionHash)
   });
 
-  tt.test('execution get', async function (t: Test) {
+  tt.test('execution get', async (t: Test) => {
     t.plan(5)
     const execution = await api.execution.get(executionHash)
     t.assert(execution.hash === executionHash)
