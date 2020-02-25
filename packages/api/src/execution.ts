@@ -1,48 +1,126 @@
 import { createClient, promisify, Stream } from './util/grpc'
-import * as ExecutionType from './typedef/execution'
+import { mesg } from './typedef/execution'
+import LCDClient from './util/lcdClient'
+import { IMsg } from './transaction'
+import { encode } from './util/encoder'
 
-export type IExecution = ExecutionType.mesg.types.IExecution
+export enum Status {
+  Unknown = 0,
+  Created = 1,
+  InProgress = 2,
+  Completed = 3,
+  Failed = 4
+}
 
-export type ExecutionGetInputs = ExecutionType.mesg.api.IGetExecutionRequest
-export type ExecutionGetOutputs = Promise<IExecution>
+export type IExecution = {
+  hash: string;
+  parentHash?: string;
+  eventHash?: string;
+  status: Status;
+  instanceHash: string;
+  taskKey: string;
+  inputs?: (mesg.protobuf.IStruct | null);
+  outputs?: (mesg.protobuf.IStruct | null);
+  error?: (string | null);
+  tags?: (string[] | null);
+  processHash?: (string | null);
+  nodeKey?: (string | null);
+  executorHash: string;
+}
 
-export type ExecutionStreamInputs = ExecutionType.mesg.api.IStreamExecutionRequest
-export type ExecutionStreamOutputs = Stream<IExecution>
+export type IMsgCreate = {
+  signer: string
+  request: {
+    taskKey: string;
+    inputs: mesg.protobuf.IStruct;
+    tags: string[];
+    parentHash?: string;
+    eventHash?: string;
+    processHash?: string;
+    nodeKey?: string;
+    executorHash: string
+  }
+}
 
-export type ExecutionCreateInputs = ExecutionType.mesg.api.ICreateExecutionRequest
-export type ExecutionCreateOutputs = Promise<ExecutionType.mesg.api.ICreateExecutionResponse>
+export type IMsgUpdate = {
+  executor: string
+  request: {
+    hash: string;
+    outputs: mesg.protobuf.IStruct;
+    error: string;
+  }
+}
 
-export type ExecutionUpdateInputs = ExecutionType.mesg.api.IUpdateExecutionRequest
-export type ExecutionUpdateOutputs = Promise<ExecutionType.mesg.api.IUpdateExecutionResponse>
-
-export type ExecutionListInputs = ExecutionType.mesg.api.IListExecutionRequest
-export type ExecutionListOutputs = Promise<ExecutionType.mesg.api.IListExecutionResponse>
-
-export default class Execution {
+export default class Execution extends LCDClient {
 
   private _client: any
 
-  constructor(endpoint: string) {
-    this._client = createClient('Execution', './protobuf/api/execution.proto', endpoint)
+  constructor(grpcEndpoint: string, lcdEndpoint: string) {
+    super(lcdEndpoint)
+    this._client = createClient('Execution', './protobuf/api/execution.proto', grpcEndpoint)
   }
 
-  async create(request: ExecutionCreateInputs): ExecutionCreateOutputs {
+  async create(request: mesg.api.ICreateExecutionRequest): Promise<mesg.api.ICreateExecutionResponse> {
     return promisify(this._client, 'Create')(request)
   }
 
-  async get(request: ExecutionGetInputs): ExecutionGetOutputs { 
-    return promisify(this._client, 'Get')(request)
+  createMsg(
+    signer: string,
+    executorHash: string,
+    taskKey: string,
+    inputs: object,
+    parentHash?: string,
+    eventHash?: string,
+    nodeKey?: string,
+    processHash?: string,
+    tags?: string[],
+  ): IMsg<IMsgCreate> {
+    const value: IMsgCreate = {
+      signer,
+      request: {
+        executorHash,
+        taskKey,
+        inputs: encode(inputs),
+        tags,
+      }
+    }
+    if (parentHash) value.request.parentHash = parentHash
+    if (eventHash) value.request.eventHash = eventHash
+    if (nodeKey) value.request.nodeKey = nodeKey
+    if (processHash) value.request.processHash = processHash
+    return {
+      type: 'execution/CreateExecution',
+      value
+    }
   }
 
-  async update(request: ExecutionUpdateInputs): ExecutionUpdateOutputs { 
+  async update(request: mesg.api.IUpdateExecutionRequest): Promise<mesg.api.IUpdateExecutionResponse> {
     return promisify(this._client, 'Update')(request)
   }
 
-  async list(request: ExecutionListInputs): ExecutionListOutputs { 
-    return promisify(this._client, 'List')(request)
+  updateMsg(hash: string, executor: string, outputs?: object, error?: Error): IMsg<IMsgUpdate> {
+    return {
+      type: 'execution/UpdateExecution',
+      value: {
+        executor,
+        request: {
+          hash,
+          outputs: encode(outputs),
+          error: error.message
+        }
+      }
+    }
   }
 
-  stream(request: ExecutionStreamInputs): ExecutionStreamOutputs {
+  async get(hash: string): Promise<IExecution> {
+    return (await this.query(`/execution/get/${hash}`)).result
+  }
+
+  async list(): Promise<IExecution[]> {
+    return (await this.query(`/execution/list`)).result
+  }
+
+  stream(request: mesg.api.IStreamExecutionRequest): Stream<IExecution> {
     return this._client.Stream(request)
   }
 }
