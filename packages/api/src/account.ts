@@ -12,6 +12,8 @@ export type IAccount = {
 export default class Account extends LCDClient {
 
   async get(address: string): Promise<IAccount> {
-    return (await this.query(`/auth/accounts/${address}`)).result.value
+    const account = (await this.query(`/auth/accounts/${address}`)).result.value
+    if (!account.address) account.address = address
+    return account
   }
 }
