@@ -39,7 +39,7 @@ export type IStdTx = {
   chain_id: string
   account_number: string
   sequence: string
-  memo?: string
+  memo: string
 }
 
 export default class Transaction {
