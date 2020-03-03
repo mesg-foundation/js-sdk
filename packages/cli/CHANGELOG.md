@@ -4,6 +4,9 @@
 
 #### Breaking Changes
 #### Improvements
+
+- [#178](https://github.com/mesg-foundation/js-sdk/pull/178) Start the engine 0.19 version by default
+
 #### Bug fixes
 
 - [#171](https://github.com/mesg-foundation/js-sdk/pull/171) Fix docker filtering issue on docker services prefixed with "engine"
