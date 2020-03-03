@@ -4,6 +4,9 @@
 
 #### Breaking Changes
 #### Improvements
+
+- [](https://github.com/mesg-foundation/js-sdk/pull/) Open LCD port when start the daemon
+
 #### Bug fixes
 
 - [#171](https://github.com/mesg-foundation/js-sdk/pull/171) Fix docker filtering issue on docker services prefixed with "engine"

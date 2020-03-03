@@ -34,6 +34,11 @@ export default class Start extends Command {
       default: 26656,
       required: true,
     }),
+    'lcd-port': flags.integer({
+      description: 'Port to use for LCD interaction',
+      default: 1317,
+      required: true,
+    }),
     network: flags.string({
       description: 'Name of the network to connect to'
     })
@@ -68,6 +73,7 @@ export default class Start extends Command {
       path: flags.path,
       port: flags.port,
       p2pPort: flags['p2p-port'],
+      lcdPort: flags['lcd-port']
     })
     await eventPromise
     await this.waitForAPI()
