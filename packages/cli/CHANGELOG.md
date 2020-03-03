@@ -5,7 +5,7 @@
 #### Breaking Changes
 #### Improvements
 
-- [](https://github.com/mesg-foundation/js-sdk/pull/) Open LCD port when start the daemon
+- [#177](https://github.com/mesg-foundation/js-sdk/pull/177) Open LCD port when starting the daemon
 
 #### Bug fixes
 
