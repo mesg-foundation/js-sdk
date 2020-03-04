@@ -4,6 +4,11 @@
 
 #### Breaking Changes
 #### Improvements
+#### Bug fixes
+
+## [v0.3.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%400.3.0)
+
+#### Improvements
 
 - [#177](https://github.com/mesg-foundation/js-sdk/pull/177) Open LCD port when starting the daemon
 - [#178](https://github.com/mesg-foundation/js-sdk/pull/178) Start the engine 0.19 version by default
