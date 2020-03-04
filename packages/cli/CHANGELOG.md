@@ -5,6 +5,7 @@
 #### Breaking Changes
 #### Improvements
 
+- [#177](https://github.com/mesg-foundation/js-sdk/pull/177) Open LCD port when starting the daemon
 - [#178](https://github.com/mesg-foundation/js-sdk/pull/178) Start the engine 0.19 version by default
 
 #### Bug fixes
