@@ -3,6 +3,7 @@ import { publicKeyCreate, ecdsaSign } from 'secp256k1'
 import { fromSeed } from 'bip32'
 import { validateMnemonic, mnemonicToSeedSync } from 'bip39'
 import LCDClient from "./util/lcdClient"
+import sortObject from './util/sort_object'
 
 const HD_PATH = "m/44'/470'/0'/0/0"
 
@@ -49,7 +50,7 @@ export default class Transaction {
 
   constructor(stdTx: IStdTx) {
     if (!stdTx.msgs.length) throw new Error('you need at least one msg in your transaction')
-    this._stdTx = this.sortObject(stdTx)
+    this._stdTx = sortObject(stdTx)
     this._tx = {
       msg: this._stdTx.msgs,
       fee: this._stdTx.fee,
@@ -92,17 +93,5 @@ export default class Transaction {
     })
     if (res.code > 0) throw new Error(res.raw_log)
     return res
-  }
-
-  private sortObject(obj: any): any {
-    if (obj === null) return null
-    if (typeof obj !== "object") return obj
-    if (Array.isArray(obj)) return obj.map((x) => this.sortObject(x))
-    const sortedKeys = Object.keys(obj).sort()
-    const result: any = {}
-    sortedKeys.forEach(key => {
-      result[key] = this.sortObject(obj[key])
-    })
-    return result
   }
 }
