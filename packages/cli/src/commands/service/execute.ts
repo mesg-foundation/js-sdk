@@ -36,31 +36,25 @@ export default class ServiceExecute extends Command {
   async run(): ExecutionCreateOutputs {
     const {args, flags} = this.parse(ServiceExecute)
 
-    const runnerHash = await runnerResolver(this.api, args.RUNNER_HASH)
+    const runnerHash = base58.encode(await runnerResolver(this.api, args.RUNNER_HASH))
 
-    const runner = await this.api.runner.get({
-      hash: runnerHash
-    })
+    const runner = await this.lcd.runner.get(runnerHash)
     if (!runner.instanceHash) { throw new Error('invalid runner hash') }
 
-    const instance = await this.api.instance.get({
-      hash: runner.instanceHash
-    })
+    const instance = await this.lcd.instance.get(runner.instanceHash)
     if (!instance.serviceHash) { throw new Error('invalid instance') }
 
-    const service = await this.api.service.get({
-      hash: instance.serviceHash
-    })
+    const service = await this.lcd.service.get(instance.serviceHash)
     if (!service.hash) { throw new Error('invalid service') }
 
     const task = service.tasks.find(x => x.key === args.TASK)
     if (!task) {
-      throw new Error(`The task ${args.TASK} does not exist in service '${base58.encode(service.hash)}'`)
+      throw new Error(`The task ${args.TASK} does not exist in service '${service.hash}'`)
     }
 
     const result = await this.execute({
       inputs: this.convertValue(task.inputs, this.dataFromFlags(flags)),
-      executorHash: runnerHash,
+      executorHash: base58.decode(runnerHash),
       tags: ['CLI'],
       taskKey: args.TASK,
       eventHash: base58.decode(flags.eventHash || '6aUPZhmnFKiSsHXRaddbnqsKKi9KogbQNiKUcpivaohb'), // TODO: to improve
