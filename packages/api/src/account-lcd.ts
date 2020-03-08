@@ -1,3 +1,4 @@
+import { ICoin } from './transaction'
 import LCDClient from './util/lcd'
 import { validateMnemonic, mnemonicToSeedSync } from 'bip39'
 import { fromSeed, BIP32Interface } from 'bip32'
@@ -8,7 +9,7 @@ export const defaultHDPath = "m/44'/470'/0'/0/0"
 
 export type IAccount = {
   address: string
-  coins: any[]
+  coins: ICoin[]
   public_key: string
   account_number: number
   sequence: number
