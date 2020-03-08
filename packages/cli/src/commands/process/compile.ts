@@ -76,7 +76,7 @@ export default class ProcessCompile extends Command {
     if (!exists) {
       const resp = await this.api.service.create(definition)
       if (!resp.hash) throw new Error('invalid hash')
-      if (resp.hash.toString() !== hash.toString()) throw new Error('invalid hash')
+      if (base58.encode(resp.hash) !== hash) throw new Error('invalid hash')
     }
     return this.serviceToInstance(hash, env)
   }
@@ -84,10 +84,9 @@ export default class ProcessCompile extends Command {
   async serviceToInstance(sidOrHash: string, env: string[]): Promise<hash> {
     const services = await this.lcd.service.list()
     if (!services) throw new Error('no services deployed, please deploy your service first')
-    const sidOrHashStr = sidOrHash.toString()
-    const match = services.filter(x => x.hash && x.hash === sidOrHashStr || x.sid && x.sid === sidOrHashStr)
-    if (!match || match.length === 0) throw new Error(`cannot find any service with the following: ${sidOrHashStr}`)
-    if (match.length > 1) throw new Error(`multiple services match the following sid: ${sidOrHashStr}, provide a service's hash instead`)
+    const match = services.filter(x => x.hash && x.hash === sidOrHash || x.sid && x.sid === sidOrHash)
+    if (!match || match.length === 0) throw new Error(`cannot find any service with the following: ${sidOrHash}`)
+    if (match.length > 1) throw new Error(`multiple services match the following sid: ${sidOrHash}, provide a service's hash instead`)
     const service = match[0]
     if (!service.hash) throw new Error('invalid service')
 

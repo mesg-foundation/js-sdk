@@ -65,7 +65,7 @@ export default class ServiceDev extends Command {
     if (!exists) {
       const service = await this.api.service.create(definition)
       if (!service.hash) throw new Error('invalid hash')
-      if (service.hash.toString() !== hash.toString()) throw new Error('invalid hash')
+      if (base58.encode(service.hash) !== hash) throw new Error('invalid hash')
     }
     return hash
   }
