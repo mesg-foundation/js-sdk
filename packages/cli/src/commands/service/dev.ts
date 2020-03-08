@@ -48,7 +48,18 @@ export default class ServiceDev extends Command {
   }
 
   async createService(definition: IService): Promise<string> {
-    const hash = await this.lcd.service.hash(definition)
+    const hash = await this.lcd.service.hash({
+      configuration: definition.configuration,
+      dependencies: definition.dependencies,
+      description: definition.description,
+      events: definition.events,
+      hash: base58.encode(definition.hash),
+      name: definition.name,
+      repository: definition.repository,
+      sid: definition.sid,
+      source: definition.source,
+      tasks: definition.tasks
+    })
     if (!hash) throw new Error('invalid hash')
     const exists = await this.lcd.service.exists(hash)
     if (!exists) {
