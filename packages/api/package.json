@@ -42,6 +42,7 @@
     "@grpc/proto-loader": "^0.5.3",
     "base-x": "^3.0.7",
     "grpc": "^1.24.2",
+    "node-fetch": "^2.6.0",
     "protobufjs": "^6.8.8"
   }
 }
