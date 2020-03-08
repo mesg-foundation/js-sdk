@@ -1,4 +1,6 @@
 import {flags} from '@oclif/command'
+import {IService} from '@mesg/api/lib/service'
+import * as base58 from '@mesg/api/lib/util/base58'
 import {process as compileProcess} from '@mesg/compiler'
 import {existsSync, readFileSync} from 'fs'
 import {hash} from '@mesg/api/lib/types'
@@ -28,7 +30,7 @@ export default class ProcessCompile extends Command {
 
   async run(): Promise<any> {
     const {args, flags} = this.parse(ProcessCompile)
-    const definition = await compileProcess(readFileSync(args.PROCESS_FILE), async (instanceObject: any) => {
+    const definition = await compileProcess(readFileSync(args.PROCESS_FILE), async (instanceObject: any): Promise<hash> => {
       if (instanceObject.instanceHash) {
         return instanceObject.instanceHash
       }
@@ -57,10 +59,20 @@ export default class ProcessCompile extends Command {
 
   async sourceToInstance(dir: string, src: string, env: string[], flags: any): Promise<hash> {
     const directory = join(dirname(dir), src)
-    const definition = await ServiceCompile.run([existsSync(directory) ? directory : src, '--silent', ...this.flagsAsArgs(flags)])
-    const {hash} = await this.api.service.hash(definition)
+    const definition = (await ServiceCompile.run([existsSync(directory) ? directory : src, '--silent', ...this.flagsAsArgs(flags)])) as IService
+    const hash = await this.lcd.service.hash({
+      configuration: definition.configuration,
+      dependencies: definition.dependencies,
+      description: definition.description,
+      events: definition.events,
+      name: definition.name,
+      repository: definition.repository,
+      sid: definition.sid,
+      source: definition.source,
+      tasks: definition.tasks,
+    })
     if (!hash) throw new Error('invalid hash')
-    const {exists} = await this.api.service.exists({hash})
+    const exists = await this.lcd.service.exists(hash)
     if (!exists) {
       const resp = await this.api.service.create(definition)
       if (!resp.hash) throw new Error('invalid hash')
@@ -69,21 +81,21 @@ export default class ProcessCompile extends Command {
     return this.serviceToInstance(hash, env)
   }
 
-  async serviceToInstance(sidOrHash: hash | string, env: string[]): Promise<hash> {
-    const {services} = await this.api.service.list({})
+  async serviceToInstance(sidOrHash: string, env: string[]): Promise<hash> {
+    const services = await this.lcd.service.list()
     if (!services) throw new Error('no services deployed, please deploy your service first')
     const sidOrHashStr = sidOrHash.toString()
-    const match = services.filter(x => x.hash && x.hash.toString() === sidOrHashStr || x.sid && x.sid.toString() === sidOrHashStr)
+    const match = services.filter(x => x.hash && x.hash === sidOrHashStr || x.sid && x.sid === sidOrHashStr)
     if (!match || match.length === 0) throw new Error(`cannot find any service with the following: ${sidOrHashStr}`)
     if (match.length > 1) throw new Error(`multiple services match the following sid: ${sidOrHashStr}, provide a service's hash instead`)
     const service = match[0]
     if (!service.hash) throw new Error('invalid service')
-    
+
     // get runner
     var runnerHash: hash
     try {
       const {hash} = await this.api.runner.create({
-        serviceHash: service.hash,
+        serviceHash: base58.decode(service.hash),
         env,
       })
       if (!hash) throw new Error('invalid runner created hash')
@@ -93,7 +105,7 @@ export default class ProcessCompile extends Command {
       runnerHash = new IsAlreadyExistsError(e).hash
     }
     if (!runnerHash) throw new Error('invalid runner hash')
-    const runner = await this.api.runner.get({hash: runnerHash})
-    return runner.instanceHash
+    const runner = await this.lcd.runner.get(base58.encode(runnerHash))
+    return base58.decode(runner.instanceHash)
   }
 }
