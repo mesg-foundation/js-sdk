@@ -1,5 +1,6 @@
 import * as ServiceType from './typedef/service'
 import LCDClient from './util/lcd'
+import { IMsg } from './transaction'
 
 export type IService = {
   hash?: string;
@@ -14,7 +15,22 @@ export type IService = {
   source?: string | null;
 }
 
+export type IMsgCreate = {
+  owner: string,
+  request: IService
+}
+
 export default class ServiceLCD extends LCDClient {
+
+  createMsg(owner: string, service: IService): IMsg<IMsgCreate> {
+    return {
+      type: 'service/CreateService',
+      value: {
+        owner,
+        request: service
+      }
+    }
+  }
 
   async get(hash: string): Promise<IService> {
     return (await this.query(`/service/get/${hash}`)).result
