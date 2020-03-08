@@ -63,8 +63,8 @@ export default class ServiceLogs extends Command {
   async run() {
     const {args, flags} = this.parse(ServiceLogs)
 
-    const runnerHash = await runnerResolver(this.api, args.RUNNER_HASH)
-    const runner = await this.api.runner.get({hash: runnerHash})
+    const runnerHash = base58.encode(await runnerResolver(this.api, args.RUNNER_HASH))
+    const runner = await this.lcd.runner.get(runnerHash)
     if (!runner.hash) {
       throw new Error('runner is invalid')
     }
@@ -73,7 +73,7 @@ export default class ServiceLogs extends Command {
 
     const dockerServices = await this.docker.service.list({
       filters: {
-        label: [`mesg.runner=${base58.encode(runnerHash)}`]
+        label: [`mesg.runner=${runnerHash}`]
       }
     })
     for (const service of dockerServices) {
@@ -94,7 +94,7 @@ export default class ServiceLogs extends Command {
     if (flags.results) {
       const results = this.api.execution.stream({
         filter: {
-          executorHash: runnerHash,
+          executorHash: base58.decode(runnerHash),
           statuses: [
             ExecutionStatus.COMPLETED,
             ExecutionStatus.FAILED,
@@ -111,7 +111,7 @@ export default class ServiceLogs extends Command {
     if (flags.events) {
       const events = this.api.event.stream({
         filter: {
-          instanceHash: runner.instanceHash,
+          instanceHash: base58.decode(runner.instanceHash),
           key: flags.event,
         }
       })
