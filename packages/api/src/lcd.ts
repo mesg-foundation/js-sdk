@@ -1,9 +1,13 @@
-import ServiceLCD from './service-lcd'
+import Service from './service-lcd'
+import Instance from './instance-lcd'
 
 class API {
-  service: ServiceLCD
+  service: Service
+  instance: Instance
+  
   constructor(endpoint: string = "http://localhost:1317") {
-    this.service = new ServiceLCD(endpoint)
+    this.service = new Service(endpoint)
+    this.instance = new Instance(endpoint)
   }
 }
 
