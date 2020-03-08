@@ -1,6 +1,5 @@
 import cli from 'cli-ux'
-import {IProcess} from '@mesg/api/lib/process'
-import * as base58 from '@mesg/api/lib/util/base58'
+import {IProcess} from '@mesg/api/lib/process-lcd'
 
 import Command from '../../root-command'
 
@@ -14,11 +13,11 @@ export default class ProcessList extends Command {
 
   async run(): Promise<IProcess[]> {
     const {flags} = this.parse(ProcessList)
-    const {processes} = await this.api.process.list({})
-    cli.table(processes || [], {
-      hash: {header: 'HASH', get: x => x.hash ? base58.encode(x.hash) : ''},
-      name: {header: 'NAME', get: x => x.name},
+    const processes = await this.lcd.process.list()
+    cli.table(processes, {
+      hash: {header: 'HASH'},
+      name: {header: 'NAME'},
     }, {printLine: this.log, ...flags})
-    return processes || []
+    return processes
   }
 }
