@@ -3,6 +3,9 @@
 ## [Unreleased](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fapplication%40X.X.X)
 
 #### Breaking Changes
+
+- [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Resolver now returns string version of the runner/service hash (instead of a buffer) + migration to use the lcd server
+
 #### Improvements
 #### Bug fixes
 

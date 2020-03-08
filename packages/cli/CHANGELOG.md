@@ -4,6 +4,10 @@
 
 #### Breaking Changes
 #### Improvements
+
+- [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Add new flag `lcd-port` to all command to configure the port of the LCD server.
+- [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Use LCD server for all reading (`process:compile`, `process:detail`, `process:list`, `process:logs`, `service:detail`, `service:dev`, `service:execute`, `service:list`, `service:logs`, `service:start`, `service:stop`)
+
 #### Bug fixes
 
 ## [v0.3.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%400.3.0)
