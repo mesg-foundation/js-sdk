@@ -63,7 +63,7 @@ export default class ServiceLogs extends Command {
   async run() {
     const {args, flags} = this.parse(ServiceLogs)
 
-    const runnerHash = base58.encode(await runnerResolver(this.api, args.RUNNER_HASH))
+    const runnerHash = await runnerResolver(this.lcd, args.RUNNER_HASH)
     const runner = await this.lcd.runner.get(runnerHash)
     if (!runner.hash) {
       throw new Error('runner is invalid')

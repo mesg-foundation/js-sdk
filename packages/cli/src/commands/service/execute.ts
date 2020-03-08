@@ -36,7 +36,7 @@ export default class ServiceExecute extends Command {
   async run(): ExecutionCreateOutputs {
     const {args, flags} = this.parse(ServiceExecute)
 
-    const runnerHash = base58.encode(await runnerResolver(this.api, args.RUNNER_HASH))
+    const runnerHash = await runnerResolver(this.lcd, args.RUNNER_HASH)
 
     const runner = await this.lcd.runner.get(runnerHash)
     if (!runner.instanceHash) { throw new Error('invalid runner hash') }
