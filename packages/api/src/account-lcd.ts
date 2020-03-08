@@ -1,5 +1,9 @@
-import { ICoin } from './transaction'
 import LCDClient from './util/lcd'
+
+export type ICoin = {
+  denom: 'atto',
+  amount: string
+}
 
 export type IAccount = {
   address: string
