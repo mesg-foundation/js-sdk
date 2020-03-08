@@ -1,9 +1,8 @@
-import {IService} from '@mesg/api/lib/service'
-import {hash} from '@mesg/api/lib/types'
+import { IService } from '@mesg/api/lib/service'
 import * as base58 from '@mesg/api/lib/util/base58'
 
 import Command from '../../root-command'
-import {IsAlreadyExistsError} from '../../utils/error'
+import { IsAlreadyExistsError } from '../../utils/error'
 
 import ServiceCompile from './compile'
 import ServiceCreate from './create'
@@ -29,7 +28,7 @@ export default class ServiceDev extends Command {
   runnerCreated = false
 
   async run() {
-    const {args, flags} = this.parse(ServiceDev)
+    const { args, flags } = this.parse(ServiceDev)
 
     this.spinner.start('Starting service')
     this.spinner.status = 'compiling'
@@ -39,19 +38,19 @@ export default class ServiceDev extends Command {
     this.spinner.status = 'starting'
     const runnerHash = await this.startService(serviceHash, flags.env)
     this.spinner.status = 'fetching logs'
-    const stream = await ServiceLog.run([base58.encode(runnerHash), ...this.flagsAsArgs(flags)])
-    this.spinner.stop(base58.encode(runnerHash))
+    const stream = await ServiceLog.run([runnerHash, ...this.flagsAsArgs(flags)])
+    this.spinner.stop(runnerHash)
 
     process.once('SIGINT', async () => {
       stream.destroy()
-      if (this.runnerCreated) await ServiceStop.run([base58.encode(runnerHash), ...this.flagsAsArgs(flags)])
+      if (this.runnerCreated) await ServiceStop.run([runnerHash, ...this.flagsAsArgs(flags)])
     })
   }
 
-  async createService(definition: IService): Promise<hash> {
-    const {hash} = await this.api.service.hash(definition)
+  async createService(definition: IService): Promise<string> {
+    const hash = await this.lcd.service.hash(definition)
     if (!hash) throw new Error('invalid hash')
-    const {exists} = await this.api.service.exists({hash})
+    const exists = await this.lcd.service.exists(hash)
     if (!exists) {
       const service = await this.api.service.create(definition)
       if (!service.hash) throw new Error('invalid hash')
@@ -60,19 +59,19 @@ export default class ServiceDev extends Command {
     return hash
   }
 
-  async startService(serviceHash: hash, env: string[]): Promise<hash> {
+  async startService(serviceHash: string, env: string[]): Promise<string> {
     try {
-      const {hash} = await this.api.runner.create({
-        serviceHash,
+      const { hash } = await this.api.runner.create({
+        serviceHash: base58.decode(serviceHash),
         env
       })
       if (!hash) throw new Error('invalid hash')
       this.runnerCreated = true
-      return hash
+      return base58.encode(hash)
     } catch (e) {
       if (!IsAlreadyExistsError.match(e)) throw e
       this.warn('service already started')
-      return new IsAlreadyExistsError(e).hash
+      return base58.encode(new IsAlreadyExistsError(e).hash)
     }
   }
 }
