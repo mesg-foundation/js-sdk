@@ -16,14 +16,17 @@ export type IService = {
 
 export default class ServiceLCD extends LCDClient {
 
-  // async get(hash: hash): Promise<IServiceLCD> {
-  // }
+  async get(hash: string): Promise<IService> {
+    return (await this.query(`/service/get/${hash}`)).result
+  }
 
-  // async exists(hash: hash): Promise<boolean> {
-  // }
+  async exists(hash: string): Promise<boolean> {
+    return (await this.query(`/service/exist/${hash}`)).result
+  }
 
-  // async hash(request: ServiceHashInputs): Promise<hash> {
-  // }
+  async hash(request: IService): Promise<string> {
+    return (await this.query(`/service/hash`, request, 'POST')).result
+  }
 
   async list(): Promise<IService[]> {
     return (await this.query('/service/list')).result || []
