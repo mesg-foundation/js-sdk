@@ -16,16 +16,51 @@ export type ITask = {
   taskKey: string;
 }
 
+export type IMap = any
+export type IFilter = any
+
+export type IResultType = {
+  type: 'mesg.types.Process_Node_Result_';
+  value: {
+    result: IResult;
+  }
+}
+
+export type IEventType = {
+  type: 'mesg.types.Process_Node_Event_';
+  value: {
+    event: IEvent;
+  }
+}
+
+export type ITaskType = {
+  type: 'mesg.types.Process_Node_Task_';
+  value: {
+    task: ITask;
+  }
+}
+
+export type IMapType = {
+  type: 'mesg.types.Process_Node_Map_';
+  value: {
+    map: IMap;
+  }
+}
+
+export type IFilterType = {
+  type: 'mesg.types.Process_Node_Filter_';
+  value: {
+    filter: IFilter;
+  }
+}
+
 export type INode = {
   key: string;
-  result?: IResult | null;
-  event?: IEvent | null;
-  task?: ITask | null;
-  map?: ProcessType.mesg.types.Process.Node.IMap | null;
-  filter?: ProcessType.mesg.types.Process.Node.IFilter | null;
+  Type: IEventType | IResultType | ITaskType | IMapType | IFilterType;
 }
 
 export type IProcess = {
+  hash?: string;
   name: string;
   nodes: INode[];
   edges: ProcessType.mesg.types.Process.IEdge[];
