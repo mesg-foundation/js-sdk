@@ -3,7 +3,8 @@ import Instance from './instance-lcd'
 import Runner from './runner-lcd'
 import Process from './process-lcd'
 import Execution from './execution-lcd'
-import Ownership from './ownership'
+import Ownership from './ownership-lcd'
+import Account from './account-lcd'
 
 class API {
   service: Service
@@ -12,6 +13,7 @@ class API {
   process: Process
   execution: Execution
   ownership: Ownership
+  account: Account
 
   constructor(endpoint: string = "http://localhost:1317") {
     this.service = new Service(endpoint)
@@ -20,6 +22,7 @@ class API {
     this.process = new Process(endpoint)
     this.execution = new Execution(endpoint)
     this.ownership = new Ownership(endpoint)
+    this.account = new Account(endpoint)
   }
 }
 
