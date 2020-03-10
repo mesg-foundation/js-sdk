@@ -8,6 +8,7 @@
     "access": "public"
   },
   "scripts": {
+    "pretest": "rm -rf src/test.json",
     "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
     "build": "npm run clean && npm run compile",
     "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo",

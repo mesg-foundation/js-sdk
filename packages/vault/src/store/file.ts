@@ -8,14 +8,18 @@ export default class File implements Store {
     this._path = path
   }
 
-  setItem(key: string, value: string): void {
+  set(key: string, value: string): void {
     const data = this.loadStore()
     data[key] = value
     writeFileSync(this._path, JSON.stringify(data))
   }
 
-  getItem(key: string): string {
+  get(key: string): string {
     return this.loadStore()[key]
+  }
+
+  keys(): string[] {
+    return Object.keys(this.loadStore())
   }
 
   private loadStore(): any {
