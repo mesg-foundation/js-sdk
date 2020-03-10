@@ -4,8 +4,8 @@ import Runner from './runner-lcd'
 import Process from './process-lcd'
 import Execution from './execution-lcd'
 import Ownership from './ownership'
-import Account from './account-lcd'
-import Transaction, { IStdTx } from './transaction'
+import Account, { IAccount } from './account-lcd'
+import Transaction, { IMsg, IFee } from './transaction'
 import LCDClient from './util/lcd'
 
 type Event = {
@@ -54,8 +54,25 @@ class API extends LCDClient {
     this.account = new Account(endpoint)
   }
 
-  createTransaction(stdTx: IStdTx) {
-    return new Transaction(stdTx)
+  async createTransaction(
+    msgs: IMsg<any>[],
+    account: IAccount,
+    opts: { fee?: IFee, chain_id?: string, account_number?: number, sequence?: number, memo?: string } = {}) {
+    return new Transaction({
+      account_number: opts.account_number
+        ? opts.account_number.toString()
+        : account.account_number.toString(),
+      chain_id: opts.chain_id || (await this.getRequest(`/node_info`)).node_info.network,
+      fee: opts.fee || {
+        amount: [{ denom: 'atto', amount: '200000' }],
+        gas: '200000'
+      },
+      memo: opts.memo || '',
+      msgs: msgs,
+      sequence: opts.sequence
+        ? opts.sequence.toString()
+        : account.sequence.toString()
+    })
   }
 
   async broadcast(tx: Transaction, mode: 'block' | 'sync' | 'async' = 'block'): Promise<TxResult> {
