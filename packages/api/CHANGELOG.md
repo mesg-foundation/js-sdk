@@ -7,6 +7,7 @@
 
 - [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Add LCD API for all reading (execution, instance, ownership, process, runner, service)
 - [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Migrate resolver to use LCD server
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Possibility to import an account based on a mnemonic
 
 #### Bug fixes
 
