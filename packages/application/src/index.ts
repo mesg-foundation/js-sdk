@@ -5,11 +5,13 @@ import { checkStreamReady, errNoStatus, Stream } from '@mesg/api/lib/util/grpc'
 import API from '@mesg/api';
 import { IApi } from '@mesg/api/lib/types';
 import { resolveSID, resolveSIDRunner } from '@mesg/api/lib/util/resolve'
-import { hash, ExecutionStatus } from '@mesg/api/lib/types';
+import { ExecutionStatus } from '@mesg/api/lib/types';
 import { EventStreamInputs, IEvent } from '@mesg/api/lib/event';
 import { ExecutionStreamInputs, IExecution, ExecutionCreateInputs, ExecutionCreateOutputs } from '@mesg/api/lib/execution';
+import LCD from '@mesg/api/lib/lcd';
 
 const defaultEndpoint = 'localhost:50052'
+const defaultLCDEndpoint = 'http://localhost:1317'
 
 type Options = {
   api?: IApi
@@ -18,9 +20,12 @@ type Options = {
 class Application {
   // api gives access to low level gRPC calls.
   private api: IApi
+  // api gives access to lcd api.
+  private lcd: LCD
 
-  constructor(_api?: IApi) {
+  constructor(_api?: IApi, _lcd?: LCD) {
     this.api = _api || new API(defaultEndpoint);
+    this.lcd = _lcd || new LCD(defaultLCDEndpoint);
   }
 
   decodeData(data: mesg.protobuf.IStruct) {
@@ -31,12 +36,12 @@ class Application {
     return encode(data)
   }
 
-  async resolve(sid: string): Promise<hash> {
-    return resolveSID(this.api, sid)
+  async resolve(sid: string): Promise<string> {
+    return resolveSID(this.lcd, sid)
   }
 
-  async resolveRunner(sid: string): Promise<hash> {
-    return resolveSIDRunner(this.api, sid)
+  async resolveRunner(sid: string): Promise<string> {
+    return resolveSIDRunner(this.lcd, sid)
   }
 
   listenEvent(request: EventStreamInputs): Stream<IEvent> {

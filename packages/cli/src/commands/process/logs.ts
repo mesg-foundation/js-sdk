@@ -1,6 +1,6 @@
 import {flags} from '@oclif/command'
 import chalk from 'chalk'
-import { IService } from '@mesg/api/lib/service'
+import { IService } from '@mesg/api/lib/service-lcd'
 import { ExecutionStatus } from '@mesg/api/lib/types'
 import { IExecution } from '@mesg/api/lib/execution'
 import * as b58 from '@mesg/api/lib/util/base58'
@@ -15,7 +15,7 @@ export default class ProcessLogs extends Command {
   static flags = {
     ...Command.flags,
     tail: flags.integer({
-      description:  'Display the last N lines',
+      description: 'Display the last N lines',
       default: 10000
     }),
     follow: flags.boolean({
@@ -35,25 +35,25 @@ export default class ProcessLogs extends Command {
   async run() {
     const {args, flags} = this.parse(ProcessLogs)
 
-    const process = await this.api.process.get({
-      hash: b58.decode(args.PROCESS_HASH)
-    })
+    const process = await this.lcd.process.get(args.PROCESS_HASH)
     if (!process.hash) {
       throw new Error('invalid process hash')
     }
     if (process.nodes) {
       const instanceHashes = process.nodes
-        .map(({event, result, task}) => {
-          if (event) return event.instanceHash
-          if (result) return result.instanceHash
-          if (task) return task.instanceHash
+        .map(node => {
+          switch(node.Type.type) {
+            case "mesg.types.Process_Node_Event_": return node.Type.value.event.instanceHash
+            case "mesg.types.Process_Node_Result_": return node.Type.value.result.instanceHash
+            case "mesg.types.Process_Node_Task_": return node.Type.value.task.instanceHash
+          }
         })
         .filter(x => x && x.length > 0)
       for (const hash of instanceHashes) {
         if (!hash) continue
-        const instance = await this.api.instance.get({hash})
-        const service = await this.api.service.get({hash: instance.serviceHash})
-        this.services[b58.encode(hash)] = service
+        const instance = await this.lcd.instance.get(hash)
+        const service = await this.lcd.service.get(instance.serviceHash)
+        this.services[hash] = service
       }
     }
 
@@ -87,10 +87,10 @@ export default class ProcessLogs extends Command {
     }
   }
 
-  handlerResult(processHash: Uint8Array) {
+  handlerResult(processHash: string) {
     return (execution: IExecution) => {
       if (!execution.processHash) return
-      if (b58.encode(execution.processHash) !== b58.encode(processHash)) return
+      if (b58.encode(execution.processHash) !== processHash) return
       this.log(this.formatResult(execution))
     }
   }

@@ -4,6 +4,10 @@
 
 #### Breaking Changes
 #### Improvements
+
+- [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Add LCD API for all reading (execution, instance, ownership, process, runner, service)
+- [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Migrate resolver to use LCD server
+
 #### Bug fixes
 
 ## [v0.2.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fapi%400.2.0)

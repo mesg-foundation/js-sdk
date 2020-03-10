@@ -1,4 +1,5 @@
-import {ServiceGetOutputs} from '@mesg/api/lib/service'
+import {IService} from '@mesg/api/lib/service-lcd'
+import {encode} from '@mesg/api/lib/util/base58'
 
 import Command from '../../root-command'
 import {serviceResolver} from '../../utils/resolver'
@@ -15,10 +16,10 @@ export default class ServiceDetail extends Command {
     required: true
   }]
 
-  async run(): ServiceGetOutputs {
+  async run(): Promise<IService> {
     const {args} = this.parse(ServiceDetail)
     const hash = await serviceResolver(this.api, args.SERVICE_HASH)
-    const response = await this.api.service.get({hash})
+    const response = await this.lcd.service.get(encode(hash))
     this.styledJSON(response)
     return response
   }

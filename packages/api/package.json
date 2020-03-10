@@ -30,6 +30,7 @@
   "devDependencies": {
     "@types/long": "^4.0.0",
     "@types/node": "^12.12.6",
+    "@types/node-fetch": "^2.5.5",
     "@types/sinon": "^7.5.0",
     "@types/tape": "^4.2.33",
     "ncp": "^2.0.0",
@@ -42,6 +43,7 @@
     "@grpc/proto-loader": "^0.5.3",
     "base-x": "^3.0.7",
     "grpc": "^1.24.2",
+    "node-fetch": "^2.6.0",
     "protobufjs": "^6.8.8"
   }
 }

@@ -1,4 +1,5 @@
 import {flags} from '@oclif/command'
+import * as base58 from '@mesg/api/lib/util/base58'
 import cli from 'cli-ux'
 
 import Command from '../../root-command'
@@ -34,7 +35,7 @@ export default class ServiceStop extends Command {
     }
     this.spinner.start('Stop running services')
     for (const hash of argv) {
-      const runnerHash = await runnerResolver(this.api, hash)
+      const runnerHash = base58.decode(await runnerResolver(this.lcd, hash))
       await this.api.runner.delete({hash: runnerHash, deleteData: flags['delete-data']})
     }
     this.spinner.stop(argv.join(', '))

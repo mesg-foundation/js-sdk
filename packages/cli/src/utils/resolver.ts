@@ -1,4 +1,5 @@
 import {hash, IApi} from '@mesg/api/lib/types'
+import LCD from '@mesg/api/lib/lcd'
 import * as base58 from '@mesg/api/lib/util/base58'
 import {resolveSID, resolveSIDRunner} from '@mesg/api/lib/util/resolve'
 
@@ -21,38 +22,20 @@ export const serviceResolver = async (api: IApi, sidOrHash: hash | string): Prom
   }
 }
 
-export const instanceResolver = async (api: IApi, sidOrHash: hash | string): Promise<hash> => {
+export const instanceResolver = async (api: LCD, sidOrHash: string): Promise<string> => {
   try {
-    let hash: hash
-    if (sidOrHash instanceof Uint8Array) {
-      hash = sidOrHash
-    } else {
-      hash = base58.decode(sidOrHash)
-    }
-    await api.instance.get({hash})
-    return hash
+    await api.instance.get(sidOrHash)
+    return sidOrHash
   } catch (err) {
-    if (typeof sidOrHash === 'string') {
-      return resolveSID(api, sidOrHash)
-    }
-    throw err
+    return resolveSID(api, sidOrHash)
   }
 }
 
-export const runnerResolver = async (api: IApi, sidOrHash: hash | string): Promise<hash> => {
+export const runnerResolver = async (api: LCD, sidOrHash: string): Promise<string> => {
   try {
-    let hash: hash
-    if (sidOrHash instanceof Uint8Array) {
-      hash = sidOrHash
-    } else {
-      hash = base58.decode(sidOrHash)
-    }
-    await api.runner.get({hash})
-    return hash
+    await api.runner.get(sidOrHash)
+    return sidOrHash
   } catch (err) {
-    if (typeof sidOrHash === 'string') {
-      return resolveSIDRunner(api, sidOrHash)
-    }
-    throw err
+    return resolveSIDRunner(api, sidOrHash)
   }
 }

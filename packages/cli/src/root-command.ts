@@ -3,6 +3,7 @@ import {IConfig} from '@oclif/config'
 import {cli} from 'cli-ux'
 import Application from '@mesg/application'
 import API from '@mesg/api'
+import LCD from '@mesg/api/lib/lcd'
 import {hash} from '@mesg/api/lib/types'
 import * as base58 from '@mesg/api/lib/util/base58'
 import {format, inspect} from 'util'
@@ -13,10 +14,12 @@ export default abstract class extends Command {
     quiet: flags.boolean({char: 'q', description: 'Display only essential information'}),
     silent: flags.boolean({hidden: true}),
     port: flags.integer({char: 'p', default: 50052, description: 'Port to access the MESG engine'}),
+    "lcd-port": flags.integer({default: 1317, description: 'Port to access the MESG engine LCD Api'}),
     host: flags.string({default: 'localhost', description: 'Host to access the MESG engine'})
   }
 
   public api: API
+  public lcd: LCD
   private readonly _app: Application
 
   constructor(argv: string[], config: IConfig) {
@@ -26,8 +29,8 @@ export default abstract class extends Command {
     const host = process.env.DOCKER_HOST
       ? new URL(process.env.DOCKER_HOST).hostname
       : flags.host
-    const endpoint = `${host}:${port}`
-    this.api = new API(endpoint)
+    this.api = new API(`${host}:${flags.port}`)
+    this.lcd = new LCD(`http://${host}:${flags['lcd-port']}`)
     this._app = new Application(this.api)
   }
 
