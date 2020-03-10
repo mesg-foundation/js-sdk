@@ -53,7 +53,6 @@ export default class ServiceDev extends Command {
       dependencies: definition.dependencies,
       description: definition.description,
       events: definition.events,
-      hash: base58.encode(definition.hash),
       name: definition.name,
       repository: definition.repository,
       sid: definition.sid,

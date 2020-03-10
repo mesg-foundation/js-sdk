@@ -31,6 +31,6 @@ export default class Execution extends LCDClient {
   }
 
   async list(): Promise<IExecution[]> {
-    return (await this.query(`/execution/list`)).result
+    return (await this.query(`/execution/list`)).result || []
   }
 }

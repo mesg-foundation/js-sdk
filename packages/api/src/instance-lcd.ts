@@ -13,6 +13,8 @@ export default class Instance extends LCDClient {
   }
 
   async list(filter?: { serviceHash?: string }): Promise<IInstance[]> {
-    return (await this.query(`/instance/list`, filter)).result
+    let instances: IInstance[] = (await this.query(`/instance/list`)).result || []
+    if (filter && filter.serviceHash) instances = instances.filter(x => x.serviceHash === filter.serviceHash)
+    return instances
   }
 }

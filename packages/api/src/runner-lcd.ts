@@ -12,6 +12,9 @@ export default class Runner extends LCDClient {
   }
 
   async list(filter?: { instanceHash?: string | null, address?: string | null }): Promise<IRunner[]> {
-    return (await this.query('/runner/list', filter)).result || []
+    let runners: IRunner[] = (await this.query('/runner/list')).result || []
+    if (filter && filter.instanceHash) runners = runners.filter(x => x.instanceHash === filter.instanceHash)
+    if (filter && filter.address) runners = runners.filter(x => x.address === filter.address)
+    return runners
   }
 }

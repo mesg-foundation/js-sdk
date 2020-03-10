@@ -17,6 +17,6 @@ export type IOwnership = {
 export default class Ownership extends LCDClient {
   
   async list(): Promise<IOwnership[]> {
-    return (await this.query(`/ownership/list`)).result
+    return (await this.query(`/ownership/list`)).result || []
   }
 }
