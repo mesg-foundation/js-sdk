@@ -15,7 +15,7 @@ class API {
   ownership: Ownership
   account: Account
 
-  constructor(endpoint: string) {
+  constructor(endpoint?: string) {
     this.service = new Service(endpoint)
     this.instance = new Instance(endpoint)
     this.runner = new Runner(endpoint)
