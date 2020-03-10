@@ -5,6 +5,6 @@
 #### Breaking Changes
 #### Improvements
 
-- [#](https://github.com/mesg-foundation/js-sdk/pull/) Add localstorage store and add `keys` function to the store
+- [#183](https://github.com/mesg-foundation/js-sdk/pull/183) Add localstorage store and add `keys` function to the store
 
 #### Bug fixes
