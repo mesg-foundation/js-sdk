@@ -1,3 +1,4 @@
+import cli from 'cli-ux'
 import Command from '../../root-command'
 
 export default class AccountList extends Command {
@@ -5,11 +6,15 @@ export default class AccountList extends Command {
 
   static flags = {
     ...Command.flags,
+    ...cli.table.flags()
   }
 
   async run(): Promise<string[]> {
-    const accounts = this.vault.keys()
-    this.styledJSON(accounts)
+    const { flags } = this.parse(AccountList)
+    const accounts = this.vault.keys().map(address => ({ address }))
+    cli.table(accounts, {
+      address: { header: 'ADDRESS' },
+    }, { printLine: this.log, ...flags })
     return accounts
   }
 }
