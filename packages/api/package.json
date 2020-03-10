@@ -15,7 +15,8 @@
     "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
     "build": "npm run clean && npm run compile",
     "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo",
-    "compile": "tsc -b tsconfig.json && ncp ./src/protobuf/ ./lib/protobuf/ && ncp ./src/gogo/ ./lib/gogo/ && ncp src/typedef lib/typedef"
+    "compile": "tsc -b tsconfig.json && ncp ./src/protobuf/ ./lib/protobuf/ && ncp ./src/gogo/ ./lib/gogo/ && ncp src/typedef lib/typedef",
+    "node": "ts-node"
   },
   "repository": {
     "type": "git",

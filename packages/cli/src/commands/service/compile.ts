@@ -2,6 +2,8 @@ import {readFileSync} from 'fs'
 import {IService} from '@mesg/api/lib/service'
 import {service as serviceCompiler} from '@mesg/compiler'
 import {join} from 'path'
+import {hashService} from '@mesg/api/lib/util/hash'
+import * as bs58 from '@mesg/api/lib/util/base58'
 
 import Command from '../../root-command'
 import deployer, {createTar} from '../../utils/deployer'
@@ -30,6 +32,9 @@ export default class ServiceCompile extends Command {
     const definition = await serviceCompiler(readFileSync(join(path, 'mesg.yml')))
     definition.source = await this.deploySources(path)
     this.styledJSON(definition)
+
+    console.log('service hash', bs58.encode(hashService(definition)))
+
     this.spinner.stop()
     return definition
   }

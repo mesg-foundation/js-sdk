@@ -6,6 +6,7 @@ import API from '@mesg/api'
 import {hash} from '@mesg/api/lib/types'
 import * as base58 from '@mesg/api/lib/util/base58'
 import {format, inspect} from 'util'
+import {hashExecution} from '@mesg/api/lib/util/hash'
 
 export default abstract class extends Command {
   static flags = {
@@ -90,6 +91,8 @@ export default abstract class extends Command {
       eventHash: request.eventHash,
     })
     if (exec.error) throw new Error(exec.error)
+    console.log('expected hashExecution', base58.encode(hashExecution(exec)))
+    console.log('received hashExecution', base58.encode(exec.hash))
     if (!exec.outputs) throw new Error('missing outputs')
     return this._app.decodeData(exec.outputs)
   }
