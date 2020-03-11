@@ -18,7 +18,7 @@ export default class AccountCreate extends Command {
       {
         name: 'password',
         type: 'password',
-        message: 'Type the password to store your address',
+        message: 'Type the password to encrypt your account',
       }
     ])
     const account = await this.lcd.account.import(mnemonic)

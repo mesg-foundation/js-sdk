@@ -18,7 +18,7 @@ export default class AccountExport extends Command {
     const { password } = await prompt({
       name: 'password',
       type: 'password',
-      message: 'Type the password to decrypt your address',
+      message: 'Type the password to decrypt your account',
     })
     const mnemonic = this.vault.get(args.ACCOUNT_ADDRESS, password)
     this.log(mnemonic)
