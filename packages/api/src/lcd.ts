@@ -64,8 +64,8 @@ class API extends LCDClient {
         : account.account_number.toString(),
       chain_id: opts.chain_id || (await this.getRequest(`/node_info`)).node_info.network,
       fee: opts.fee || {
-        amount: [{ denom: 'atto', amount: '200000' }],
-        gas: '200000'
+        amount: [{ denom: 'atto', amount: '300000' }],
+        gas: '300000'
       },
       memo: opts.memo || '',
       msgs: msgs,
