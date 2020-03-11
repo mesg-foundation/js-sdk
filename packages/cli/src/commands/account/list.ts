@@ -11,8 +11,8 @@ export default class AccountList extends Command {
 
   async run(): Promise<string[]> {
     const { flags } = this.parse(AccountList)
-    const accounts = this.vault.keys().map(address => ({ address }))
-    cli.table(accounts, {
+    const accounts = this.vault.keys()
+    cli.table(accounts.map(address => ({ address })), {
       address: { header: 'ADDRESS' },
     }, { printLine: this.log, ...flags })
     return accounts
