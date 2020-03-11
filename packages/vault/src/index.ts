@@ -12,19 +12,23 @@ export default class Vault {
     this._store = store
   }
 
+  keys(): string[] {
+    return this._store.keys()
+  }
+
   contains(key: string): boolean {
-    return !!this._store.getItem(key)
+    return this.keys().indexOf(key) >= 0
   }
 
   set(key: string, value: any, password: string): void {
     if (this.contains(key)) throw new Error(`${key} already present`)
     const ciphertext = this.encrypt(JSON.stringify(value), password)
-    this._store.setItem(key, ciphertext)
+    this._store.set(key, ciphertext)
   }
 
   get(key: string, password: string): any {
     if (!this.contains(key)) throw new Error(`${key} is not present`)
-    const transitMessage = this._store.getItem(key)
+    const transitMessage = this._store.get(key)
     try {
       const data = this.decrypt(transitMessage, password)
       return JSON.parse(data)

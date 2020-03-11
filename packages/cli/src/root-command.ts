@@ -3,10 +3,13 @@ import {IConfig} from '@oclif/config'
 import {cli} from 'cli-ux'
 import Application from '@mesg/application'
 import API from '@mesg/api'
+import Vault from '@mesg/vault'
+import FileStore from '@mesg/vault/lib/store/file'
 import LCD from '@mesg/api/lib/lcd'
 import {hash} from '@mesg/api/lib/types'
 import * as base58 from '@mesg/api/lib/util/base58'
 import {format, inspect} from 'util'
+import { mkdirSync } from 'fs'
 
 export default abstract class extends Command {
   static flags = {
@@ -18,8 +21,9 @@ export default abstract class extends Command {
     host: flags.string({default: 'localhost', description: 'Host to access the MESG engine'})
   }
 
-  public api: API
-  public lcd: LCD
+  protected api: API
+  protected lcd: LCD
+  protected vault: Vault 
   private readonly _app: Application
 
   constructor(argv: string[], config: IConfig) {
@@ -32,6 +36,8 @@ export default abstract class extends Command {
     this.api = new API(`${host}:${flags.port}`)
     this.lcd = new LCD(`http://${host}:${flags['lcd-port']}`)
     this._app = new Application(this.api)
+    mkdirSync(this.config.configDir, { recursive: true })
+    this.vault = new Vault(new FileStore(`${this.config.configDir}/addresses.json`))
   }
 
   get spinner() {

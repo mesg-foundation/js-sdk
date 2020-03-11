@@ -49,5 +49,6 @@ new Vault(new FileStore('./store.json'))
 
 This store is only available on browser and will persist on the localstorage of your browser.
 ```javascript
-new Vault(localstorage)
+const LocalStorageStore = require('@mesg/vault/lib/store/file')
+new Vault(new LocalStorageStore())
 ```
