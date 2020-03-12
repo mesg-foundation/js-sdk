@@ -32,7 +32,7 @@ export default class ServiceCreate extends Command {
     const service = JSON.parse(args.DEFINITION)
 
     const { account, mnemonic } = await this.getAccount(flags.account)
-
+    
     this.spinner.start('Create service')
     const tx = await this.lcd.createTransaction(
       [this.lcd.service.createMsg(account.address, service)],
