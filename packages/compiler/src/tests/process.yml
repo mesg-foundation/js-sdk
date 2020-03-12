@@ -6,8 +6,8 @@ steps:
     eventKey: eventX
   - type: filter
     conditions:
-      foo: bar
       hello: world
+      foo: bar
   - type: task
     key: task1
     instanceHash: $(env:INSTANCE_HASH)

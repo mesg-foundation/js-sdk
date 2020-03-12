@@ -1,91 +1,138 @@
-import * as ProcessType from '@mesg/api/lib/typedef/process'
-import {IProcess} from '@mesg/api/lib/process'
-import {hash} from '@mesg/api/lib/types'
+import {IProcess, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, FilterPredicate, IOutput, IRefPath} from '@mesg/api/lib/process-lcd'
 import decode from './decode'
 import {Process} from './schema/process'
 import validate from './validate'
 const schema = require('./schema/process.json')
 
-const compileInstance = async (def: any, opts: any): Promise<Uint8Array> => opts.instanceResolver
+const compileInstance = async (def: any, opts: any): Promise<string> => opts.instanceResolver
   ? await opts.instanceResolver(def)
   : def.instanceHash
 
-const compileResult = async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.IResult> => ({
-  instanceHash: await compileInstance(def, opts),
-  taskKey: def.taskKey
+const compileResult = async (def: any, opts: any): Promise<IResultType> => ({
+  type: "mesg.types.Process_Node_Result_",
+  value: {
+    result: {
+      instanceHash: await compileInstance(def, opts),
+      taskKey: def.taskKey
+    }
+  }
 })
 
-const compileEvent = async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.IEvent> => ({
-  instanceHash: await compileInstance(def, opts),
-  eventKey: def.eventKey
+const compileEvent = async (def: any, opts: any): Promise<IEventType> => ({
+  type: "mesg.types.Process_Node_Event_",
+  value: {
+    event: {
+      instanceHash: await compileInstance(def, opts),
+      eventKey: def.eventKey
+    }
+  }
 })
 
-const compileTask = async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.ITask> => ({
-  instanceHash: await compileInstance(def, opts),
-  taskKey: def.taskKey
+const compileTask = async (def: any, opts: any): Promise<ITaskType> => ({
+  type: "mesg.types.Process_Node_Task_",
+  value: {
+    task: {
+      instanceHash: await compileInstance(def, opts),
+      taskKey: def.taskKey
+    }
+  }
 })
 
 const extractPathsFromKey = (key: string): string[] => {
   return key.replace(/\[(\d)\]/g, val => `.${val}`).split('.')
 }
 
-const extractPathFromPaths = (paths: string[]): ProcessType.mesg.types.Process.Node.Map.Output.Reference.Path => {
+const extractPathFromPaths = (paths: string[]): IRefPath => {
   if (paths.length === 0) return null
   const [currentPath, ...nextPaths] = paths
   const indexRegex = /^\[(\d)\]$/
   if (indexRegex.test(currentPath)) {
+    const index = indexRegex.exec(currentPath)[1]
+    const value = index && index !== '0'
+      ? { index }
+      : {}
     return {
-      selector: "index",
-      key: null,
-      index: parseInt(indexRegex.exec(currentPath)[1], 10),
-      path: extractPathFromPaths(nextPaths)
+      path: extractPathFromPaths(nextPaths),
+      Selector: {
+        type: "mesg.types.Process_Node_Map_Output_Reference_Path_Index",
+        value
+      }
     }
   }
   return {
-    selector: "key",
-    index: null,
-    key: currentPath,
     path: extractPathFromPaths(nextPaths),
+    Selector: {
+      type: 'mesg.types.Process_Node_Map_Output_Reference_Path_Key',
+      value: {
+        key: currentPath
+      }
+    }
   }
 }
 
-const compileMapOutput = (def: any, opts: any): ProcessType.mesg.types.Process.Node.Map.IOutput => {
-  if (def === null) return { null: 0 /* ProcessType.mesg.types.Process.Node.Map.Output.Null.NULL_VALUE */ }
-  if (typeof def === 'number') return { doubleConst: def }
-  if (typeof def === 'boolean') return { boolConst: def }
-  if (typeof def === 'string') return { stringConst: def }
+const compileMapOutput = (def: any, opts: any): IOutput => {
+  if (def === null) return { Value: { type: "mesg.types.Process_Node_Map_Output_Null_", value: { } } }
+  if (typeof def === 'number') return { Value: { type: "mesg.types.Process_Node_Map_Output_DoubleConst", value: { double_const: def } } }
+  if (typeof def === 'boolean') return { Value: { type: 'mesg.types.Process_Node_Map_Output_BoolConst', value: { bool_const: def } } }
+  if (typeof def === 'string') return { Value: { type: 'mesg.types.Process_Node_Map_Output_StringConst', value: { string_const: def } } }
   if (typeof def === 'object' && !!def.key) return {
-    ref: {
-      path: extractPathFromPaths(extractPathsFromKey(def.key)),
-      nodeKey: def.stepKey || opts.defaultNodeKey
+    Value: {
+      type: 'mesg.types.Process_Node_Map_Output_Ref',
+      value: {
+        ref: {
+          path: extractPathFromPaths(extractPathsFromKey(def.key)),
+          nodeKey: def.stepKey || opts.defaultNodeKey
+        }
+      }
     }
   }
   if (Array.isArray(def)) return {
-    list: {
-      outputs: def.map(item => compileMapOutput(item, opts))
+    Value: {
+      type: 'mesg.types.Process_Node_Map_Output_List_',
+      value: {
+        list: {
+          outputs: def.map(item => compileMapOutput(item, opts))
+        }
+      }
     }
   }
   return {
-    map: {
-      outputs: Object.keys(def).reduce((prev, key) => ({
-        ...prev,
-        [key]: compileMapOutput(def[key], opts)
-      }), {})
+    Value: {
+      type: 'mesg.types.Process_Node_Map_Output_Map_',
+      value: {
+        map: Object.keys(def).map((key) => ({
+          Key: key,
+          Value: compileMapOutput(def[key], opts)
+        })).sort((a, b) => a.Key.localeCompare(b.Key))
+      }
     }
   }
 }
 
-const compileMap = async (def: any, opts: any): Promise<ProcessType.mesg.types.Process.Node.IMap> => {
+const compileMap = async (def: any, opts: any): Promise<IMapType> => {
   if (typeof def !== 'object' || Array.isArray(def)) throw new Error('Map output should be a map')
-  return compileMapOutput(def, opts).map
+  const outputs = compileMapOutput(def, opts)
+  if (outputs.Value.type !== 'mesg.types.Process_Node_Map_Output_Map_') throw new Error('Map output should be a map')
+  return {
+    type: 'mesg.types.Process_Node_Map_',
+    value: {
+      map: outputs.Value.value.map
+        .sort((a, b) => a.Key.localeCompare(b.Key))
+    }
+  }
 }
 
-const compileFilter = async (def: any): Promise<ProcessType.mesg.types.Process.Node.IFilter> => ({
-  conditions: Object.keys(def.conditions).map(key => ({
-    key,
-    predicate: 1, // EQ
-    value: def.conditions[key]
-  }))
+const compileFilter = async (def: any): Promise<IFilterType> => ({
+  type: 'mesg.types.Process_Node_Filter_',
+  value: {
+    filter: {
+      conditions: Object.keys(def.conditions).map(key => ({
+        key,
+        predicate: FilterPredicate.EQ,
+        value: def.conditions[key]
+      })).sort((a, b) => a.key.localeCompare(b.key))
+    }
+  }
 })
 
 const nodeCompiler = async (
@@ -94,9 +141,9 @@ const nodeCompiler = async (
   key: string,
   opts: {
     defaultNodeKey?: string | null,
-    instanceResolver?(object: any): Promise<hash>
+    instanceResolver?(object: any): Promise<string>
   }
-): Promise<ProcessType.mesg.types.Process.Node> => {
+): Promise<INode> => {
   const nodes = {
     result: compileResult,
     event: compileEvent,
@@ -104,16 +151,17 @@ const nodeCompiler = async (
     map: compileMap,
     filter: compileFilter
   }
+
   return {
     key,
-    [type]: await nodes[type](def, opts)
+    Type: await nodes[type](def, opts)
   }
 }
 
-export default async (content: Buffer, instanceResolver: (object: any) => Promise<hash>, envs: { [key: string]: string }): Promise<IProcess> => {
+export default async (content: Buffer, instanceResolver: (object: any) => Promise<string>, envs: { [key: string]: string }): Promise<IProcess> => {
   const definition = decode(content, envs) as Process
   validate(schema, definition)
-  
+
   let nodes = []
   let edges = []
 
