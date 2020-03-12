@@ -9,6 +9,7 @@ import {dirname, join} from 'path'
 import Command from '../../root-command'
 import {IsAlreadyExistsError} from '../../utils/error'
 import ServiceCompile from '../service/compile'
+import {IProcess} from '@mesg/api/lib/process-lcd'
 
 export default class ProcessCompile extends Command {
   static description = 'Compile a process'
@@ -28,9 +29,9 @@ export default class ProcessCompile extends Command {
     description: 'Path of a process file'
   }]
 
-  async run(): Promise<any> {
+  async run(): Promise<IProcess> {
     const {args, flags} = this.parse(ProcessCompile)
-    const definition = await compileProcess(readFileSync(args.PROCESS_FILE), async (instanceObject: any): Promise<hash> => {
+    const definition = await compileProcess(readFileSync(args.PROCESS_FILE), async (instanceObject: any): Promise<string> => {
       if (instanceObject.instanceHash) {
         return instanceObject.instanceHash
       }
@@ -57,7 +58,7 @@ export default class ProcessCompile extends Command {
     return definition
   }
 
-  async sourceToInstance(dir: string, src: string, env: string[], flags: any): Promise<hash> {
+  async sourceToInstance(dir: string, src: string, env: string[], flags: any): Promise<string> {
     const directory = join(dirname(dir), src)
     const definition = (await ServiceCompile.run([existsSync(directory) ? directory : src, '--silent', ...this.flagsAsArgs(flags)])) as IService
     const hash = await this.lcd.service.hash({
@@ -81,7 +82,7 @@ export default class ProcessCompile extends Command {
     return this.serviceToInstance(hash, env)
   }
 
-  async serviceToInstance(sidOrHash: string, env: string[]): Promise<hash> {
+  async serviceToInstance(sidOrHash: string, env: string[]): Promise<string> {
     const services = await this.lcd.service.list()
     if (!services) throw new Error('no services deployed, please deploy your service first')
     const match = services.filter(x => x.hash && x.hash === sidOrHash || x.sid && x.sid === sidOrHash)
@@ -105,6 +106,6 @@ export default class ProcessCompile extends Command {
     }
     if (!runnerHash) throw new Error('invalid runner hash')
     const runner = await this.lcd.runner.get(base58.encode(runnerHash))
-    return base58.decode(runner.instanceHash)
+    return runner.instanceHash
   }
 }
