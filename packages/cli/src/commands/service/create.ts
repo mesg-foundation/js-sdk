@@ -31,27 +31,12 @@ export default class ServiceCreate extends Command {
     const { args, flags } = this.parse(ServiceCreate)
     const service = JSON.parse(args.DEFINITION)
 
-    const { account } = flags.account
-      ? { account: flags.account }
-      : await prompt({
-        type: 'list',
-        name: 'account',
-        message: 'Select your account to sign your transaction',
-        choices: this.vault.keys()
-      })
-
-    const { password } = await prompt({
-      name: 'password',
-      type: 'password',
-      message: 'Type the password to decrypt your address',
-    })
+    const { account, mnemonic } = await this.getAccount(flags.account)
 
     this.spinner.start('Create service')
-    const mnemonic = this.vault.get(account, password)
-    const accountDetail = await this.lcd.account.import(mnemonic)
     const tx = await this.lcd.createTransaction(
-      [this.lcd.service.createMsg(account, service)],
-      accountDetail
+      [this.lcd.service.createMsg(account.address, service)],
+      account
     )
 
     const txResult = await this.lcd.broadcast(tx.signWithMnemonic(mnemonic))
