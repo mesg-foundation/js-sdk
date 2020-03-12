@@ -9,6 +9,7 @@
 - [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Migrate resolver to use LCD server
 - [#183](https://github.com/mesg-foundation/js-sdk/pull/183) Add account import from a mnemonic
 - [#181](https://github.com/mesg-foundation/js-sdk/pull/181) Add transaction support with signature and broadcast
+- [#](htttps://github.com/mesg-foundation/js-sdk/pull/) Update type for processes and add new message to create process
 
 #### Bug fixes
 
