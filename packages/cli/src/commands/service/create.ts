@@ -43,7 +43,7 @@ export default class ServiceCreate extends Command {
     const { password } = await prompt({
       name: 'password',
       type: 'password',
-      message: 'Type the password to decrypt your address',
+      message: 'Type the password to decrypt the account',
     })
 
     this.spinner.start('Create service')
