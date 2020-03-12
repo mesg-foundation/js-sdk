@@ -36,7 +36,7 @@ export default class ServiceCreate extends Command {
       : await prompt({
         type: 'list',
         name: 'account',
-        message: 'Select your account to sign your transaction',
+        message: 'Select the account to create the service',
         choices: this.vault.keys()
       })
 
