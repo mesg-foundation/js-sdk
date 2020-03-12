@@ -9,7 +9,7 @@
 - [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Use LCD server for all reading (`process:compile`, `process:detail`, `process:list`, `process:logs`, `service:detail`, `service:dev`, `service:execute`, `service:list`, `service:logs`, `service:start`, `service:stop`)
 - [#183](https://github.com/mesg-foundation/js-sdk/pull/183) Add account commands `account:balance`, `account:create`, `account:export`, `account:list`
 - [#181](https://github.com/mesg-foundation/js-sdk/pull/181) Add util to get hash from a transaction log
-- [#](https://github.com/mesg-foundation/js-sdk/pull/) Create process based on LCD endpoint
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Create/delete process based on LCD endpoint
 
 #### Bug fixes
 

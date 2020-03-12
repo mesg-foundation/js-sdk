@@ -40,7 +40,9 @@ export default class ServiceCreate extends Command {
     )
 
     const txResult = await this.lcd.broadcast(tx.signWithMnemonic(mnemonic))
-    const hash = findHash(txResult, "service", "CreateService")
+    const hashes = findHash(txResult, "service", "CreateService")
+    if (hashes.length != 1) throw new Error('error while getting the hash of the service created')
+    const hash = hashes[0]
     this.spinner.stop(hash)
 
     if (flags.start) {

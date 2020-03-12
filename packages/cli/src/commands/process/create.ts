@@ -32,7 +32,9 @@ export default class ProcessCreate extends Command {
       account
     )
     const txResult = await this.lcd.broadcast(tx.signWithMnemonic(mnemonic))
-    const hash = findHash(txResult, "process", "CreateProcess")
+    const hashes = findHash(txResult, "process", "CreateProcess")
+    if (hashes.length != 1) throw new Error('error while getting the hash of the process created')
+    const hash = hashes[0]
     this.spinner.stop(hash)
     return this.lcd.process.get(hash)
   }

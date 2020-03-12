@@ -1,15 +1,18 @@
 import {flags} from '@oclif/command'
 import cli from 'cli-ux'
-import * as base58 from '@mesg/api/lib/util/base58'
 
 import Command from '../../root-command'
+import { findHash } from '../../utils/txevent'
 
 export default class ProcessDelete extends Command {
   static description = 'Delete one or many processes'
 
   static flags = {
     ...Command.flags,
-    confirm: flags.boolean({description: 'Confirm deletion', default: false})
+    confirm: flags.boolean({description: 'Confirm deletion', default: false}),
+    account: flags.string({
+      description: 'Account to use to deploy the service'
+    })
   }
 
   static strict = false
@@ -21,13 +24,15 @@ export default class ProcessDelete extends Command {
 
   async run(): Promise<string[]> {
     const {argv, flags} = this.parse(ProcessDelete)
+    const { account, mnemonic } = await this.getAccount(flags.account)
     if (!flags.confirm && !await cli.confirm('Are you sure?')) return []
     this.spinner.start('Deleting process(s)')
-    for (const hash of argv) {
-      this.spinner.status = hash
-      await this.api.process.delete({hash: base58.decode(hash)})
-    }
+    const tx = await this.lcd.createTransaction(
+      argv.map(hash => this.lcd.process.deleteMsg(account.address, hash)),
+      account
+    )
+    const txResult = await this.lcd.broadcast(tx.signWithMnemonic(mnemonic))
     this.spinner.stop()
-    return argv
+    return findHash(txResult, 'process', 'DeleteProcess')
   }
 }

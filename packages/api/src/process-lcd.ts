@@ -172,6 +172,13 @@ export type IMsgCreate = {
   request: IProcessRequest;
 }
 
+export type IMsgDelete = {
+  address: string;
+  request: {
+    hash: string;
+  }
+}
+
 export default class Process extends LCDClient {
 
   createMsg(owner: string, process: IProcessRequest): IMsg<IMsgCreate> {
@@ -180,6 +187,18 @@ export default class Process extends LCDClient {
       value: {
         address: owner,
         request: process
+      }
+    }
+  }
+
+  deleteMsg(owner: string, hash: string): IMsg<IMsgDelete> {
+    return {
+      type: 'process/DeleteProcess',
+      value: {
+        address: owner,
+        request: {
+          hash
+        }
       }
     }
   }

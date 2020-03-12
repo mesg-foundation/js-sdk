@@ -8,10 +8,11 @@ export const findHash = (
   txResult: TxResult,
   resourceType: 'service' | 'process',
   action: string
-): string => {
-  const event = txResult.logs
+): string[] => {
+  return txResult.logs
     .map(x => x.events.find(y => y.type === 'message').attributes)
-    .find(x => x.find(isAction(action)) && x.find(isModule(resourceType)) && x.find(isHash))
-  if (!event) throw new Error(`cannot find ${resourceType}\'s hash`)
-  return event.find(isHash).value
+    .filter(x => x.find(isAction(action)) && x.find(isModule(resourceType)) && x.find(isHash))
+    .map(x => x.find(isHash))
+    .filter(x => !!x)
+    .map(x => x.value)
 }
