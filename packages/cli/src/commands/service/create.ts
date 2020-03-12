@@ -46,7 +46,7 @@ export default class ServiceCreate extends Command {
       message: 'Type the password to decrypt the account',
     })
 
-    this.spinner.start('Create service')
+    this.spinner.start('Creating service')
     const mnemonic = this.vault.get(account, password)
     const accountDetail = await this.lcd.account.import(mnemonic)
     const tx = await this.lcd.createTransaction(
