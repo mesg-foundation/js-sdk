@@ -4,7 +4,7 @@
 
 #### Breaking Changes
 
-- [#](https://github.com/mesg-foundation/js-sdk/pull/) Compile process in a LCD format
+- [#186](https://github.com/mesg-foundation/js-sdk/pull/186) Compile process in a LCD format
 
 #### Improvements
 #### Bug fixes
