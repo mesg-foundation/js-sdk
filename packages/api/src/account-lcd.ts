@@ -1,4 +1,4 @@
-import { ICoin } from './transaction'
+import { ICoin, IMsg } from './transaction'
 import LCDClient from './util/lcd'
 import { validateMnemonic, mnemonicToSeedSync } from 'bip39'
 import { fromSeed, BIP32Interface } from 'bip32'
@@ -15,6 +15,12 @@ export type IAccount = {
   sequence: number
 }
 
+export type IMsgTransfer = {
+  from_address: string;
+  to_address: string;
+  amount: ICoin[];
+}
+
 const deriveMnemonic = (mnemonic: string, path: string = defaultHDPath): BIP32Interface => {
   if (!validateMnemonic(mnemonic)) throw new Error('invalid mnemonic')
   const seed = mnemonicToSeedSync(mnemonic)
@@ -26,6 +32,17 @@ export default class Account extends LCDClient {
 
   static getPrivateKey(mnemonic: string, path?: string): Buffer {
     return deriveMnemonic(mnemonic, path).privateKey
+  }
+
+  transferMsg(from: string, to: string, amount: ICoin[]): IMsg<IMsgTransfer> {
+    return {
+      type: 'cosmos-sdk/MsgSend',
+      value: {
+        from_address: from,
+        to_address: to,
+        amount
+      }
+    }
   }
 
   async import(mnemonic: string, path?: string, prefix: string = bech32Prefix): Promise<IAccount> {
