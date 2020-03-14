@@ -1,8 +1,9 @@
 import { ICoin, IMsg } from './transaction'
 import LCDClient from './util/lcd'
-import { validateMnemonic, mnemonicToSeedSync } from 'bip39'
+import { validateMnemonic, mnemonicToSeedSync, entropyToMnemonic } from 'bip39'
 import { fromSeed, BIP32Interface } from 'bip32'
 import { toWords, encode } from 'bech32'
+import { randomBytes } from 'crypto'
 
 export const bech32Prefix = 'mesgtest'
 export const defaultHDPath = "m/44'/470'/0'/0/0"
@@ -32,6 +33,12 @@ export default class Account extends LCDClient {
 
   static getPrivateKey(mnemonic: string, path?: string): Buffer {
     return deriveMnemonic(mnemonic, path).privateKey
+  }
+
+  static generateMnemonic(): string {
+    const entropy = randomBytes(32)
+    if (entropy.length !== 32) throw Error(`Entropy has incorrect length`)
+    return entropyToMnemonic(entropy.toString('hex'))
   }
 
   transferMsg(from: string, to: string, amount: ICoin[]): IMsg<IMsgTransfer> {
