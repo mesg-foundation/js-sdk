@@ -6,8 +6,8 @@ import { IExecution } from '@mesg/api/lib/execution'
 import * as b58 from '@mesg/api/lib/util/base58'
 import {decode} from '@mesg/api/lib/util/encoder'
 import {inspect} from 'util'
-import Command from '../../docker-command'
-import {parseLog} from '../../utils/docker'
+import Command from '../../root-command'
+import * as Docker from '../../utils/docker'
 
 export default class ProcessLogs extends Command {
   static description = 'Log the executions related to a process'
@@ -70,10 +70,10 @@ export default class ProcessLogs extends Command {
     results
       .on('data', this.handlerResult(process.hash))
       .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
-    const logs: any = await this.logs(flags);
+    const logs: any = await Docker.logs('engine', flags.follow, flags.tail && flags.tail >= 0 ? flags.tail : 'all');
     streams.push(() => logs.destroy())
     logs
-      .on('data', (buffer: Buffer) => parseLog(buffer).forEach(x => {
+      .on('data', (buffer: Buffer) => Docker.parseLog(buffer).forEach(x => {
           if (x.includes("module=orchestrator")) {
             this.log(x)
           }

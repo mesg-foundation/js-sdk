@@ -121,9 +121,6 @@
       },
       "process": {
         "description": "Manage processes"
-      },
-      "daemon": {
-        "description": "Manage the Engine"
       }
     }
   }
