@@ -104,8 +104,9 @@ export const createService = async (image: string, name: string, directory: stri
 export const listServices = async (filters: { name?: string[], label?: string[] }, client = defaultClient) => {
   // docker service ls --filter doesn't do an exact match https://github.com/moby/moby/issues/32985
   const res = await client.service.list({ filters })
-  return res
-    .filter(x => !filters.name || (x.data as any)['Spec']['Name'] === filters.name)
+  return filters.name
+    ? res.filter(x => (x.data as any)['Spec']['Name'] === filters.name[0])
+    : res
 }
 
 export const logs = async (name: string, follow: any, tail: any): Promise<any> => {
