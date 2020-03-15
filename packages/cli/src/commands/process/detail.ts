@@ -1,6 +1,7 @@
-import {IProcess} from '@mesg/api/lib/process-lcd'
+import { IProcess } from '@mesg/api/lib/process-lcd'
 
 import Command from '../../root-command'
+import { cli } from 'cli-ux'
 
 export default class ProcessDetail extends Command {
   static description = 'Display detailed information on a process'
@@ -15,9 +16,9 @@ export default class ProcessDetail extends Command {
   }]
 
   async run(): Promise<IProcess> {
-    const {args} = this.parse(ProcessDetail)
+    const { args } = this.parse(ProcessDetail)
     const response = await this.lcd.process.get(args.PROCESS_HASH)
-    this.styledJSON(response)
+    cli.styledJSON(response)
     return response
   }
 }

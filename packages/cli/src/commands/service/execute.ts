@@ -1,17 +1,19 @@
-import {flags} from '@oclif/command'
-import {readFileSync} from 'fs'
-import {ExecutionCreateOutputs} from '@mesg/api/lib/execution'
+import { flags } from '@oclif/command'
+import { readFileSync } from 'fs'
+import { ExecutionCreateOutputs } from '@mesg/api/lib/execution'
 import * as base58 from '@mesg/api/lib/util/base58'
 
 import Command from '../../root-command'
-import {runnerResolver} from '../../utils/resolver'
+import { resolveSIDRunner } from '@mesg/api/lib/util/resolve'
+import { cli } from 'cli-ux'
+import { hash } from '@mesg/api/lib/types'
 
 export default class ServiceExecute extends Command {
   static description = 'Execute a task on a running service'
 
   static flags = {
     ...Command.flags,
-    json: flags.string({char: 'j', description: 'Path to a JSON file containing the task inputs'}),
+    json: flags.string({ char: 'j', description: 'Path to a JSON file containing the task inputs' }),
     data: flags.string({
       char: 'd',
       description: 'Task inputs',
@@ -34,9 +36,9 @@ export default class ServiceExecute extends Command {
   }]
 
   async run(): ExecutionCreateOutputs {
-    const {args, flags} = this.parse(ServiceExecute)
+    const { args, flags } = this.parse(ServiceExecute)
 
-    const runnerHash = await runnerResolver(this.lcd, args.RUNNER_HASH)
+    const runnerHash = await this.runnerResolver(args.RUNNER_HASH)
 
     const runner = await this.lcd.runner.get(runnerHash)
     if (!runner.instanceHash) { throw new Error('invalid runner hash') }
@@ -59,8 +61,30 @@ export default class ServiceExecute extends Command {
       taskKey: args.TASK,
       eventHash: base58.decode(flags.eventHash || '6aUPZhmnFKiSsHXRaddbnqsKKi9KogbQNiKUcpivaohb'), // TODO: to improve
     })
-    this.styledJSON(result)
+    cli.styledJSON(result)
     return result
+  }
+
+  async runnerResolver(sidOrHash: string): Promise<string> {
+    try {
+      await this.lcd.runner.get(sidOrHash)
+      return sidOrHash
+    } catch (err) {
+      return resolveSIDRunner(this.lcd, sidOrHash)
+    }
+  }
+
+  async execute(request: { executorHash: hash, taskKey: string, eventHash: hash, inputs?: { [key: string]: any }, tags?: string[] }): Promise<{ [key: string]: any }> {
+    const exec = await this._app.executeTaskAndWaitResult({
+      executorHash: request.executorHash,
+      tags: request.tags || [],
+      taskKey: request.taskKey,
+      inputs: this._app.encodeData(request.inputs || {}),
+      eventHash: request.eventHash,
+    })
+    if (exec.error) throw new Error(exec.error)
+    if (!exec.outputs) throw new Error('missing outputs')
+    return this._app.decodeData(exec.outputs)
   }
 
   dataFromFlags(flags: { data: string[], json: string | undefined }): any {

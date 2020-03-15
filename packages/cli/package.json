@@ -113,9 +113,6 @@
       "@oclif/plugin-not-found"
     ],
     "topics": {
-      "account": {
-        "description": "Manage accounts"
-      },
       "service": {
         "description": "Manage services"
       },

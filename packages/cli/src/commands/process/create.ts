@@ -1,9 +1,10 @@
-import {flags} from '@oclif/command'
+import { flags } from '@oclif/command'
 
 import Command from '../../root-command'
-import {findHash} from '../../utils/txevent'
-import {IProcess} from '@mesg/api/lib/process-lcd'
-import {ICoin} from '@mesg/api/lib/transaction'
+import { findHash } from '../../utils/txevent'
+import { IProcess } from '@mesg/api/lib/process-lcd'
+import { ICoin } from '@mesg/api/lib/transaction'
+import { cli } from 'cli-ux'
 
 export default class ProcessCreate extends Command {
   static description = 'Create a process'
@@ -22,11 +23,11 @@ export default class ProcessCreate extends Command {
   }]
 
   async run(): Promise<IProcess> {
-    const {args, flags} = this.parse(ProcessCreate)
+    const { args, flags } = this.parse(ProcessCreate)
     const definition = JSON.parse(args.DEFINITION) as IProcess
-    
+
     const { account, mnemonic } = await this.getAccount(flags.account)
-    this.spinner.start('Create process')
+    cli.action.start('Create process')
 
     const tx = await this.lcd.createTransaction(
       [this.lcd.process.createMsg(account.address, definition)],
@@ -36,8 +37,8 @@ export default class ProcessCreate extends Command {
     const hashes = findHash(txResult, "process", "CreateProcess")
     if (hashes.length != 1) throw new Error('error while getting the hash of the process created')
     const hash = hashes[0]
-    this.spinner.stop(hash)
+    cli.action.stop(hash)
     const process = await this.lcd.process.get(hash)
     return process
-    }
+  }
 }

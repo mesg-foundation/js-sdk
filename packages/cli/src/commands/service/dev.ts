@@ -1,87 +1,94 @@
-import { IService } from '@mesg/api/lib/service'
-import * as base58 from '@mesg/api/lib/util/base58'
+import { Command, flags } from '@oclif/command'
+import { join } from 'path'
+import Listr from 'listr'
+import LCD from '@mesg/api/lib/lcd'
+import API from '@mesg/api'
+import chalk from 'chalk'
+import { decode } from '@mesg/api/lib/util/encoder'
+import { parseLog } from '../../utils/docker'
+import * as Tasks from '../../tasks'
+import version from '../../version'
 
-import Command from '../../root-command'
-import { IsAlreadyExistsError } from '../../utils/error'
+const ipfsClient = require('ipfs-http-client')
 
-import ServiceCompile from './compile'
-import ServiceCreate from './create'
-import ServiceLog from './logs'
-import ServiceStart from './start'
-import ServiceStop from './stop'
+type Context = Tasks.IStartEnvironment | Tasks.ICompileService | Tasks.ICreateService | Tasks.IStartService | Tasks.IServiceLogs
 
-export default class ServiceDev extends Command {
-  static description = 'Run a service in development mode'
+export default class Service extends Command {
+  static description = 'Run a service in a local development environment'
 
   static flags = {
-    ...Command.flags,
-    ...ServiceCreate.flags,
-    ...ServiceStart.flags,
+    image: flags.string({ name: 'MESG engine image', default: 'mesg/engine' }),
+    tag: flags.string({ name: 'MESG engine version', default: version.engine }),
+    pull: flags.boolean({ name: 'Force to pull the docker image', default: false }),
+    configDir: flags.string({ name: 'Directory for your configurations', default: join(process.cwd(), '.mesg') }),
+    configFile: flags.string({ name: 'Name of your config file', default: 'config.yml' }),
+    env: flags.string({
+      description: 'Set environment variables to start the service',
+      multiple: true,
+      helpValue: 'FOO=BAR'
+    })
   }
 
   static args = [{
-    name: 'SERVICE',
+    name: 'PATH',
     description: 'Path or url of a service',
     default: './'
   }]
 
-  runnerCreated = false
-
   async run() {
-    const { args, flags } = this.parse(ServiceDev)
+    const { args, flags } = this.parse(Service)
 
-    this.spinner.start('Starting service')
-    this.spinner.status = 'compiling'
-    const definition = await ServiceCompile.run([args.SERVICE, '--silent', ...this.flagsAsArgs(flags)])
-    this.spinner.status = 'creating'
-    const serviceHash = await this.createService(definition)
-    this.spinner.status = 'starting'
-    const runnerHash = await this.startService(serviceHash, flags.env)
-    this.spinner.status = 'fetching logs'
-    const stream = await ServiceLog.run([runnerHash, ...this.flagsAsArgs(flags)])
-    this.spinner.stop(runnerHash)
+    const tasks = new Listr<Context>([
+      Tasks.startEnvironment,
+      Tasks.compileService,
+      Tasks.createService,
+      Tasks.startService,
+      Tasks.serviceLogs,
+    ])
+    const result = await tasks.run({
+      configDir: flags.configDir,
+      configFile: flags.configFile,
+      env: flags.env,
+      image: flags.image,
+      pull: flags.pull,
+      tag: flags.tag,
+      ipfsClient: ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' }),
+      path: args.PATH,
+      grpc: new API('localhost:50052'),
+      lcd: new LCD('http://localhost:1317'),
+    })
+
+    const runnerLogs = (result as Tasks.IRunnerLogs).runnerLogs || []
+    const eventLogs = (result as Tasks.IInstanceEventLogs).eventLogs
+    const resultLogs = (result as Tasks.IRunnerResultLogs).resultLogs
+
+    for (const log of runnerLogs) {
+      log
+        .on('data', buffer => parseLog(buffer).forEach(x => this.log(chalk.gray(x))))
+        .on('error', error => { this.warn('Docker log stream error: ' + error.message) })
+    }
+
+    eventLogs
+      .on('data', event => this.log(`EVENT[${event.key}]: ` + chalk.gray(JSON.stringify(decode(event.data)))))
+      .on('error', error => { this.warn('Event stream error: ' + error.message) })
+
+    resultLogs
+      .on('data', execution => execution.error
+        ? this.log(`RESULT[${execution.taskKey}]: ` + chalk.red('ERROR:', execution.error))
+        : this.log(`RESULT[${execution.taskKey}]: ` + chalk.gray(JSON.stringify(decode(execution.outputs)))))
+      .on('error', error => { this.warn('Result stream error: ' + error.message) })
 
     process.once('SIGINT', async () => {
-      stream.destroy()
-      if (this.runnerCreated) await ServiceStop.run([runnerHash, ...this.flagsAsArgs(flags)])
-    })
-  }
-
-  async createService(definition: IService): Promise<string> {
-    const hash = await this.lcd.service.hash({
-      configuration: definition.configuration,
-      dependencies: definition.dependencies,
-      description: definition.description,
-      events: definition.events,
-      name: definition.name,
-      repository: definition.repository,
-      sid: definition.sid,
-      source: definition.source,
-      tasks: definition.tasks
-    })
-    if (!hash) throw new Error('invalid hash')
-    const exists = await this.lcd.service.exists(hash)
-    if (!exists) {
-      const service = await this.api.service.create(definition)
-      if (!service.hash) throw new Error('invalid hash')
-      if (base58.encode(service.hash) !== hash) throw new Error('invalid hash')
-    }
-    return hash
-  }
-
-  async startService(serviceHash: string, env: string[]): Promise<string> {
-    try {
-      const { hash } = await this.api.runner.create({
-        serviceHash: base58.decode(serviceHash),
-        env
+      await new Listr<Tasks.IServiceLogsStop | Tasks.IStopEnvironment | Tasks.IClearConfig>([
+        Tasks.serviceLogsStop,
+        Tasks.stopEnvironment,
+        Tasks.clearConfig
+      ]).run({
+        configDir: (result as Tasks.ICreateConfig).configDir,
+        eventLogs: eventLogs,
+        resultLogs: resultLogs,
+        runnerLogs: runnerLogs,
       })
-      if (!hash) throw new Error('invalid hash')
-      this.runnerCreated = true
-      return base58.encode(hash)
-    } catch (e) {
-      if (!IsAlreadyExistsError.match(e)) throw e
-      this.warn('service already started')
-      return base58.encode(new IsAlreadyExistsError(e).hash)
-    }
+    })
   }
 }

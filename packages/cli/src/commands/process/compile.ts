@@ -1,22 +1,25 @@
-import {flags} from '@oclif/command'
-import {IService} from '@mesg/api/lib/service'
+import { flags } from '@oclif/command'
+import { IService } from '@mesg/api/lib/service'
 import * as base58 from '@mesg/api/lib/util/base58'
-import {process as compileProcess} from '@mesg/compiler'
-import {existsSync, readFileSync} from 'fs'
-import {hash} from '@mesg/api/lib/types'
-import {dirname, join} from 'path'
+import { process as compileProcess } from '@mesg/compiler'
+import { existsSync, readFileSync } from 'fs'
+import { hash } from '@mesg/api/lib/types'
+import { dirname, join } from 'path'
 
 import Command from '../../root-command'
-import {IsAlreadyExistsError} from '../../utils/error'
-import ServiceCompile from '../service/compile'
-import {IProcess} from '@mesg/api/lib/process-lcd'
+import { IsAlreadyExistsError } from '../../utils/error'
+import { IProcess } from '@mesg/api/lib/process-lcd'
+import { cli } from 'cli-ux'
+import { compileService, ICompileService } from '../../tasks'
+import Listr from 'listr'
+const ipfsClient = require('ipfs-http-client')
 
 export default class ProcessCompile extends Command {
   static description = 'Compile a process'
 
   static flags = {
     ...Command.flags,
-    dev: flags.boolean({description: 'compile the process and automatically deploy and start all the services'}),
+    dev: flags.boolean({ description: 'compile the process and automatically deploy and start all the services' }),
     env: flags.string({
       description: 'Set environment variables',
       multiple: true,
@@ -30,7 +33,7 @@ export default class ProcessCompile extends Command {
   }]
 
   async run(): Promise<IProcess> {
-    const {args, flags} = this.parse(ProcessCompile)
+    const { args, flags } = this.parse(ProcessCompile)
     const definition = await compileProcess(readFileSync(args.PROCESS_FILE), async (instanceObject: any): Promise<string> => {
       if (instanceObject.instanceHash) {
         return instanceObject.instanceHash
@@ -41,7 +44,7 @@ export default class ProcessCompile extends Command {
       if (!instanceObject.instance) {
         throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
       }
-      const {service, src, env} = instanceObject.instance
+      const { service, src, env } = instanceObject.instance
       if (service) {
         return this.serviceToInstance(service, env)
       }
@@ -53,14 +56,20 @@ export default class ProcessCompile extends Command {
       ...prev,
       [env.split('=')[0]]: env.split('=')[1],
     }), {}))
-    this.styledJSON(definition)
-    this.spinner.stop()
+    cli.styledJSON(definition)
     return definition
   }
 
   async sourceToInstance(dir: string, src: string, env: string[], flags: any): Promise<string> {
     const directory = join(dirname(dir), src)
-    const definition = (await ServiceCompile.run([existsSync(directory) ? directory : src, '--silent', ...this.flagsAsArgs(flags)])) as IService
+
+    const tasks = new Listr([compileService])
+    const result = await tasks.run({
+      path: existsSync(directory) ? directory : src,
+      ipfsClient: ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' }),
+    })
+
+    const definition = result.definition
     const hash = await this.lcd.service.hash({
       configuration: definition.configuration,
       dependencies: definition.dependencies,
@@ -94,7 +103,7 @@ export default class ProcessCompile extends Command {
     // get runner
     var runnerHash: hash
     try {
-      const {hash} = await this.api.runner.create({
+      const { hash } = await this.api.runner.create({
         serviceHash: base58.decode(service.hash),
         env,
       })
