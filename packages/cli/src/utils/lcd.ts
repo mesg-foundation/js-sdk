@@ -3,7 +3,8 @@ import fetch from "node-fetch"
 export const isRunning = async (endpoint: string = `http://localhost:1317`): Promise<boolean> => {
   try {
     await fetch(`${endpoint}/node_info`)
-    return true
+    const { block } = await (await fetch(`${endpoint}/blocks/latest`)).json()
+    return parseInt(block.header.height, 10) > 0
   } catch (e) {
     return false
   }
