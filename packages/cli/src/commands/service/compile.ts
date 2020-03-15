@@ -1,5 +1,5 @@
 import {readFileSync} from 'fs'
-import {IService} from '@mesg/api/lib/service'
+import {IService} from '@mesg/api/lib/service-lcd'
 import {service as serviceCompiler} from '@mesg/compiler'
 import {join} from 'path'
 

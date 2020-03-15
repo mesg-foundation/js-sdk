@@ -1,5 +1,5 @@
 import pick from 'lodash.pick'
-import {IService} from '@mesg/api/lib/service'
+import {IService} from '@mesg/api/lib/service-lcd'
 import decode from './decode'
 
 const mapToArray = (inputs: any) => Object.keys(inputs || {}).map(key => ({
