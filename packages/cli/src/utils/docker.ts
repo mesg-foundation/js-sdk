@@ -1,5 +1,5 @@
 import { Docker } from "node-docker-api"
-import { Stream } from "stream"
+import { Stream, Readable } from "stream"
 
 const defaultClient = new Docker(null)
 
@@ -19,6 +19,20 @@ export const hasImage = async (image: string, client = defaultClient) => {
     return false
   }
 }
+
+export const waitForEvent = async (matchFilter: (event: { Type: string, Action: string, from: string }) => boolean, client = defaultClient) => new Promise(async resolve => {
+  const events = (await client.events()) as Readable
+  const handler = (buffer: Buffer) => {
+    try {
+      const event = JSON.parse(buffer.toString())
+      if (matchFilter(event)) {
+        events.destroy()
+        return resolve()
+      }
+    } catch { }
+  }
+  events.addListener('data', handler)
+})
 
 export const fetchImageTag = async (image: string, tag: string = 'latest', client = defaultClient) => {
   const stream = (await client.image.create({}, {

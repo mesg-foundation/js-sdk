@@ -3,7 +3,7 @@ import Listr, { ListrTask } from 'listr'
 import { join } from "path";
 import Account from "@mesg/api/lib/account-lcd";
 import { safeLoad, safeDump } from "js-yaml";
-import { fetchImageTag, hasImage, createService as createDockerService, listServices, parseLog } from "./utils/docker";
+import { fetchImageTag, hasImage, createService as createDockerService, listServices, waitForEvent } from "./utils/docker";
 import { isRunning, waitToBeReady } from "./utils/lcd";
 import merge from "lodash.merge";
 import deployer, { createTar } from "./utils/deployer";
@@ -97,9 +97,20 @@ export const startEnvironment: ListrTask<IStartEnvironment> = {
 export type IStopEnvironment = {}
 export const stopEnvironment: ListrTask<IStopEnvironment> = {
   title: 'Stop environment',
-  task: async () => {
+  task: async (ctx, task) => {
     const services = await listServices({ name: ['engine'] })
-    await Promise.all(services.map(x => x.remove()))
+    if (services.length === 0) throw new Error('Cannot find engine')
+    const service = services[0]
+    let image = (service.data as any).Spec.TaskTemplate.ContainerSpec.Image
+    image = [
+      image.split(':')[0],
+      image.split(':')[1] || 'latest'
+    ].join(':')
+    const eventPromise = waitForEvent(({ Action, from, Type }) => {
+      return Type === 'container' && Action === 'destroy' && from === image
+    })
+    await service.remove()
+    await eventPromise
   }
 }
 
