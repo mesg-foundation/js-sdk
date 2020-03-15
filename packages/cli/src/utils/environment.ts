@@ -1,62 +1,68 @@
-import { mkdirSync, existsSync, readFileSync, writeFileSync } from "fs"
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs"
 import { safeLoad, safeDump } from 'js-yaml'
 import merge from 'lodash.merge'
 import Account from '@mesg/api/lib/account-lcd'
-import { join } from "path"
 import Listr from "listr"
 import { hasImage, fetchImageTag, createService } from "./docker"
 import { isRunning, waitToBeReady } from "./lcd"
+import { join } from "path"
 
-const IMAGE_NAME = 'mesg/engine'
-
-const readEngineConfig = (configPath: string) => existsSync(configPath)
-  ? safeLoad(readFileSync(configPath).toString())
+const loadYaml = (file: string) => existsSync(file)
+  ? safeLoad(readFileSync(file).toString())
   : {}
 
-type Context = {
+export type Context = {
+  // Account
   mnemonic?: string;
+  // Config
+  configDir: string;
+  configFile: string;
+  // Docker
+  pull?: boolean;
   image: string;
+  tag: string;
 }
 
-export default async (tag: string, pull: boolean = false): Promise<Context> => {
-  const directory = join(process.cwd(), '.mesg')
-  if (!existsSync(directory)) mkdirSync(directory, { recursive: true })
-  const configPath = join(directory, 'config.yml')
-
-  const tasks = new Listr([
-    {
-      title: 'Generate test account',
-      skip: (ctx: Context) => ctx.mnemonic,
-      task: (ctx: Context, task) => {
-        ctx.mnemonic = Account.generateMnemonic()
-        task.output = ctx.mnemonic
-      }
+export default new Listr<Context>([
+  {
+    title: 'Create default configuration',
+    skip: (ctx) => existsSync(ctx.configDir),
+    task: (ctx) => mkdirSync(ctx.configDir, { recursive: true })
+  },
+  {
+    title: 'Generate test account',
+    skip: (ctx) => {
+      if (!ctx.mnemonic)
+        ctx.mnemonic = (loadYaml(join(ctx.configDir, ctx.configFile)).account || {}).mnemonic
+      return ctx.mnemonic
     },
-    {
-      title: 'Update engine image',
-      skip: async (ctx: Context) => !pull && await hasImage(ctx.image),
-      task: () => fetchImageTag(IMAGE_NAME, tag)
-    },
-    {
-      title: 'Start engine',
-      skip: () => isRunning(),
-      task: (ctx) => {
-        writeFileSync(configPath, safeDump(merge({}, readEngineConfig(configPath), {
-          account: {
-            mnemonic: ctx.mnemonic
-          }
-        })))
-        return createService(ctx.image, 'engine', directory)
-      }
-    },
-    {
-      title: 'Wait for API',
-      skip: () => isRunning(),
-      task: () => waitToBeReady()
+    task: (ctx, task) => {
+      ctx.mnemonic = Account.generateMnemonic()
+      task.output = ctx.mnemonic
     }
-  ])
-  return tasks.run({
-    mnemonic: (readEngineConfig(configPath).account || {}).mnemonic,
-    image: `${IMAGE_NAME}:${tag}`
-  })
-}
+  },
+  {
+    title: 'Update engine image',
+    skip: async (ctx) => !ctx.pull && await hasImage(ctx.image),
+    task: (ctx) => fetchImageTag(ctx.image, ctx.tag)
+  },
+  {
+    title: 'Start engine',
+    skip: () => isRunning(),
+    task: (ctx) => {
+      const configFile = join(ctx.configDir, ctx.configFile)
+      const newConfigs = merge({}, loadYaml(configFile), {
+        account: {
+          mnemonic: ctx.mnemonic
+        }
+      })
+      writeFileSync(configFile, safeDump(newConfigs))
+      return createService(ctx.image, 'engine', ctx.configDir)
+    }
+  },
+  {
+    title: 'Wait for API',
+    skip: () => isRunning(),
+    task: () => waitToBeReady()
+  }
+])
