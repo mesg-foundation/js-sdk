@@ -9,7 +9,7 @@ export default class AccountTransfer extends Command {
   static flags = {
     ...Command.flags,
     account: flags.string({
-      description: 'Account to use to send the token'
+      description: 'Account to use to take the tokens from'
     }),
   }
 
@@ -25,7 +25,7 @@ export default class AccountTransfer extends Command {
     const { args, flags } = this.parse(AccountTransfer)
     const { account, mnemonic } = await this.getAccount(flags.account)
 
-    this.spinner.start(`Sending ${args.AMOUNT}atto to ${args.TO}`)
+    this.spinner.start(`Transfering ${args.AMOUNT}atto to ${args.TO}`)
     const coins: ICoin[] = [{
       amount: args.AMOUNT,
       denom: 'atto'

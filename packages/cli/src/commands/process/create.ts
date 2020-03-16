@@ -44,7 +44,7 @@ export default class ProcessCreate extends Command {
 
   async createTransfer(process: IProcess, mnemonic: string) {
     const acc = await this.lcd.account.import(mnemonic)
-    this.spinner.start('Transfer credits to the process')
+    this.spinner.start('Transfering tokens to the process')
     const coins: ICoin[] = [{
       amount: "100000000",
       denom: 'atto'
