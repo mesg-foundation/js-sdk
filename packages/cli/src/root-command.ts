@@ -110,7 +110,7 @@ export default abstract class extends Command {
       const { account } = await prompt({
         type: 'list',
         name: 'account',
-        message: 'Select your account to sign your transaction',
+        message: 'Select an account to sign the transaction',
         choices: this.vault.keys()
       })
       address = account
@@ -118,7 +118,7 @@ export default abstract class extends Command {
     const { password } = await prompt({
       name: 'password',
       type: 'password',
-      message: 'Type the password to decrypt your account',
+      message: 'Type the account\'s password',
     })
 
     const mnemonic = this.vault.get(address, password)

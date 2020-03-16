@@ -11,7 +11,7 @@ export default class ProcessDelete extends Command {
     ...Command.flags,
     confirm: flags.boolean({description: 'Confirm deletion', default: false}),
     account: flags.string({
-      description: 'Account to use to deploy the service'
+      description: 'Account to use to delete the process'
     })
   }
 
