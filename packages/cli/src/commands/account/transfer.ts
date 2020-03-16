@@ -1,6 +1,5 @@
 import Command from '../../root-command'
 import { flags } from '@oclif/command'
-import { IAccount } from '@mesg/api/lib/account-lcd'
 import { ICoin } from '@mesg/api/lib/transaction'
 
 export default class AccountTransfer extends Command {
@@ -21,7 +20,7 @@ export default class AccountTransfer extends Command {
     required: true
   }]
 
-  async run(): Promise<IAccount> {
+  async run() {
     const { args, flags } = this.parse(AccountTransfer)
     const { account, mnemonic } = await this.getAccount(flags.account)
 
@@ -34,9 +33,7 @@ export default class AccountTransfer extends Command {
       [this.lcd.account.transferMsg(account.address, args.TO, coins)],
       account
     )
-    const txResult = await this.lcd.broadcast(tx.signWithMnemonic(mnemonic))
-    const res = await this.lcd.account.get(account.address)
-    this.styledJSON(res)
-    return res
+    await this.lcd.broadcast(tx.signWithMnemonic(mnemonic))
+    this.spinner.stop('success')
   }
 }
