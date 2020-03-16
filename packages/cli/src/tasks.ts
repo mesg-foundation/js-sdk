@@ -20,6 +20,12 @@ import { IEvent } from "@mesg/api/lib/event";
 import { IExecution } from "@mesg/api/lib/execution";
 import { ExecutionStatus } from "@mesg/api/lib/types";
 import { registerHelper, compile } from "handlebars";
+import { resolveSIDRunner } from "@mesg/api/lib/util/resolve";
+import { IRunner } from "@mesg/api/lib/runner-lcd";
+import { IInstance } from "@mesg/api/lib/instance-lcd";
+import Application from "@mesg/application";
+import ExecutionType from "@mesg/api/lib/typedef/execution";
+import ServiceType from "@mesg/api/lib/typedef/service";
 
 const loadYaml = (file: string) => existsSync(file)
   ? safeLoad(readFileSync(file).toString())
@@ -162,6 +168,12 @@ export const createService: ListrTask<ICreateService> = {
   }
 }
 
+export type IServiceGet = { lcd: API, instance?: IInstance, serviceHash?: string, service?: IService }
+export const serviceGet: ListrTask<IServiceGet> = {
+  title: 'Get service',
+  task: async (ctx) => ctx.service = await ctx.lcd.service.get(ctx.serviceHash || ctx.instance.serviceHash)
+}
+
 export type IStartService = { grpc: GRPCAPI, lcd: API, serviceHash: string, env: string[], runnerHash?: string, instanceHash?: string }
 export const startService: ListrTask<IStartService> = {
   title: 'Start service',
@@ -270,5 +282,79 @@ export const serviceDocGen: ListrTask<IServiceDocGenerate> = {
     registerHelper('toJSON', JSON.stringify)
     const template = readFileSync(join(__dirname, '..', 'assets', 'doc.md')).toString()
     ctx.markdownDoc = compile(template)(ctx.definition)
+  }
+}
+
+export type IRunnerGet = { lcd: API, runnerHash: string, runner: IRunner }
+export const runnerGet: ListrTask<IRunnerGet> = {
+  title: 'Get runner',
+  task: async (ctx) => {
+    try {
+      ctx.runner = await ctx.lcd.runner.get(ctx.runnerHash)
+    } catch (err) {
+      const hash = await resolveSIDRunner(ctx.lcd, ctx.runnerHash)
+      ctx.runner = await ctx.lcd.runner.get(hash)
+    }
+  }
+}
+
+export type IInstanceGet = { lcd: API, runner?: IRunner, instanceHash?: string, instance: IInstance }
+export const instanceGet: ListrTask<IInstanceGet> = {
+  title: 'Get instance',
+  task: async (ctx) => ctx.instance = await ctx.lcd.instance.get(ctx.instanceHash || ctx.runner.instanceHash)
+}
+
+export type IValidateTask = { service: IService, taskKey: string, task?: ServiceType.mesg.types.Service.ITask }
+export type IValidateTasks = IRunnerGet | IInstanceGet | IServiceGet | IValidateTask
+export const validateTask: ListrTask<IValidateTasks> = {
+  title: 'Validate task',
+  task: () => new Listr<IValidateTasks>([
+    runnerGet,
+    instanceGet,
+    serviceGet,
+    {
+      title: 'Validate task',
+      task: (ctx: IValidateTask) => {
+        ctx.task = ctx.service.tasks.find(x => x.key === ctx.taskKey)
+        if (!ctx.task) throw new Error(`The task ${ctx.taskKey} does not exist in service '${ctx.service.hash}'`)
+      }
+    }
+  ])
+}
+
+export type IConvertInput = { task: ServiceType.mesg.types.Service.ITask, data: { [key: string]: any }, app: Application, inputs?: ExecutionType.mesg.protobuf.IStruct }
+export const convertInput: ListrTask<IConvertInput> = {
+  title: 'Convert inputs',
+  task: ctx => {
+    const convert = (type: 'Object' | 'String' | 'Boolean' | 'Number' | 'Any', value: string | any): any => {
+      return {
+        Object: (x: string | any) => typeof x === 'string' ? JSON.parse(x) : x,
+        String: (x: string) => x,
+        Boolean: (x: string) => ['true', 't', 'TRUE', 'T', '1'].includes(x),
+        Number: (x: string) => parseFloat(x),
+        Any: (x: string) => x,
+      }[type](value)
+    }
+    const result = (ctx.task.inputs || [])
+      .filter((x: any) => ctx.data[x.key] !== undefined && ctx.data[x.key] !== null)
+      .reduce((prev: any, value: any) => ({
+        ...prev,
+        [value.key]: convert(value.type, ctx.data[value.key])
+      }), {})
+    ctx.inputs = ctx.app.encodeData(result || {})
+  }
+}
+
+export type IExecute = { runner: IRunner, tags: string[], taskKey: string, inputs: ExecutionType.mesg.protobuf.IStruct, eventHash: string, app: Application, result?: IExecution }
+export const execute: ListrTask<IExecute> = {
+  title: 'Execute task',
+  task: async (ctx: IExecute) => {
+    ctx.result = await ctx.app.executeTaskAndWaitResult({
+      eventHash: b58.decode(ctx.eventHash),
+      executorHash: b58.decode(ctx.runner.hash),
+      inputs: ctx.inputs,
+      tags: ctx.tags,
+      taskKey: ctx.taskKey
+    })
   }
 }

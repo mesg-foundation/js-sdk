@@ -1,10 +1,9 @@
-import { flags } from '@oclif/command'
+import { flags, Command } from '@oclif/command'
 import axios from 'axios'
 import { renameSync } from 'fs'
 import { prompt } from 'inquirer'
 import { join } from 'path'
 
-import Command from '../../root-command'
 import deployer from '../../utils/deployer'
 import { cli } from 'cli-ux'
 
@@ -19,7 +18,6 @@ export default class ServiceInit extends Command {
   static description = 'Initialize a service from a template'
 
   static flags = {
-    ...Command.flags,
     template: flags.string({ char: 't', description: 'Specify the template URL to use' }),
   }
 
