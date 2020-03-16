@@ -19,6 +19,7 @@ import { Stream } from "stream";
 import { IEvent } from "@mesg/api/lib/event";
 import { IExecution } from "@mesg/api/lib/execution";
 import { ExecutionStatus } from "@mesg/api/lib/types";
+import { registerHelper, compile } from "handlebars";
 
 const loadYaml = (file: string) => existsSync(file)
   ? safeLoad(readFileSync(file).toString())
@@ -259,4 +260,15 @@ export const serviceLogsStop: ListrTask<IServiceLogsStop> = {
     instanceEventLogsStop,
     runnerResultLogsStop
   ])
+}
+
+export type IServiceDocGenerate = { definition: IService, markdownDoc?: string }
+export const serviceDocGen: ListrTask<IServiceDocGenerate> = {
+  title: 'Generate documentation',
+  task: (ctx) => {
+    registerHelper('or', (a: any, b: any) => a ? a : b)
+    registerHelper('toJSON', JSON.stringify)
+    const template = readFileSync(join(__dirname, '..', 'assets', 'doc.md')).toString()
+    ctx.markdownDoc = compile(template)(ctx.definition)
+  }
 }

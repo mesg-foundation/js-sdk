@@ -1,51 +1,47 @@
-import { flags } from '@oclif/command'
-import { readdirSync, readFileSync, writeFileSync } from 'fs'
-import { compile, registerHelper } from 'handlebars'
-import { safeLoad } from 'js-yaml'
+import { flags, Command } from '@oclif/command'
+import { readdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
+import Listr from 'listr'
+import * as Tasks from '../../tasks'
 
-import Command from '../../root-command'
+const ipfsClient = require('ipfs-http-client')
+
+type Context = Tasks.ICompileService | Tasks.IServiceDocGenerate
 
 export default class ServiceDoc extends Command {
   static description = 'Generate documentation for service and print it on stdout'
 
   static flags = {
-    ...Command.flags,
     save: flags.boolean({ char: 's', description: 'Save to default readme file' }),
   }
 
   static args = [{
-    name: 'SERVICE',
+    name: 'SERVICE_PATH',
     description: 'Path of a service',
     default: './'
   }]
 
   async run(): Promise<string> {
     const { args, flags } = this.parse(ServiceDoc)
-    const definition = safeLoad(readFileSync(join(args.SERVICE, 'mesg.yml')).toString())
-    const markdown = this.generateTemplate(definition)
+    const tasks = new Listr<Context>([
+      Tasks.compileService,
+      Tasks.serviceDocGen
+    ])
+    const result = await tasks.run({
+      ipfsClient: ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' }),
+      path: args.SERVICE_PATH,
+    })
+    const markdown = (result as Tasks.IServiceDocGenerate).markdownDoc
+    const definition = (result as Tasks.ICompileService).definition
     if (flags.save) {
-      this.saveReadme(args.SERVICE, markdown)
+      const defaultReadmeFileName = readdirSync(args.SERVICE_PATH).find(file => {
+        return /^readme(?:.(?:md|txt)+)?$/i.test(file)
+      })
+      const readmeFileName = defaultReadmeFileName || 'README.md'
+      writeFileSync(join(args.SERVICE_PATH, readmeFileName), markdown)
     } else {
       this.log(markdown)
     }
     return markdown
-  }
-
-  generateTemplate(data: any) {
-    registerHelper('or', (a: any, b: any) => a ? a : b)
-    registerHelper('toJSON', function (obj) {
-      return JSON.stringify(obj);
-    });
-    const template = readFileSync(join(__dirname, '..', '..', '..', 'assets', 'doc.md')).toString()
-    return compile(template)(data)
-  }
-
-  saveReadme(servicePath: string, markdown: string) {
-    const defaultReadmeFileName = readdirSync(servicePath).find(file => {
-      return /^readme(?:.(?:md|txt)+)?$/i.test(file)
-    })
-    const readmeFileName = defaultReadmeFileName || 'README.md'
-    writeFileSync(join(servicePath, readmeFileName), markdown)
   }
 }
