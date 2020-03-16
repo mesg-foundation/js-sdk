@@ -31,31 +31,18 @@ export default class ServiceCreate extends Command {
     const { args, flags } = this.parse(ServiceCreate)
     const service = JSON.parse(args.DEFINITION)
 
-    const { account } = flags.account
-      ? { account: flags.account }
-      : await prompt({
-        type: 'list',
-        name: 'account',
-        message: 'Select the account to create the service',
-        choices: this.vault.keys()
-      })
-
-    const { password } = await prompt({
-      name: 'password',
-      type: 'password',
-      message: 'Type the password to decrypt the account',
-    })
-
-    this.spinner.start('Creating service')
-    const mnemonic = this.vault.get(account, password)
-    const accountDetail = await this.lcd.account.import(mnemonic)
+    const { account, mnemonic } = await this.getAccount(flags.account)
+    
+    this.spinner.start('Create service')
     const tx = await this.lcd.createTransaction(
-      [this.lcd.service.createMsg(account, service)],
-      accountDetail
+      [this.lcd.service.createMsg(account.address, service)],
+      account
     )
 
     const txResult = await this.lcd.broadcast(tx.signWithMnemonic(mnemonic))
-    const hash = findHash(txResult, "service", "CreateService")
+    const hashes = findHash(txResult, "service", "CreateService")
+    if (hashes.length != 1) throw new Error('error while getting the hash of the service created')
+    const hash = hashes[0]
     this.spinner.stop(hash)
 
     if (flags.start) {

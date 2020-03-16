@@ -10,6 +10,8 @@ import {hash} from '@mesg/api/lib/types'
 import * as base58 from '@mesg/api/lib/util/base58'
 import {format, inspect} from 'util'
 import { mkdirSync } from 'fs'
+import { IAccount } from '@mesg/api/lib/account-lcd'
+import { prompt } from 'inquirer'
 
 export default abstract class extends Command {
   static flags = {
@@ -101,5 +103,28 @@ export default abstract class extends Command {
     if (exec.error) throw new Error(exec.error)
     if (!exec.outputs) throw new Error('missing outputs')
     return this._app.decodeData(exec.outputs)
+  }
+
+  async getAccount(address?: string): Promise<{ account: IAccount, mnemonic: string }> {
+    if (!address) {
+      const { account } = await prompt({
+        type: 'list',
+        name: 'account',
+        message: 'Select an account to sign the transaction',
+        choices: this.vault.keys()
+      })
+      address = account
+    }
+    const { password } = await prompt({
+      name: 'password',
+      type: 'password',
+      message: 'Type the account\'s password',
+    })
+
+    const mnemonic = this.vault.get(address, password)
+    return {
+      account: await this.lcd.account.import(mnemonic),
+      mnemonic,
+    }
   }
 }

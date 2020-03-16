@@ -3,6 +3,9 @@
 ## [Unreleased](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcompiler%40X.X.X)
 
 #### Breaking Changes
+
+- [#186](https://github.com/mesg-foundation/js-sdk/pull/186) Compile process in a LCD format
+
 #### Improvements
 #### Bug fixes
 

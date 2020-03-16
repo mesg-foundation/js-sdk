@@ -1,13 +1,17 @@
-import {ProcessCreateOutputs} from '@mesg/api/lib/process'
-import * as base58 from '@mesg/api/lib/util/base58'
+import {flags} from '@oclif/command'
 
 import Command from '../../root-command'
+import {findHash} from '../../utils/txevent'
+import {IProcess} from '@mesg/api/lib/process-lcd'
 
 export default class ProcessCreate extends Command {
   static description = 'Create a process'
 
   static flags = {
-    ...Command.flags
+    ...Command.flags,
+    account: flags.string({
+      description: 'Account to use to create the process'
+    }),
   }
 
   static args = [{
@@ -16,17 +20,22 @@ export default class ProcessCreate extends Command {
     description: 'Process\'s definition. Use process:compile first to build process definition'
   }]
 
-  async run(): ProcessCreateOutputs {
-    const {args} = this.parse(ProcessCreate)
+  async run(): Promise<IProcess> {
+    const {args, flags} = this.parse(ProcessCreate)
+    const definition = JSON.parse(args.DEFINITION) as IProcess
+    
+    const { account, mnemonic } = await this.getAccount(flags.account)
     this.spinner.start('Create process')
-    const definition = JSON.parse(args.DEFINITION, function (this: any, key: string, value: any): any {
-      return key && key.match(/hash$/i) && value && typeof value === 'string'
-        ? base58.decode(value)
-        : value
-    })
-    const resp = await this.api.process.create(definition)
-    if (!resp.hash) { throw new Error('invalid response') }
-    this.spinner.stop(base58.encode(resp.hash))
-    return resp
+
+    const tx = await this.lcd.createTransaction(
+      [this.lcd.process.createMsg(account.address, definition)],
+      account
+    )
+    const txResult = await this.lcd.broadcast(tx.signWithMnemonic(mnemonic))
+    const hashes = findHash(txResult, "process", "CreateProcess")
+    if (hashes.length != 1) throw new Error('error while getting the hash of the process created')
+    const hash = hashes[0]
+    this.spinner.stop(hash)
+    return this.lcd.process.get(hash)
   }
 }
