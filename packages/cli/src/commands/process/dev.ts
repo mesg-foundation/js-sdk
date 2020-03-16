@@ -7,7 +7,6 @@ import { IsAlreadyExistsError } from '../../utils/error'
 
 import ProcessCompile from './compile'
 import ProcessCreate from './create'
-import ProcessDelete from './delete'
 import ProcessLog from './logs'
 import { cli } from 'cli-ux'
 
@@ -44,7 +43,6 @@ export default class ProcessDev extends Command {
 
     process.once('SIGINT', async () => {
       stream.destroy()
-      if (this.processCreated) await ProcessDelete.run([base58.encode(processHash), '--confirm', ...this.flagsAsArgs(flags)])
     })
   }
 
