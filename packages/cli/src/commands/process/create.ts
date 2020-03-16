@@ -38,22 +38,6 @@ export default class ProcessCreate extends Command {
     const hash = hashes[0]
     this.spinner.stop(hash)
     const process = await this.lcd.process.get(hash)
-    this.createTransfer(process, mnemonic)
     return process
-  }
-
-  async createTransfer(process: IProcess, mnemonic: string) {
-    const acc = await this.lcd.account.import(mnemonic)
-    this.spinner.start('Transfering tokens to the process')
-    const coins: ICoin[] = [{
-      amount: "100000000",
-      denom: 'atto'
-    }]
-    const transferTx = await this.lcd.createTransaction(
-      [this.lcd.account.transferMsg(acc.address, process.address, coins)],
-      acc
-    )
-    await this.lcd.broadcast(transferTx.signWithMnemonic(mnemonic))
-    this.spinner.stop()
-  }
+    }
 }
