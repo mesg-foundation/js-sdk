@@ -14,7 +14,7 @@ interface Template {
   url: string
 }
 
-export default class ServiceInit extends Command {
+export default class Init extends Command {
   static description = 'Initialize a service from a template'
 
   static flags = {
@@ -28,7 +28,7 @@ export default class ServiceInit extends Command {
   }]
 
   async run(): Promise<string> {
-    const { args, flags } = this.parse(ServiceInit)
+    const { args, flags } = this.parse(Init)
     const templateUrl = await this.getTemplateUrl(flags.template)
     cli.action.start('Initialize your project')
     await this.downloadTemplate(args.DIR, templateUrl)

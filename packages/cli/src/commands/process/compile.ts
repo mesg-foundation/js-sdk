@@ -1,5 +1,4 @@
 import { flags } from '@oclif/command'
-import { IService } from '@mesg/api/lib/service'
 import * as base58 from '@mesg/api/lib/util/base58'
 import { process as compileProcess } from '@mesg/compiler'
 import { existsSync, readFileSync } from 'fs'
@@ -10,8 +9,8 @@ import Command from '../../root-command'
 import { IsAlreadyExistsError } from '../../utils/error'
 import { IProcess } from '@mesg/api/lib/process-lcd'
 import { cli } from 'cli-ux'
-import { compileService, ICompileService } from '../../tasks'
 import Listr from 'listr'
+import * as Service from '../../tasks/service'
 const ipfsClient = require('ipfs-http-client')
 
 export default class ProcessCompile extends Command {
@@ -63,7 +62,7 @@ export default class ProcessCompile extends Command {
   async sourceToInstance(dir: string, src: string, env: string[], flags: any): Promise<string> {
     const directory = join(dirname(dir), src)
 
-    const tasks = new Listr([compileService])
+    const tasks = new Listr([Service.compile])
     const result = await tasks.run({
       path: existsSync(directory) ? directory : src,
       ipfsClient: ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' }),

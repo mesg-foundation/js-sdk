@@ -6,9 +6,17 @@ import LCD from '@mesg/api/lib/lcd'
 import Application from '@mesg/application'
 import API from '@mesg/api'
 import Listr from 'listr'
-import { IValidateTasks, IConvertInput, IExecute, validateTask, convertInput, execute } from '../../tasks'
+import * as Execution from '../../tasks/execution'
+import * as Runner from '../../tasks/runner'
+import * as Service from '../../tasks/service'
+import * as Instance from '../../tasks/instance'
+import { IService } from '@mesg/api/lib/service-lcd'
+import ServiceType from "@mesg/api/lib/typedef/service";
 
-export default class ServiceExecute extends Command {
+export type IValidateTask = { service: IService, taskKey: string, task?: ServiceType.mesg.types.Service.ITask }
+export type Context = Runner.IGet | Instance.IGet | Service.IGet | IValidateTask | Execution.IConvertInput | Execution.IExecute
+
+export default class Execute extends Command {
   static description = 'Execute a task on a running service'
 
   static flags = {
@@ -35,13 +43,27 @@ export default class ServiceExecute extends Command {
   }]
 
   async run(): ExecutionCreateOutputs {
-    const { args, flags } = this.parse(ServiceExecute)
+    const { args, flags } = this.parse(Execute)
     const app = new Application(new API(`localhost:50052`))
 
-    const tasks = new Listr<IValidateTasks | IConvertInput | IExecute>([
-      validateTask,
-      convertInput,
-      execute
+    const tasks = new Listr<Context>([
+      {
+        title: 'Validate task',
+        task: () => new Listr<Runner.IGet | Instance.IGet | Service.IGet | IValidateTask>([
+          Runner.get,
+          Instance.get,
+          Service.get,
+          {
+            title: 'Validate task',
+            task: (ctx: IValidateTask) => {
+              ctx.task = ctx.service.tasks.find(x => x.key === ctx.taskKey)
+              if (!ctx.task) throw new Error(`The task ${ctx.taskKey} does not exist in service '${ctx.service.hash}'`)
+            }
+          }
+        ])
+      },
+      Execution.convertInput,
+      Execution.execute,
     ])
     const res = await tasks.run({
       lcd: new LCD(`http://localhost:1317`),
@@ -58,7 +80,7 @@ export default class ServiceExecute extends Command {
       tags: ['CLI'],
     })
 
-    const result = app.decodeData((res as IExecute).result.outputs)
+    const result = app.decodeData((res as Execution.IExecute).result.outputs)
     cli.styledJSON(result)
     return result
   }

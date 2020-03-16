@@ -2,13 +2,13 @@ import { flags, Command } from '@oclif/command'
 import { readdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import Listr from 'listr'
-import * as Tasks from '../../tasks'
+import * as Service from '../../tasks/service'
 
 const ipfsClient = require('ipfs-http-client')
 
-type Context = Tasks.ICompileService | Tasks.IServiceDocGenerate
+type Context = Service.ICompile | Service.IGenDock
 
-export default class ServiceDoc extends Command {
+export default class Doc extends Command {
   static description = 'Generate documentation for service and print it on stdout'
 
   static flags = {
@@ -22,17 +22,16 @@ export default class ServiceDoc extends Command {
   }]
 
   async run(): Promise<string> {
-    const { args, flags } = this.parse(ServiceDoc)
+    const { args, flags } = this.parse(Doc)
     const tasks = new Listr<Context>([
-      Tasks.compileService,
-      Tasks.serviceDocGen
+      Service.compile,
+      Service.genDoc
     ])
     const result = await tasks.run({
       ipfsClient: ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' }),
       path: args.SERVICE_PATH,
     })
-    const markdown = (result as Tasks.IServiceDocGenerate).markdownDoc
-    const definition = (result as Tasks.ICompileService).definition
+    const markdown = (result as Service.IGenDock).markdownDoc
     if (flags.save) {
       const defaultReadmeFileName = readdirSync(args.SERVICE_PATH).find(file => {
         return /^readme(?:.(?:md|txt)+)?$/i.test(file)
