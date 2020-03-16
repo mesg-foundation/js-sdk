@@ -10,7 +10,7 @@ export default class ProcessCreate extends Command {
   static flags = {
     ...Command.flags,
     account: flags.string({
-      description: 'Account to use to deploy the service'
+      description: 'Account to use to create the process'
     }),
   }
 
