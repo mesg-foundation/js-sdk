@@ -118,7 +118,7 @@ export default abstract class extends Command {
     const { password } = await prompt({
       name: 'password',
       type: 'password',
-      message: 'Type the account's password',
+      message: 'Type the account\'s password',
     })
 
     const mnemonic = this.vault.get(address, password)
