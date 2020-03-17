@@ -11,6 +11,7 @@
 - [#181](https://github.com/mesg-foundation/js-sdk/pull/181) Add transaction support with signature and broadcast
 - [#186](https://github.com/mesg-foundation/js-sdk/pull/186) Update type for processes and add new message to create/delete process
 - [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Add transfer message to account
+- [#188](https://github.com/mesg-foundation/js-sdk/pull/188) Add mnemonic generation to account
 
 #### Bug fixes
 

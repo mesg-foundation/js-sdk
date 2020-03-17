@@ -3,6 +3,30 @@
 ## [Unreleased](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%40X.X.X)
 
 #### Breaking Changes
+
+- [#188](https://github.com/mesg-foundation/js-sdk/pull/188) Rewrite of the CLI, new UX for dev commands and command deleted
+This is a major breaking change on the CLI.
+The following commands are deleted:
+- `daemon:logs`
+- `daemon:start`
+- `daemon:status`
+- `daemon:stop`
+- `process:compile`
+- `process:create`
+- `process:delete`
+- `process:detail`
+- `process:list`
+- `process:logs`
+- `service:compile`
+- `service:create`
+- `service:detail`
+- `service:list`
+- `service:logs`
+- `service:start`
+- `service:stop`
+
+Commands `service:dev` and `process:dev` are now smarter and automatically start a local environment all set up with a default account for local development.
+
 #### Improvements
 
 - [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Add new flag `lcd-port` to all command to configure the port of the LCD server.
