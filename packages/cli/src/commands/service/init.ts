@@ -30,7 +30,7 @@ export default class Init extends Command {
   async run(): Promise<string> {
     const { args, flags } = this.parse(Init)
     const templateUrl = await this.getTemplateUrl(flags.template)
-    cli.action.start('Initialize your project')
+    cli.action.start('Initializing your project')
     await this.downloadTemplate(args.DIR, templateUrl)
     cli.action.stop(args.DIR)
     return args.DIR
