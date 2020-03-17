@@ -49,7 +49,7 @@ export const updateDockerImage: ListrTask<IUpdateDockerImage> = {
 export type IStartEngine = { configDir: string, configFile: string, mnemonic: string, image: string }
 export const startEngine: ListrTask<IStartEngine> = {
   title: 'Start engine',
-  skip: () => isRunning(),
+  skip: async () => (await listServices({ name: ['engine'] })).length > 0,
   task: (ctx) => {
     const configFile = join(ctx.configDir, ctx.configFile)
     const newConfigs = merge({}, loadYaml(configFile), {
