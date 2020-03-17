@@ -156,6 +156,7 @@ export type INode = {
 
 export type IProcess = {
   hash?: string;
+  address?: string;
   name: string;
   nodes: INode[];
   edges: ProcessType.mesg.types.Process.IEdge[];

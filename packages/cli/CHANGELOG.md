@@ -10,6 +10,8 @@
 - [#183](https://github.com/mesg-foundation/js-sdk/pull/183) Add account commands `account:balance`, `account:create`, `account:export`, `account:list`
 - [#181](https://github.com/mesg-foundation/js-sdk/pull/181) Add util to get hash from a transaction log
 - [#186](https://github.com/mesg-foundation/js-sdk/pull/186) Create/delete process based on LCD endpoint
+- [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Add `account:transfer` command
+- [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Transfer token when creating a process
 
 #### Bug fixes
 
