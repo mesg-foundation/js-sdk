@@ -34,9 +34,10 @@ export default class ProcessCompile extends Command {
   async run(): Promise<IProcess> {
     const { args, flags } = this.parse(ProcessCompile)
 
-    const tasks = new Listr<Environment.IStart | Process.ICompile>([
+    const tasks = new Listr<Environment.IStart | Process.ICompile | Process.ICreate>([
       Environment.start,
       Process.compile,
+      Process.create,
     ])
     const res = await tasks.run({
       configDir: flags.configDir,

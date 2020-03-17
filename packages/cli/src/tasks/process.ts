@@ -6,6 +6,7 @@ import { process as compileProcess } from '@mesg/compiler'
 import { readFileSync } from "fs"
 import * as Service from './service'
 import * as Runner from './runner'
+import { findHash } from "../utils/txevent"
 
 export type ICompile = { processFilePath: string, ipfsClient: any, lcd: LCD, grpc: API, mnemonic: string, env: string[], process?: IProcess }
 export const compile: ListrTask<ICompile> = {
@@ -38,5 +39,22 @@ export const compile: ListrTask<ICompile> = {
       [env.split('=')[0]]: env.split('=')[1],
     }), {}))
     task.title = title
+  }
+}
+
+export type ICreate = { lcd: LCD, process: IProcess, mnemonic: string, processHash?: string }
+export const create: ListrTask<ICreate> = {
+  title: 'Create process',
+  task: async (ctx) => {
+    const account = await ctx.lcd.account.import(ctx.mnemonic)
+    const tx = await ctx.lcd.createTransaction(
+      [ctx.lcd.process.createMsg(account.address, ctx.process)],
+      account
+    )
+    const txResult = await ctx.lcd.broadcast(tx.signWithMnemonic(ctx.mnemonic))
+    const hashes = findHash(txResult, "process", "CreateProcess")
+    if (hashes.length != 1) throw new Error('error while getting the hash of the process created')
+    ctx.processHash = hashes[0]
+    ctx.process = await ctx.lcd.process.get(ctx.processHash)
   }
 }
