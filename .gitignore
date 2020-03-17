@@ -4,3 +4,4 @@ lib/
 istanbul/
 coverage/
 .DS_Store
+.mesg
