@@ -79,10 +79,9 @@ export default class Dev extends Command {
       })
 
     process.once('SIGINT', async () => {
-      await new Listr<Execution.ILogsStop | Environment.IStop | Environment.IClearConfig>([
+      await new Listr<Execution.ILogsStop | Environment.IStop>([
         Execution.logsStop,
-        Environment.stop,
-        Environment.clearConfig
+        Environment.stop
       ]).run({
         configDir: (result as Environment.ICreateConfig).configDir,
         executionStream: logs

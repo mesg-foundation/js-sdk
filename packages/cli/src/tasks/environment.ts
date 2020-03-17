@@ -72,21 +72,27 @@ export const lcdApiReady: ListrTask<ILCDApiReady> = {
 export type IStop = {}
 export const stop: ListrTask<IStop> = {
   title: 'Stop environment',
-  task: async (ctx, task) => {
-    const services = await listServices({ name: ['engine'] })
-    if (services.length === 0) throw new Error('Cannot find engine')
-    const service = services[0]
-    let image = (service.data as any).Spec.TaskTemplate.ContainerSpec.Image
-    image = [
-      image.split(':')[0],
-      image.split(':')[1] || 'latest'
-    ].join(':')
-    const eventPromise = waitForEvent(({ Action, from, Type }) => {
-      return Type === 'container' && Action === 'destroy' && from === image
-    })
-    await service.remove()
-    await eventPromise
-  }
+  task: () => new Listr<IStop | IClearConfig>([
+    {
+      title: 'Stop engine',
+      task: async () => {
+        const services = await listServices({ name: ['engine'] })
+        if (services.length === 0) throw new Error('Cannot find engine')
+        const service = services[0]
+        let image = (service.data as any).Spec.TaskTemplate.ContainerSpec.Image
+        image = [
+          image.split(':')[0],
+          image.split(':')[1] || 'latest'
+        ].join(':')
+        const eventPromise = waitForEvent(({ Action, from, Type }) => {
+          return Type === 'container' && Action === 'destroy' && from === image
+        })
+        await service.remove()
+        await eventPromise
+      }
+    },
+    clearConfig
+  ])
 }
 
 export type IStart = ICreateConfig | IGenerateAccount | IUpdateDockerImage | IStartEngine | ILCDApiReady

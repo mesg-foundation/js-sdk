@@ -15,7 +15,7 @@ import version from '../../version'
 const ipfsClient = require('ipfs-http-client')
 
 type Context = Environment.IStop | Service.ICompile | Service.ICreate | Runner.ICreate | Runner.ILogs | Instance.IEventLogs | Runner.IResultLogs
-type ContextEnd = Runner.ILogsStop | Instance.IEventLogsStop | Runner.IResultLogsStop | Environment.IStop | Environment.IClearConfig
+type ContextEnd = Runner.ILogsStop | Instance.IEventLogsStop | Runner.IResultLogsStop | Environment.IStop
 
 export default class Dev extends Command {
   static description = 'Run a service in a local development environment'
@@ -100,7 +100,6 @@ export default class Dev extends Command {
           ])
         },
         Environment.stop,
-        Environment.clearConfig
       ]).run({
         configDir: (result as Environment.ICreateConfig).configDir,
         eventLogs: eventLogs,
