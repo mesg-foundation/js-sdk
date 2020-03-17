@@ -9,14 +9,14 @@ import { findHash } from "../utils/txevent"
 import { IInstance } from "@mesg/api/lib/instance-lcd"
 import { registerHelper, compile as compileTemplate } from "handlebars"
 
-export type ICompile = { path: string, ipfsClient: any, definition?: IService }
+export type ICompile = { path: string, ipfsClient: any, service?: IService }
 export const compile: ListrTask<ICompile> = {
   title: 'Compile service',
   task: async (ctx) => {
     const path = await deployer(ctx.path)
-    const definition = await serviceCompiler(readFileSync(join(path, 'mesg.yml')))
+    const service = await serviceCompiler(readFileSync(join(path, 'mesg.yml')))
     const buffer: any[] = []
-    definition.source = await new Promise<string>((resolve, reject) => {
+    service.source = await new Promise<string>((resolve, reject) => {
       createTar(join(path))
         .on('data', (data: any) => buffer.push(...data))
         .once('error', reject)
@@ -28,15 +28,15 @@ export const compile: ListrTask<ICompile> = {
           return resolve(res[0].hash)
         })
     })
-    ctx.definition = definition
+    ctx.service = service
   }
 }
 
-export type ICreate = { lcd: API, definition: IService, mnemonic: string, serviceHash?: string }
+export type ICreate = { lcd: API, service: IService, mnemonic: string, serviceHash?: string }
 export const create: ListrTask<ICreate> = {
   title: 'Create service',
   skip: async (ctx) => {
-    const hash = await ctx.lcd.service.hash(ctx.definition)
+    const hash = await ctx.lcd.service.hash(ctx.service)
     if (await ctx.lcd.service.exists(hash)) {
       ctx.serviceHash = hash
       return hash as any
@@ -46,7 +46,7 @@ export const create: ListrTask<ICreate> = {
   task: async (ctx) => {
     const account = await ctx.lcd.account.import(ctx.mnemonic)
     const tx = await ctx.lcd.createTransaction(
-      [ctx.lcd.service.createMsg(account.address, ctx.definition)],
+      [ctx.lcd.service.createMsg(account.address, ctx.service)],
       account
     )
     const txResult = await ctx.lcd.broadcast(tx.signWithMnemonic(ctx.mnemonic))
@@ -62,13 +62,13 @@ export const get: ListrTask<IGet> = {
   task: async (ctx) => ctx.service = await ctx.lcd.service.get(ctx.serviceHash || ctx.instance.serviceHash)
 }
 
-export type IGenDock = { definition: IService, markdownDoc?: string }
+export type IGenDock = { service: IService, markdownDoc?: string }
 export const genDoc: ListrTask<IGenDock> = {
   title: 'Generate documentation',
   task: (ctx) => {
     registerHelper('or', (a: any, b: any) => a ? a : b)
     registerHelper('toJSON', JSON.stringify)
     const template = readFileSync(join(__dirname, '..', 'assets', 'doc.md')).toString()
-    ctx.markdownDoc = compileTemplate(template)(ctx.definition)
+    ctx.markdownDoc = compileTemplate(template)(ctx.service)
   }
 }
