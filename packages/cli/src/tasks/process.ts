@@ -7,8 +7,10 @@ import { readFileSync } from "fs"
 import * as Service from './service'
 import * as Runner from './runner'
 import { findHash } from "../utils/txevent"
+import { IService } from "@mesg/api/lib/service-lcd"
+import { IRunner } from "@mesg/api/lib/runner-lcd"
 
-export type ICompile = { processFilePath: string, ipfsClient: any, lcd: LCD, grpc: API, mnemonic: string, env: string[], process?: IProcess }
+export type ICompile = { processFilePath: string, ipfsClient: any, lcd: LCD, grpc: API, mnemonic: string, env: string[], process?: IProcess, deployedServices?: { service: IService, runner: IRunner }[] }
 export const compile: ListrTask<ICompile> = {
   title: 'Compile process',
   task: async (ctx, task) => {
@@ -33,6 +35,13 @@ export const compile: ListrTask<ICompile> = {
         mnemonic: ctx.mnemonic,
         path: src,
       })
+      ctx.deployedServices = [
+        ...(ctx.deployedServices || []),
+        {
+          runner: await ctx.lcd.runner.get((res as Runner.ICreate).runnerHash),
+          service: await ctx.lcd.service.get((res as Service.ICreate).serviceHash)
+        }
+      ]
       return (res as Runner.ICreate).instanceHash
     }, (ctx.env || []).reduce((prev, env) => ({
       ...prev,

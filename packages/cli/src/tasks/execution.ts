@@ -5,6 +5,9 @@ import ExecutionType from "@mesg/api/lib/typedef/execution";
 import * as base58 from "@mesg/api/lib/util/base58";
 import Application from "@mesg/application";
 import { IExecution } from "@mesg/api/lib/execution";
+import GRPCAPI from "@mesg/api";
+import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
+import { ExecutionStatus } from "@mesg/api/lib/types";
 
 export type IConvertInput = { task: ServiceType.mesg.types.Service.ITask, data: { [key: string]: any }, app: Application, inputs?: ExecutionType.mesg.protobuf.IStruct }
 export const convertInput: ListrTask<IConvertInput> = {
@@ -41,4 +44,25 @@ export const execute: ListrTask<IExecute> = {
       taskKey: ctx.taskKey
     })
   }
+}
+
+export type ILog = { grpc: GRPCAPI, executionStream?: GRPCStream<IExecution> }
+export const log: ListrTask<ILog> = {
+  title: 'Log executions',
+  task: (ctx) => {
+    ctx.executionStream = ctx.grpc.execution.stream({
+      filter: {
+        statuses: [
+          ExecutionStatus.COMPLETED,
+          ExecutionStatus.FAILED
+        ]
+      }
+    })
+  }
+}
+
+export type ILogsStop = { executionStream: GRPCStream<IExecution> }
+export const logsStop: ListrTask<ILogsStop> = {
+  title: 'Stop execution\'s logs',
+  task: (ctx) => ctx.executionStream.cancel()
 }
