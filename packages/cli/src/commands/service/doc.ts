@@ -9,7 +9,7 @@ const ipfsClient = require('ipfs-http-client')
 type Context = Service.ICompile | Service.IGenDock
 
 export default class Doc extends Command {
-  static description = 'Generate documentation for service and print it on stdout'
+  static description = 'Generate documentation for service and print it to stdout'
 
   static flags = {
     save: flags.boolean({ char: 's', description: 'Save to default readme file' }),
