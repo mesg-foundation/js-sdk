@@ -37,6 +37,11 @@ export default class Vault {
     }
   }
 
+  remove(key: string): void {
+    if (!this.contains(key)) throw new Error(`${key} is not present`)
+    this._store.set(key, undefined)
+  }
+
   // https://github.com/luniehq/cosmos-keys/blob/7d848f325a2f5c32c720f07722b239c6ebded542/src/cosmos-keystore.ts#L144
   private encrypt(message: string, password: string): string {
     const salt = CryptoJS.lib.WordArray.random(128 / 8)

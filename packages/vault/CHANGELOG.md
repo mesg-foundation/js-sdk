@@ -6,5 +6,8 @@
 #### Improvements
 
 - [#183](https://github.com/mesg-foundation/js-sdk/pull/183) Add localstorage store and add `keys` function to the store
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Add remove function to the vault
 
 #### Bug fixes
+
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Automatically create the directory if needed for the file store
