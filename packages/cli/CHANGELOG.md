@@ -37,6 +37,7 @@ Commands `service:dev` and `process:dev` are now smarter and automatically start
 - [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Add `account:transfer` command (reverted by #188)
 - [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Transfer token when creating a process (reverted by #188)
 - [#193](https://github.com/mesg-foundation/js-sdk/pull/193) Add login/logout commands with synchronization in the user's configs
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Add `deploy:service` command
 
 #### Bug fixes
 
