@@ -6,6 +6,12 @@ import { prompt } from 'inquirer'
 import API from '@mesg/api/lib/lcd'
 import { parse } from 'url'
 
+export type Credential = {
+  address: string;
+  public_key: string;
+  mnemonic: string;
+}
+
 export default class Login extends Command {
   static description = 'Login to a registry'
 
@@ -18,7 +24,7 @@ export default class Login extends Command {
   async run() {
     const { flags } = this.parse(Login)
     const lcd = new API(flags.registry)
-    const vault = new Vault(new FileStore(join(this.config.configDir, 'credentials.json')))
+    const vault = new Vault<Credential>(new FileStore(join(this.config.configDir, 'credentials.json')))
 
     const key = parse(flags.registry).hostname
     if (vault.contains(key)) this.error('Already logged in')
