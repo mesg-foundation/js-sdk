@@ -29,13 +29,14 @@ Commands `service:dev` and `process:dev` are now smarter and automatically start
 
 #### Improvements
 
-- [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Add new flag `lcd-port` to all command to configure the port of the LCD server.
+- [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Add new flag `lcd-port` to all command to configure the port of the LCD server. (reverted by #188)
 - [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Use LCD server for all reading (`process:compile`, `process:detail`, `process:list`, `process:logs`, `service:detail`, `service:dev`, `service:execute`, `service:list`, `service:logs`, `service:start`, `service:stop`)
-- [#183](https://github.com/mesg-foundation/js-sdk/pull/183) Add account commands `account:balance`, `account:create`, `account:export`, `account:list`
+- [#183](https://github.com/mesg-foundation/js-sdk/pull/183) Add account commands `account:balance`, `account:create`, `account:export`, `account:list` (reverted by #188)
 - [#181](https://github.com/mesg-foundation/js-sdk/pull/181) Add util to get hash from a transaction log
 - [#186](https://github.com/mesg-foundation/js-sdk/pull/186) Create/delete process based on LCD endpoint
-- [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Add `account:transfer` command
-- [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Transfer token when creating a process
+- [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Add `account:transfer` command (reverted by #188)
+- [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Transfer token when creating a process (reverted by #188)
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Add login/logout commands with synchronization in the user's configs
 
 #### Bug fixes
 
