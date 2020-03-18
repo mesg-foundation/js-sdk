@@ -7,6 +7,7 @@
 
 - [#183](https://github.com/mesg-foundation/js-sdk/pull/183) Add localstorage store and add `keys` function to the store
 - [#](https://github.com/mesg-foundation/js-sdk/pull/) Add remove function to the vault
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Add type for the vault's data
 
 #### Bug fixes
 

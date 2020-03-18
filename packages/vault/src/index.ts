@@ -4,7 +4,7 @@ import { Store } from './type';
 const keySize = 256
 const iterations = 100
 
-export default class Vault {
+export default class Vault<T = any> {
 
   private _store: Store;
 
@@ -20,13 +20,13 @@ export default class Vault {
     return this.keys().indexOf(key) >= 0
   }
 
-  set(key: string, value: any, password: string): void {
+  set(key: string, value: T, password: string): void {
     if (this.contains(key)) throw new Error(`${key} already present`)
     const ciphertext = this.encrypt(JSON.stringify(value), password)
     this._store.set(key, ciphertext)
   }
 
-  get(key: string, password: string): any {
+  get(key: string, password: string): T {
     if (!this.contains(key)) throw new Error(`${key} is not present`)
     const transitMessage = this._store.get(key)
     try {
