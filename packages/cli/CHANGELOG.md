@@ -36,7 +36,7 @@ Commands `service:dev` and `process:dev` are now smarter and automatically start
 - [#186](https://github.com/mesg-foundation/js-sdk/pull/186) Create/delete process based on LCD endpoint
 - [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Add `account:transfer` command (reverted by #188)
 - [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Transfer token when creating a process (reverted by #188)
-- [#](https://github.com/mesg-foundation/js-sdk/pull/) Add login/logout commands with synchronization in the user's configs
+- [#193](https://github.com/mesg-foundation/js-sdk/pull/193) Add login/logout commands with synchronization in the user's configs
 
 #### Bug fixes
 
