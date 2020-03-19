@@ -93,7 +93,7 @@ export const start: ListrTask<IStart> = {
     {
       title: 'Generating test account',
       skip: ctx => ctx.mnemonic,
-      task: ctx => ctx.mnemonic = getOrGenerateAccount(ctx.configDir, ctx.configFile)
+      task: ctx => ctx.mnemonic = getOrGenerateAccount(ctx.configDir)
     },
     {
       title: 'Updating the Engine image',
@@ -104,7 +104,7 @@ export const start: ListrTask<IStart> = {
       title: 'Starting the Engine',
       skip: async () => (await listServices({ name: ['engine'] })).length > 0,
       task: ctx => {
-        write(join(ctx.configDir, ctx.configFile), {
+        write(ctx.configDir, {
           account: {
             mnemonic: ctx.mnemonic
           }
