@@ -1,4 +1,5 @@
-import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
+import { resolve, dirname } from 'path'
 import { Store } from '../type'
 
 export default class File implements Store {
@@ -6,6 +7,7 @@ export default class File implements Store {
 
   constructor(path: string) {
     this._path = path
+    mkdirSync(dirname(resolve(this._path)), { recursive: true })
   }
 
   set(key: string, value: string): void {
