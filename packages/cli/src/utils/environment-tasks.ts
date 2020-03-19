@@ -1,9 +1,29 @@
 import Listr, { ListrTask } from "listr"
-import { existsSync, mkdirSync } from "fs"
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { hasImage, fetchImageTag, createService, listServices, waitForEvent } from "./docker"
 import { getOrGenerateAccount, write, clear } from "./config"
 import fetch from "node-fetch"
+
+const pidFilename = 'pid.json'
+
+const pids = (path: string): number[] => existsSync(join(path, pidFilename))
+  ? JSON.parse(readFileSync(join(path, pidFilename)).toString()).map((x: any) => parseInt(x, 10))
+  : []
+
+const appendPID = (path: string) => {
+  const res = [...pids(path), process.pid].filter((value, index, self) => self.indexOf(value) === index)
+  writeFileSync(join(path, pidFilename), JSON.stringify(res))
+}
+
+const removePID = (path: string) => {
+  if (!existsSync(join(path, pidFilename))) return
+  const res = pids(path).filter(x => x !== process.pid)
+  writeFileSync(join(path, pidFilename), JSON.stringify(res))
+}
+
+const hasOtherInstances = (path: string) => pids(path).filter(x => x !== process.pid).length > 0
+
 
 const isRunning = async (endpoint: string = `http://localhost:1317`): Promise<boolean> => {
   try {
@@ -28,6 +48,7 @@ export const stop: ListrTask<IStop> = {
   task: () => new Listr([
     {
       title: 'Stopping the Engine',
+      skip: ctx => hasOtherInstances(ctx.configDir),
       task: async () => {
         const services = await listServices({ name: ['engine'] })
         if (services.length === 0) throw new Error('Cannot find engine')
@@ -46,8 +67,13 @@ export const stop: ListrTask<IStop> = {
     },
     {
       title: 'Clearing config',
+      skip: ctx => hasOtherInstances(ctx.configDir),
       task: ctx => clear(ctx.configDir)
-    }
+    },
+    {
+      title: 'Unregistering CLI',
+      task: ctx => removePID(ctx.configDir)
+    },
   ])
 }
 
@@ -59,6 +85,10 @@ export const start: ListrTask<IStart> = {
       title: 'Creating default configuration',
       skip: ctx => existsSync(ctx.configDir),
       task: ctx => mkdirSync(ctx.configDir)
+    },
+    {
+      title: 'Registering CLI',
+      task: ctx => appendPID(ctx.configDir)
     },
     {
       title: 'Generating test account',
