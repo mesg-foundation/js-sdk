@@ -13,20 +13,20 @@ const loadYaml = (file: string) => existsSync(file)
 
 export type ICreateConfig = { configDir: string }
 export const createConfig: ListrTask<ICreateConfig> = {
-  title: 'Create default configuration',
+  title: 'Creating default configuration',
   skip: (ctx) => existsSync(ctx.configDir),
   task: (ctx) => mkdirSync(ctx.configDir)
 }
 
 export type IClearConfig = { configDir: string }
 export const clearConfig: ListrTask<IClearConfig> = {
-  title: 'Clear config',
+  title: 'Clearing config',
   task: ctx => (rmdirSync as any)(ctx.configDir, { recursive: true })
 }
 
 export type IGenerateAccount = { mnemonic?: string, configDir: string, configFile: string }
 export const generateAccount: ListrTask<IGenerateAccount> = {
-  title: 'Generate test account',
+  title: 'Generating test account',
   skip: (ctx) => {
     if (!ctx.mnemonic) {
       ctx.mnemonic = (loadYaml(join(ctx.configDir, ctx.configFile)).account || {}).mnemonic
@@ -41,14 +41,14 @@ export const generateAccount: ListrTask<IGenerateAccount> = {
 
 export type IUpdateDockerImage = { pull: boolean, image: string, tag: string }
 export const updateDockerImage: ListrTask<IUpdateDockerImage> = {
-  title: 'Update engine image',
+  title: 'Updating the Engine image',
   skip: async (ctx) => !ctx.pull && await hasImage(ctx.image),
   task: (ctx) => fetchImageTag(ctx.image, ctx.tag)
 }
 
 export type IStartEngine = { configDir: string, configFile: string, mnemonic: string, image: string }
 export const startEngine: ListrTask<IStartEngine> = {
-  title: 'Start engine',
+  title: 'Starting the Engine',
   skip: async () => (await listServices({ name: ['engine'] })).length > 0,
   task: (ctx) => {
     const configFile = join(ctx.configDir, ctx.configFile)
@@ -64,7 +64,7 @@ export const startEngine: ListrTask<IStartEngine> = {
 
 export type ILCDApiReady = {}
 export const lcdApiReady: ListrTask<ILCDApiReady> = {
-  title: 'Wait for API',
+  title: 'Waiting for the Engine to be ready',
   skip: () => isRunning(),
   task: () => waitToBeReady()
 }
@@ -74,10 +74,10 @@ export const stop: ListrTask<IStop> = {
   title: 'Stop environment',
   task: () => new Listr<IStop | IClearConfig>([
     {
-      title: 'Stop engine',
+      title: 'Stopping the Engine',
       task: async () => {
         const services = await listServices({ name: ['engine'] })
-        if (services.length === 0) throw new Error('Cannot find engine')
+        if (services.length === 0) throw new Error('Could not find a running Engine')
         const service = services[0]
         let image = (service.data as any).Spec.TaskTemplate.ContainerSpec.Image
         image = [

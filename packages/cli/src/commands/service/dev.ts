@@ -92,7 +92,7 @@ export default class Dev extends Command {
     process.once('SIGINT', async () => {
       await new Listr<ContextEnd>([
         {
-          title: 'Stop service\'s logs',
+          title: 'Stopping logs',
           task: () => new Listr<Runner.ILogsStop | Instance.IEventLogsStop | Runner.IResultLogsStop>([
             Runner.logsStop,
             Instance.eventLogsStop,
