@@ -29,6 +29,7 @@ export default class Service extends Command {
     const { args, flags } = this.parse(Service)
     const vault = new Vault<Credential>(new FileStore(join(this.config.configDir, 'credentials.json')))
     const key = parse(flags.registry).hostname
+    if (!vault.contains(key)) this.error('no account found, please run `mesg-cli login`')
     const password = flags.password
       ? flags.password
       : ((await prompt([{ name: 'password', type: 'password', message: 'Type the password of your account' }])) as any).password
