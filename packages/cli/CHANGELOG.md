@@ -39,6 +39,7 @@ Commands `service:dev` and `process:dev` are automatically start a local environ
 - [#193](https://github.com/mesg-foundation/js-sdk/pull/193) Add login/logout commands with synchronization in the user's configs
 - [#194](https://github.com/mesg-foundation/js-sdk/pull/194) Add `deploy:service` command
 - [#196](https://github.com/mesg-foundation/js-sdk/pull/196) Update code organization for tasks
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) State of the local chain in the `dataDir` (https://oclif.io/docs/config)
 
 #### Bug fixes
 
