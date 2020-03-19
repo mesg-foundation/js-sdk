@@ -11,7 +11,7 @@ import { ExecutionStatus } from "@mesg/api/lib/types";
 
 export type IConvertInput = { task: ServiceType.mesg.types.Service.ITask, data: { [key: string]: any }, app: Application, inputs?: ExecutionType.mesg.protobuf.IStruct }
 export const convertInput: ListrTask<IConvertInput> = {
-  title: 'Convert inputs',
+  title: 'Converting inputs',
   task: ctx => {
     const convert = (type: 'Object' | 'String' | 'Boolean' | 'Number' | 'Any', value: string | any): any => {
       return {
@@ -34,7 +34,7 @@ export const convertInput: ListrTask<IConvertInput> = {
 
 export type IExecute = { runner: IRunner, tags: string[], taskKey: string, inputs: ExecutionType.mesg.protobuf.IStruct, eventHash: string, app: Application, result?: IExecution }
 export const execute: ListrTask<IExecute> = {
-  title: 'Execute task',
+  title: 'Executing task',
   task: async (ctx: IExecute) => {
     ctx.result = await ctx.app.executeTaskAndWaitResult({
       eventHash: base58.decode(ctx.eventHash),
@@ -48,7 +48,7 @@ export const execute: ListrTask<IExecute> = {
 
 export type ILog = { grpc: GRPCAPI, executionStream?: GRPCStream<IExecution> }
 export const log: ListrTask<ILog> = {
-  title: 'Log executions',
+  title: 'Fetching executions\' logs',
   task: (ctx) => {
     ctx.executionStream = ctx.grpc.execution.stream({
       filter: {
@@ -63,6 +63,6 @@ export const log: ListrTask<ILog> = {
 
 export type ILogsStop = { executionStream: GRPCStream<IExecution> }
 export const logsStop: ListrTask<ILogsStop> = {
-  title: 'Stop execution\'s logs',
+  title: 'Stopping fetching execution\'s logs',
   task: (ctx) => ctx.executionStream.cancel()
 }

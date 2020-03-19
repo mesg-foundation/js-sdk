@@ -13,7 +13,7 @@ import { IsAlreadyExistsError } from "../utils/error";
 
 export type ILogs = { runnerHash: string, runnerLogs?: Stream[] }
 export const logs: ListrTask<ILogs> = {
-  title: 'Log service\'s outputs',
+  title: 'Fetching service\'s logs',
   task: async (ctx) => {
     const dockerServices = await listServices({ label: [`mesg.runner=${ctx.runnerHash}`] })
     ctx.runnerLogs = await Promise.all(dockerServices.map(x => x.logs({
@@ -27,13 +27,13 @@ export const logs: ListrTask<ILogs> = {
 
 export type ILogsStop = { runnerLogs: Stream[] }
 export const logsStop: ListrTask<ILogsStop> = {
-  title: 'Stop service\'s outputs',
+  title: 'Stopping fetching service\'s logs',
   task: async (ctx) => ctx.runnerLogs.forEach((x: any) => x.destroy())
 }
 
 export type IResultLogs = { grpc: GRPCAPI, runnerHash: string, resultLogs?: GRPCStream<IExecution> }
 export const resultLogs: ListrTask<IResultLogs> = {
-  title: 'Log service\'s result',
+  title: 'Fetching executions\' logs',
   task: (ctx) => {
     ctx.resultLogs = ctx.grpc.execution.stream({
       filter: {
@@ -49,13 +49,13 @@ export const resultLogs: ListrTask<IResultLogs> = {
 
 export type IResultLogsStop = { resultLogs: GRPCStream<IExecution> }
 export const resultLogsStop: ListrTask<IResultLogsStop> = {
-  title: 'Stop Service\'s result logs',
+  title: 'Stopping fetching execution\'s logs',
   task: (ctx) => ctx.resultLogs.cancel()
 }
 
 export type IGet = { lcd: API, runnerHash: string, runner: IRunner }
 export const get: ListrTask<IGet> = {
-  title: 'Get runner',
+  title: 'Getting runner\'s info',
   task: async (ctx) => {
     try {
       ctx.runner = await ctx.lcd.runner.get(ctx.runnerHash)
@@ -68,7 +68,7 @@ export const get: ListrTask<IGet> = {
 
 export type ICreate = { grpc: GRPCAPI, lcd: API, serviceHash: string, env: string[], runnerHash?: string, instanceHash?: string }
 export const create: ListrTask<ICreate> = {
-  title: 'Create runner',
+  title: 'Creating runner',
   task: async (ctx, task) => {
     try {
       const response = await ctx.grpc.runner.create({

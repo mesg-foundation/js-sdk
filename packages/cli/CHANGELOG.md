@@ -4,9 +4,9 @@
 
 #### Breaking Changes
 
-- [#188](https://github.com/mesg-foundation/js-sdk/pull/188) Rewrite of the CLI, new UX for dev commands and command deleted
+- [#188](https://github.com/mesg-foundation/js-sdk/pull/188) Rewrite of the CLI, new UX for dev commands, and deletion of many commands
 This is a major breaking change on the CLI.
-The following commands are deleted:
+The following commands have been deleted:
 - `daemon:logs`
 - `daemon:start`
 - `daemon:status`
@@ -25,7 +25,7 @@ The following commands are deleted:
 - `service:start`
 - `service:stop`
 
-Commands `service:dev` and `process:dev` are now smarter and automatically start a local environment all set up with a default account for local development.
+Commands `service:dev` and `process:dev` are automatically start a local environment already set up with a default account for local development.
 
 #### Improvements
 

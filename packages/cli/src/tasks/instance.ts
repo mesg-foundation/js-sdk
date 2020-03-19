@@ -9,7 +9,7 @@ import { IInstance } from "@mesg/api/lib/instance-lcd";
 
 export type IEventLogs = { grpc: GRPCAPI, instanceHash: string, eventLogs?: GRPCStream<IEvent> }
 export const eventLogs: ListrTask<IEventLogs> = {
-  title: 'Log service\'s event',
+  title: 'Fetching events\' logs',
   task: (ctx) => {
     ctx.eventLogs = ctx.grpc.event.stream({
       filter: {
@@ -21,7 +21,7 @@ export const eventLogs: ListrTask<IEventLogs> = {
 
 export type IEventLogsStop = { eventLogs: GRPCStream<IEvent> }
 export const eventLogsStop: ListrTask<IEventLogsStop> = {
-  title: 'Stop service\'s event logs',
+  title: 'Stopping events\' logs',
   task: (ctx) => ctx.eventLogs.cancel()
 }
 
