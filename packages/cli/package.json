@@ -54,6 +54,8 @@
     "ipfs-http-client": "^29.1.1",
     "is-git-url": "^1.0.0",
     "js-yaml": "^3.13.1",
+    "listr": "^0.14.3",
+    "lodash.merge": "^4.6.2",
     "node-docker-api": "^1.1.22",
     "node-fetch": "^2.6.0",
     "rimraf": "^3.0.0",
@@ -71,6 +73,8 @@
     "@types/inquirer": "0.0.43",
     "@types/is-git-url": "^1.0.0",
     "@types/js-yaml": "^3.12.1",
+    "@types/listr": "^0.14.2",
+    "@types/lodash.merge": "^4.6.6",
     "@types/lodash.pick": "^4.4.6",
     "@types/long": "^4.0.0",
     "@types/mocha": "^5.2.7",
@@ -109,17 +113,11 @@
       "@oclif/plugin-not-found"
     ],
     "topics": {
-      "account": {
-        "description": "Manage accounts"
-      },
       "service": {
         "description": "Manage services"
       },
       "process": {
         "description": "Manage processes"
-      },
-      "daemon": {
-        "description": "Manage the Engine"
       }
     }
   }

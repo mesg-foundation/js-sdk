@@ -68,6 +68,7 @@ export const createTar = (path: string): Readable => {
   const mesgignore = join(path, '.mesgignore')
   const ig = ignore().add([
     '.git',
+    '.mesg',
     ...(existsSync(mesgignore) ? readFileSync(mesgignore).toString().split('\n') : [])
   ])
   const filter = ig.createFilter()

@@ -18,13 +18,13 @@
 {{#if events}}
 - [Events](#Events)
   {{#each events}}
-  - [{{or name @key}}](#{{@key}})
+  - [{{or name key}}](#{{key}})
   {{/each}}
 {{/if}}
 {{#if tasks}}
 - [Tasks](#Tasks)
   {{#each tasks}}
-  - [{{or name @key}}](#{{@key}})
+  - [{{or name key}}](#{{key}})
   {{/each}}
 {{/if}}
 
@@ -61,9 +61,9 @@ To deploy this service, go to [this service page](https://marketplace.mesg.com/s
 ### Events
 
   {{#each events}}
-<h4 id="{{@key}}">{{or name @key}}</h4>
+#### {{key}}
 
-Event key: `{{@key}}`
+Event key: `{{key}}`
 
 {{description}}
 
@@ -71,7 +71,7 @@ Event key: `{{@key}}`
 | **Name** | **Key** | **Type** | **Description** | **Object** |
 | --- | --- | --- | --- | --- |
       {{#each data}}
-| **{{or name @key}}** | `{{@key}}` | `{{type}}{{#if repeated}}[]{{/if}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if object}} {{toJSON object}} {{/if}} |
+| **{{key}}** | `{{key}}` | `{{type}}{{#if repeated}}[]{{/if}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if object}} {{toJSON object}} {{/if}} |
       {{/each}}
     {{/if}}
   {{/each}}
@@ -81,9 +81,9 @@ Event key: `{{@key}}`
 ### Tasks
 
   {{#each tasks}}
-<h4 id="{{@key}}">{{or name @key}}</h4>
+#### {{key}}
 
-Task key: `{{@key}}`
+Task key: `{{key}}`
 
 {{description}}
 
@@ -93,7 +93,7 @@ Task key: `{{@key}}`
 | **Name** | **Key** | **Type** | **Description** | **Object** |
 | --- | --- | --- | --- | --- |
       {{#each inputs}}
-| **{{or name @key}}** | `{{@key}}` | `{{type}}{{#if repeated}}[]{{/if}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if object}} {{toJSON object}} {{/if}} |
+| **{{or name key}}** | `{{key}}` | `{{type}}{{#if repeated}}[]{{/if}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if object}} {{toJSON object}} {{/if}} |
       {{/each}}
     {{/if}}
   
@@ -103,7 +103,7 @@ Task key: `{{@key}}`
 | **Name** | **Key** | **Type** | **Description** | **Object** |
 | --- | --- | --- | --- | --- |
       {{#each outputs}}
-| **{{or name @key}}** | `{{@key}}` | `{{type}}{{#if repeated}}[]{{/if}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if object}} {{toJSON object}} {{/if}} |
+| **{{or name key}}** | `{{key}}` | `{{type}}{{#if repeated}}[]{{/if}}` | {{#if optional}}**`optional`** {{/if}}{{description}} | {{#if object}} {{toJSON object}} {{/if}} |
       {{/each}}
     {{/if}}
   {{/each}}
