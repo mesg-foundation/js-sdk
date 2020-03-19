@@ -77,7 +77,7 @@ export const stop: ListrTask<IStop> = {
   ])
 }
 
-export type IStart = { configDir: string, configFile: string, pull: boolean, image: string, tag: string, endpoint: string, mnemonic?: string }
+export type IStart = { configDir: string, pull: boolean, image: string, tag: string, endpoint: string, mnemonic?: string }
 export const start: ListrTask<IStart> = {
   title: 'Start environment',
   task: () => new Listr([
