@@ -11,6 +11,25 @@ const loadYaml = (file: string) => existsSync(file)
   ? safeLoad(readFileSync(file).toString())
   : {}
 
+const pidFilename = 'pid.json'
+
+const pids = (path: string): number[] => existsSync(join(path, pidFilename))
+  ? JSON.parse(readFileSync(join(path, pidFilename)).toString()).map((x: any) => parseInt(x, 10))
+  : []
+
+const appendPID = (path: string) => {
+  const res = [...pids(path), process.pid].filter((value, index, self) => self.indexOf(value) === index)
+  writeFileSync(join(path, pidFilename), JSON.stringify(res))
+}
+
+const removePID = (path: string) => {
+  if (!existsSync(join(path, pidFilename))) return
+  const res = pids(path).filter(x => x !== process.pid)
+  writeFileSync(join(path, pidFilename), JSON.stringify(res))
+}
+
+const hasOtherInstances = (path: string) => pids(path).filter(x => x !== process.pid).length > 0
+
 export type ICreateConfig = { configDir: string }
 export const createConfig: ListrTask<ICreateConfig> = {
   title: 'Creating default configuration',
@@ -21,6 +40,7 @@ export const createConfig: ListrTask<ICreateConfig> = {
 export type IClearConfig = { configDir: string }
 export const clearConfig: ListrTask<IClearConfig> = {
   title: 'Clearing config',
+  skip: ctx => hasOtherInstances(ctx.configDir),
   task: ctx => (rmdirSync as any)(ctx.configDir, { recursive: true })
 }
 
@@ -69,12 +89,13 @@ export const lcdApiReady: ListrTask<ILCDApiReady> = {
   task: () => waitToBeReady()
 }
 
-export type IStop = {}
+export type IStop = { configDir: string }
 export const stop: ListrTask<IStop> = {
   title: 'Stop environment',
   task: () => new Listr<IStop | IClearConfig>([
     {
       title: 'Stopping the Engine',
+      skip: (ctx) => hasOtherInstances(ctx.configDir),
       task: async () => {
         const services = await listServices({ name: ['engine'] })
         if (services.length === 0) throw new Error('Could not find a running Engine')
@@ -91,7 +112,11 @@ export const stop: ListrTask<IStop> = {
         await eventPromise
       }
     },
-    clearConfig
+    clearConfig,
+    {
+      title: 'Unregistering CLI',
+      task: (ctx: IClearConfig) => removePID(ctx.configDir)
+    },
   ])
 }
 
@@ -100,6 +125,10 @@ export const start: ListrTask<IStart> = {
   title: 'Start environment',
   task: () => new Listr<IStart>([
     createConfig,
+    {
+      title: 'Registering CLI',
+      task: (ctx: ICreateConfig) => appendPID(ctx.configDir)
+    },
     generateAccount,
     updateDockerImage,
     startEngine,
