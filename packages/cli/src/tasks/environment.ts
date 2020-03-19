@@ -114,7 +114,7 @@ export const stop: ListrTask<IStop> = {
     },
     clearConfig,
     {
-      title: 'Unregister CLI',
+      title: 'Unregistering CLI',
       task: (ctx: IClearConfig) => removePID(ctx.configDir)
     },
   ])
@@ -126,7 +126,7 @@ export const start: ListrTask<IStart> = {
   task: () => new Listr<IStart>([
     createConfig,
     {
-      title: 'Register CLI',
+      title: 'Registering CLI',
       task: (ctx: ICreateConfig) => appendPID(ctx.configDir)
     },
     generateAccount,
