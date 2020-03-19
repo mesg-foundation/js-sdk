@@ -11,7 +11,7 @@ import { registerHelper, compile as compileTemplate } from "handlebars"
 
 export type ICompile = { path: string, ipfsClient: any, service?: IService }
 export const compile: ListrTask<ICompile> = {
-  title: 'Compile service',
+  title: 'Compiling service',
   task: async (ctx) => {
     const path = await deployer(ctx.path)
     const service = await serviceCompiler(readFileSync(join(path, 'mesg.yml')))
@@ -34,7 +34,7 @@ export const compile: ListrTask<ICompile> = {
 
 export type ICreate = { lcd: API, service: IService, mnemonic: string, serviceHash?: string }
 export const create: ListrTask<ICreate> = {
-  title: 'Create service',
+  title: 'Creating service',
   skip: async (ctx) => {
     const hash = await ctx.lcd.service.hash(ctx.service)
     if (await ctx.lcd.service.exists(hash)) {
@@ -58,13 +58,13 @@ export const create: ListrTask<ICreate> = {
 
 export type IGet = { lcd: API, instance?: IInstance, serviceHash?: string, service?: IService }
 export const get: ListrTask<IGet> = {
-  title: 'Get service',
+  title: 'Getting service\'s info',
   task: async (ctx) => ctx.service = await ctx.lcd.service.get(ctx.serviceHash || ctx.instance.serviceHash)
 }
 
 export type IGenDock = { service: IService, markdownDoc?: string }
 export const genDoc: ListrTask<IGenDock> = {
-  title: 'Generate documentation',
+  title: 'Generating documentation',
   task: (ctx) => {
     registerHelper('or', (a: any, b: any) => a ? a : b)
     registerHelper('toJSON', JSON.stringify)

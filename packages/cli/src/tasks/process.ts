@@ -12,7 +12,7 @@ import { IRunner } from "@mesg/api/lib/runner-lcd"
 
 export type ICompile = { processFilePath: string, ipfsClient: any, lcd: LCD, grpc: API, mnemonic: string, env: string[], process?: IProcess, deployedServices?: { service: IService, runner: IRunner }[] }
 export const compile: ListrTask<ICompile> = {
-  title: 'Compile process',
+  title: 'Compiling process',
   task: async (ctx, task) => {
     const title = task.title
     ctx.process = await compileProcess(readFileSync(ctx.processFilePath), async (instanceObject: any): Promise<string> => {
@@ -53,7 +53,7 @@ export const compile: ListrTask<ICompile> = {
 
 export type ICreate = { lcd: LCD, process: IProcess, mnemonic: string, processHash?: string }
 export const create: ListrTask<ICreate> = {
-  title: 'Create process',
+  title: 'Creating process',
   task: async (ctx) => {
     const account = await ctx.lcd.account.import(ctx.mnemonic)
     const tx = await ctx.lcd.createTransaction(

@@ -15,16 +15,16 @@ import { decode } from '@mesg/api/lib/util/encoder'
 const ipfsClient = require('ipfs-http-client')
 
 export default class Dev extends Command {
-  static description = 'Compile a process'
+  static description = 'Run a process in a local development environment'
 
   static flags = {
-    image: flags.string({ name: 'MESG engine image', default: 'mesg/engine' }),
-    tag: flags.string({ name: 'MESG engine version', default: version.engine }),
+    image: flags.string({ name: 'Engine image', default: 'mesg/engine' }),
+    tag: flags.string({ name: 'Engine version', default: version.engine }),
     pull: flags.boolean({ name: 'Force to pull the docker image', default: false }),
-    configDir: flags.string({ name: 'Directory for your configurations', default: join(process.cwd(), '.mesg') }),
-    configFile: flags.string({ name: 'Name of your config file', default: 'config.yml' }),
+    configDir: flags.string({ name: 'Configuration directory', default: join(process.cwd(), '.mesg') }),
+    configFile: flags.string({ name: 'Config filename', default: 'config.yml' }),
     env: flags.string({
-      description: 'Set environment variables',
+      description: 'Environment variables to inject to the process',
       multiple: true,
       helpValue: 'FOO=BAR'
     })
