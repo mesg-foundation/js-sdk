@@ -79,7 +79,7 @@ export const stop: ListrTask<IStop> = {
 
 export type IStart = { configDir: string, configFile: string, pull: boolean, image: string, tag: string, endpoint: string, mnemonic?: string }
 export const start: ListrTask<IStart> = {
-  title: 'Start environment',
+  title: 'Starting environment',
   task: () => new Listr([
     {
       title: 'Creating default configuration',
