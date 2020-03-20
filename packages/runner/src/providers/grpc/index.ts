@@ -11,10 +11,10 @@ export default class GRPC implements Provider {
     this._api = new API(endpoint)
   }
 
-  async start(serviceHash: string, env: { [key: string]: string }): Promise<IRunner> {
+  async start(serviceHash: string, env: string[]): Promise<IRunner> {
     const response = await this._api.runner.create({
       serviceHash: base58.decode(serviceHash),
-      env: Object.keys(env).reduce((prev, x) => [...prev, `${x}=${env[x].toString()}`], [])
+      env
     })
 
     const runner = await this._api.runner.get({ hash: response.hash })

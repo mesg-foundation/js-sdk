@@ -1,7 +1,7 @@
 import { IRunner } from '@mesg/api/lib/runner-lcd'
 
 export interface Provider {
-  start(serviceHash: string, env: { [key: string]: string }): Promise<IRunner>
+  start(serviceHash: string, env: string[]): Promise<IRunner>
   stop(runnerHash: string): Promise<void>
 }
 
@@ -15,7 +15,7 @@ export default class Runner {
     this._provider = provider
   }
 
-  async start(env: { [key: string]: string }): Promise<IRunner> {
+  async start(env: string[]): Promise<IRunner> {
     return this._provider.start(this._serviceHash, env)
   }
 
