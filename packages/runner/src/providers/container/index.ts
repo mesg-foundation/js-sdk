@@ -37,13 +37,9 @@ export default class DockerContainer implements Provider {
     const serviceNetwork = await this.getServiceNetwork(service)
 
     const containers = [...dependencyContainers, serviceContainer]
-    try {
-      for (const container of containers) {
-        await serviceNetwork.connect({ container: container.id })
-        await container.start()
-      }
-    } catch (e) {
-      await this.stop(runner.hash)
+    for (const container of containers) {
+      await serviceNetwork.connect({ container: container.id })
+      await container.start()
     }
 
     return runner
@@ -135,9 +131,10 @@ export default class DockerContainer implements Provider {
   private async createDependenciesContainer(service: IService, runner: IRunner): Promise<Container[]> {
     const containers = []
     for (const dep of service.dependencies || []) {
+      const image = await this.fetchImage(dep.image.split(':')[0], dep.image.split(':')[1] || 'latest')
       const resp = await this._client.container.create({
         name: `${service.hash}-${dep.key}`,
-        image: dep.image,
+        image: image,
         env: dep.env,
         command: dep.command,
         args: dep.args,
@@ -152,6 +149,18 @@ export default class DockerContainer implements Provider {
       containers.push(await this._client.container.get(resp.id))
     }
     return containers
+  }
+
+  private async fetchImage(image: string, tag: string): Promise<string> {
+    const stream = (await this._client.image.create({}, {
+      fromImage: image,
+      tag: tag 
+    })) as any
+    await new Promise((resolve, reject) => stream
+      .on('data', (x: any) => x.toString()) // For some reason we need to listen to the data to have the end event
+      .on('error', reject)
+      .on('end', resolve))
+    return `${image}:${tag}`
   }
 
   private mergeEnv(envs: string[]): string[] {
