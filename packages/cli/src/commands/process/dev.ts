@@ -1,8 +1,7 @@
 import { flags, Command } from '@oclif/command'
 import Listr from 'listr'
-import * as Environment from '../../tasks/environment'
-import * as Process from '../../tasks/process'
-import * as Execution from '../../tasks/execution'
+import * as Environment from '../../utils/environment-tasks'
+import * as Process from '../../utils/process'
 import version from '../../version'
 import API from '@mesg/api'
 import LCDClient from '@mesg/api/lib/lcd'
@@ -11,6 +10,10 @@ import * as base58 from '@mesg/api/lib/util/base58'
 import chalk from 'chalk'
 import { inspect } from 'util'
 import { decode } from '@mesg/api/lib/util/encoder'
+import { IProcess } from '@mesg/api/lib/process-lcd'
+import { IExecution } from "@mesg/api/lib/execution";
+import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
+import { ExecutionStatus } from '@mesg/api/lib/types'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -35,39 +38,63 @@ export default class Dev extends Command {
     description: 'Path of a process file'
   }]
 
+  private lcdEndpoint = 'http://localhost:1317'
+  private lcd = new LCDClient(this.lcdEndpoint)
+  private grpc = new API('localhost:50052')
+  private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
+
+  private logs: GRPCStream<IExecution>
+
   async run() {
     const { args, flags } = this.parse(Dev)
 
-    const tasks = new Listr<Environment.IStart | Process.ICompile | Process.ICreate | Execution.ILog>([
+    let definition: IProcess
+    let deployedProcess: IProcess
+
+    const tasks = new Listr<Environment.IStart>([
       Environment.start,
-      Process.compile,
-      Process.create,
-      Execution.log
+      {
+        title: 'Compiling process',
+        task: async ctx => {
+          definition = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.grpc, ctx.mnemonic, flags.env)
+        }
+      },
+      {
+        title: 'Creating process',
+        task: async ctx => {
+          deployedProcess = await Process.create(this.lcd, definition, ctx.mnemonic)
+        }
+      },
+      {
+        title: 'Fetching process\'s logs',
+        task: () => {
+          this.logs = this.grpc.execution.stream({
+            filter: {
+              statuses: [
+                ExecutionStatus.COMPLETED,
+                ExecutionStatus.FAILED
+              ]
+            }
+          })
+        }
+      }
     ])
-    const result = await tasks.run({
+    await tasks.run({
       configDir: flags.configDir,
       configFile: flags.configFile,
-      env: flags.env,
-      grpc: new API('localhost:50052'),
       image: flags.image,
-      ipfsClient: ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' }),
-      lcd: new LCDClient('http://localhost:1317'),
       pull: flags.pull,
       tag: flags.tag,
-      processFilePath: args.PROCESS_FILE
+      endpoint: this.lcdEndpoint,
     })
 
-    const processHash = (result as Process.ICreate).processHash
-    const deployedServices = (result as Process.ICompile).deployedServices
-    const logs = (result as Execution.ILog).executionStream
-    logs
+    this.logs
       .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
       .on('data', (execution) => {
         if (!execution.processHash) return
         if (!execution.instanceHash) return
-        if (base58.encode(execution.processHash) !== processHash) return
-        const service = deployedServices.find(x => x.runner.instanceHash === base58.encode(execution.instanceHash)).service
-        const prefix = `[${execution.nodeKey}] - ${base58.encode(execution.instanceHash)} - ${service.sid} - ${execution.taskKey}`
+        if (base58.encode(execution.processHash) !== deployedProcess.hash) return
+        const prefix = `[${execution.nodeKey}] - ${base58.encode(execution.instanceHash)} - ${execution.taskKey}`
         if (execution.error) {
           this.log(`${prefix}: ` + chalk.red('ERROR:', execution.error))
         }
@@ -79,12 +106,16 @@ export default class Dev extends Command {
       })
 
     process.once('SIGINT', async () => {
-      await new Listr<Execution.ILogsStop | Environment.IStop>([
-        Execution.logsStop,
+      await new Listr<Environment.IStop>([
+        {
+          title: 'Stopping logs',
+          task: () => {
+            if (this.logs) this.logs.cancel()
+          }
+        },
         Environment.stop
       ]).run({
-        configDir: (result as Environment.ICreateConfig).configDir,
-        executionStream: logs
+        configDir: flags.configFile
       })
     })
   }

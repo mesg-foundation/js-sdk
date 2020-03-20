@@ -5,17 +5,21 @@ import LCD from '@mesg/api/lib/lcd'
 import API from '@mesg/api'
 import chalk from 'chalk'
 import { decode } from '@mesg/api/lib/util/encoder'
-import { parseLog } from '../../utils/docker'
-import * as Environment from '../../tasks/environment'
-import * as Service from '../../tasks/service'
-import * as Runner from '../../tasks/runner'
-import * as Instance from '../../tasks/instance'
+import { parseLog, listServices } from '../../utils/docker'
+import * as Environment from '../../utils/environment-tasks'
+import * as Service from '../../utils/service'
+import * as Runner from '../../utils/runner'
+import * as base58 from "@mesg/api/lib/util/base58";
+import { ExecutionStatus } from "@mesg/api/lib/types";
 import version from '../../version'
+import { IService } from '@mesg/api/lib/service-lcd'
+import { IRunner } from '@mesg/api/lib/runner-lcd'
+import { Stream } from 'stream'
+import { IEvent } from "@mesg/api/lib/event";
+import { IExecution } from "@mesg/api/lib/execution";
+import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
 
 const ipfsClient = require('ipfs-http-client')
-
-type Context = Environment.IStart | Service.ICompile | Service.ICreate | Runner.ICreate | Runner.ILogs | Instance.IEventLogs | Runner.IResultLogs
-type ContextEnd = Runner.ILogsStop | Instance.IEventLogsStop | Runner.IResultLogsStop | Environment.IStop
 
 export default class Dev extends Command {
   static description = 'Run a service in a local development environment'
@@ -39,72 +43,123 @@ export default class Dev extends Command {
     default: './'
   }]
 
+  private lcdEndpoint = 'http://localhost:1317'
+  private lcd = new LCD(this.lcdEndpoint)
+  private grpc = new API('localhost:50052')
+  private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
+
+  private logs: Stream[]
+  private events: GRPCStream<IEvent>
+  private results: GRPCStream<IExecution>
+
   async run() {
     const { args, flags } = this.parse(Dev)
 
-    const tasks = new Listr<Context>([
+    let definition: IService
+    let service: IService
+    let runner: IRunner
+
+    const tasks = new Listr<Environment.IStart>([
       Environment.start,
-      Service.compile,
-      Service.create,
-      Runner.create,
       {
-        title: 'Start service\'s logs',
-        task: () => new Listr<Runner.ILogs | Instance.IEventLogs | Runner.IResultLogs>([
-          Runner.logs,
-          Instance.eventLogs,
-          Runner.resultLogs,
+        title: 'Compiling service',
+        task: async () => {
+          definition = await Service.compile(args.PATH, this.ipfsClient)
+        }
+      },
+      {
+        title: 'Creating service',
+        task: async ctx => {
+          service = await Service.create(this.lcd, definition, ctx.mnemonic)
+        }
+      },
+      {
+        title: 'Starting service',
+        task: async () => {
+          runner = await Runner.create(this.grpc, this.lcd, service.hash, flags.env)
+        }
+      },
+      {
+        title: 'Fetching service\'s logs',
+        task: () => new Listr([
+          {
+            title: 'Fetching service\'s logs',
+            task: async () => {
+              const dockerServices = await listServices({ label: [`mesg.runner=${runner.hash}`] })
+              this.logs = await Promise.all(dockerServices.map(x => x.logs({
+                stderr: true,
+                stdout: true,
+                follow: true,
+                tail: 'all',
+              }) as unknown as Promise<Stream>))
+            }
+          },
+          {
+            title: 'Fetching events\' logs',
+            task: () => {
+              this.events = this.grpc.event.stream({
+                filter: {
+                  instanceHash: base58.decode(runner.instanceHash)
+                }
+              })
+            }
+          },
+          {
+            title: 'Fetching executions\' logs',
+            task: async () => {
+              this.results = this.grpc.execution.stream({
+                filter: {
+                  executorHash: base58.decode(runner.hash),
+                  statuses: [
+                    ExecutionStatus.COMPLETED,
+                    ExecutionStatus.FAILED,
+                  ]
+                }
+              })
+            }
+          }
         ])
       }
     ])
-    const result = await tasks.run({
+    await tasks.run({
       configDir: flags.configDir,
       configFile: flags.configFile,
-      env: flags.env,
       image: flags.image,
       pull: flags.pull,
       tag: flags.tag,
-      ipfsClient: ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' }),
-      path: args.PATH,
-      grpc: new API('localhost:50052'),
-      lcd: new LCD('http://localhost:1317'),
+      endpoint: this.lcdEndpoint,
     })
 
-    const runnerLogs = (result as Runner.ILogs).runnerLogs || []
-    const eventLogs = (result as Instance.IEventLogs).eventLogs
-    const resultLogs = (result as Runner.IResultLogs).resultLogs
-
-    for (const log of runnerLogs) {
+    for (const log of this.logs) {
       log
         .on('data', buffer => parseLog(buffer).forEach(x => this.log(chalk.gray(x))))
         .on('error', error => { this.warn('Docker log stream error: ' + error.message) })
     }
 
-    eventLogs
+    this.events
       .on('data', event => this.log(`EVENT[${event.key}]: ` + chalk.gray(JSON.stringify(decode(event.data)))))
       .on('error', error => { this.warn('Event stream error: ' + error.message) })
 
-    resultLogs
+    this.results
       .on('data', execution => execution.error
         ? this.log(`RESULT[${execution.taskKey}]: ` + chalk.red('ERROR:', execution.error))
         : this.log(`RESULT[${execution.taskKey}]: ` + chalk.gray(JSON.stringify(decode(execution.outputs)))))
       .on('error', error => { this.warn('Result stream error: ' + error.message) })
 
     process.once('SIGINT', async () => {
-      await new Listr<ContextEnd>([
+      await new Listr<Environment.IStop>([
         {
           title: 'Stopping logs',
-          task: () => new Listr<Runner.ILogsStop | Instance.IEventLogsStop | Runner.IResultLogsStop>([
-            Runner.logsStop,
-            Instance.eventLogsStop,
-            Runner.resultLogsStop
-          ])
+          task: async () => {
+            if (this.logs) this.logs.forEach((x: any) => x.destroy())
+            if (this.events) this.events.cancel()
+            if (this.results) this.results.cancel()
+            return Promise.resolve()
+          }
         },
         Environment.stop,
       ]).run({
-        configDir: (result as Environment.ICreateConfig).configDir,
-        eventLogs: eventLogs,
-        resultLogs: resultLogs,
-        runnerLogs: runnerLogs,
+        configDir: flags.configFile
       })
     })
   }

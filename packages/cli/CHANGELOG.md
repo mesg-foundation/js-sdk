@@ -38,6 +38,7 @@ Commands `service:dev` and `process:dev` are automatically start a local environ
 - [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Transfer token when creating a process (reverted by #188)
 - [#193](https://github.com/mesg-foundation/js-sdk/pull/193) Add login/logout commands with synchronization in the user's configs
 - [#194](https://github.com/mesg-foundation/js-sdk/pull/194) Add `deploy:service` command
+- [#196](https://github.com/mesg-foundation/js-sdk/pull/196) Update code organization for tasks
 
 #### Bug fixes
 

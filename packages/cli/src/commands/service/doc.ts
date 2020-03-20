@@ -1,12 +1,10 @@
 import { flags, Command } from '@oclif/command'
-import { readdirSync, writeFileSync } from 'fs'
+import { readdirSync, writeFileSync, readFileSync } from 'fs'
 import { join } from 'path'
-import Listr from 'listr'
-import * as Service from '../../tasks/service'
+import * as Service from '../../utils/service'
+import { registerHelper, compile } from 'handlebars'
 
 const ipfsClient = require('ipfs-http-client')
-
-type Context = Service.ICompile | Service.IGenDock
 
 export default class Doc extends Command {
   static description = 'Generate documentation for service and print it to stdout'
@@ -21,17 +19,18 @@ export default class Doc extends Command {
     default: './'
   }]
 
+  private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
+
   async run(): Promise<string> {
     const { args, flags } = this.parse(Doc)
-    const tasks = new Listr<Context>([
-      Service.compile,
-      Service.genDoc
-    ])
-    const result = await tasks.run({
-      ipfsClient: ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' }),
-      path: args.SERVICE_PATH,
-    })
-    const markdown = (result as Service.IGenDock).markdownDoc
+
+    const definition = await Service.compile(args.SERVICE_PATH, this.ipfsClient)
+
+    registerHelper('or', (a: any, b: any) => a ? a : b)
+    registerHelper('toJSON', JSON.stringify)
+    const template = readFileSync(join(__dirname, '..', 'assets', 'doc.md')).toString()
+    const markdown = compile(template)(definition)
+
     if (flags.save) {
       const defaultReadmeFileName = readdirSync(args.SERVICE_PATH).find(file => {
         return /^readme(?:.(?:md|txt)+)?$/i.test(file)
