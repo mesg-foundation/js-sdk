@@ -29,6 +29,7 @@
   "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
   "dependencies": {
     "@mesg/api": "^0.2.0",
+    "debug": "^4.1.1",
     "node-docker-api": "^1.1.22",
     "node-fetch": "^2.6.0"
   },

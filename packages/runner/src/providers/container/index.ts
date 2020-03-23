@@ -2,14 +2,21 @@ import { Docker } from "node-docker-api"
 import fetch from 'node-fetch'
 import { ReadStream } from 'fs'
 import API from '@mesg/api/lib/lcd'
+import * as ServiceType from '@mesg/api/lib/typedef/service';
 import { IService } from "@mesg/api/lib/service-lcd"
 import { IRunner } from '@mesg/api/lib/runner-lcd'
 import { findHash } from "@mesg/api/lib/util/txevent"
 import { Provider } from '../../index'
 import { Container } from "node-docker-api/lib/container"
 import { Network } from "node-docker-api/lib/network"
+import { Volume } from "node-docker-api/lib/volume";
+import { createHash } from 'crypto'
+
+const debug = require('debug')('runner')
 
 const ENGINE_NETWORK_NAME = 'engine'
+
+type Labels = { [key: string]: string }
 
 export default class DockerContainer implements Provider {
 
@@ -25,22 +32,52 @@ export default class DockerContainer implements Provider {
   }
 
   async start(serviceHash: string, env: string[]): Promise<IRunner> {
+
+    debug('fetch service')
     const service = await this._api.service.get(serviceHash)
-    const image = await this.build(service)
+    debug('broadcast tx')
     const runner = await this.createRunnerTx(service, env)
-    const serviceContainer = await this.createServiceContainer(service, runner, image, env)
 
-    const engineNetwork = await this.getNetwork(ENGINE_NETWORK_NAME)
-    await engineNetwork.connect({ container: serviceContainer.id })
+    const labels = {
+      'mesg.service': service.hash,
+      'mesg.runner': runner.hash,
+    }
 
-    const dependencyContainers = await this.createDependenciesContainer(service, runner)
-    const serviceNetwork = await this.getServiceNetwork(service)
+    debug('setup networks')
+    await this.setupNetworks(service, runner, labels)
+    debug('setup images')
+    await this.fetchImages(service)
+    debug('setup containers')
+    await this.setupContainers(service, runner, env, labels)
 
-    const containers = [...dependencyContainers, serviceContainer]
-    for (const container of containers) {
-      await serviceNetwork.connect({ container: container.id })
+    const engineNetwork = (await this.find('network', { 'mesg.engine': 'true' }) as Network)
+    if (!engineNetwork) throw new Error('engine network not found')
+
+    const serviceNetwork = (await this.find('network', labels) as Network)
+    if (!serviceNetwork) throw new Error('service network not found')
+
+    for (const dep of service.dependencies) {
+      const container = await this.find('container', { ...labels, 'mesg.dependency': dep.key }) as Container
+      if (!container) throw new Error('container missing')
+      if (!(await serviceNetwork.status() as any).data.Containers[container.id]) {
+        debug(`connect ${dep.key} to service network`)
+        await serviceNetwork.connect({ container: container.id })
+      }
+      debug(`start ${dep.key}`)
       await container.start()
     }
+    const container = await this.find('container', { ...labels, 'mesg.dependency': 'service' }) as Container
+    if (!container) throw new Error('container missing')
+    if (!(await serviceNetwork.status() as any).data.Containers[container.id]) {
+      debug(`connect service to service network`)
+      await serviceNetwork.connect({ container: container.id })
+    }
+    if (!(await engineNetwork.status() as any).data.Containers[container.id]) {
+      debug(`connect service to engine network`)
+      await engineNetwork.connect({ container: container.id })
+    }
+    debug(`start service`)
+    await container.start()
 
     return runner
   }
@@ -54,19 +91,6 @@ export default class DockerContainer implements Provider {
     await this._api.broadcast(tx.signWithMnemonic(this._mnemonic), "block")
   }
 
-  private async build(service: IService): Promise<string> {
-    const resp = await fetch(`${this.ipfsGateway}/${service.source}`)
-    const tag = `mesg:${service.hash}`
-    const image: any = await this._client.image.build(resp.body as ReadStream, {
-      t: tag,
-      q: true
-    })
-    await new Promise((resolve, reject) => image
-      .on('error', reject)
-      .on('data', (x: any) => resolve(JSON.parse(x.toString())))
-    )
-    return tag
-  }
 
   private async createRunnerTx(service: IService, env: string[]): Promise<IRunner> {
     const envHash = service.hash // HACK TO REMOVE
@@ -91,24 +115,32 @@ export default class DockerContainer implements Provider {
     return this._api.runner.get(runnerHash)
   }
 
-  private async getNetwork(name: string): Promise<Network> {
-    const networks = await this._client.network.list({
-      filters: { name: [name] }
-    })
-    return networks.filter(x => (x.data as any)['Name'] === name)[0]
+  private async setupNetworks(service: IService, runner: IRunner, labels: Labels) {
+    if (await this.find('network', labels)) return
+    debug(`create network ${service.hash}`)
+    await this._client.network.create({ name: service.hash, labels })
   }
 
-  private async getServiceNetwork(service: IService): Promise<Network> {
-    const network = await this.getNetwork(service.hash)
-    if (network) return network
-    const res = await this._client.network.create({ name: service.hash, checkDuplicate: true })
-    return this._client.network.get(res.id)
-  }
-
-  private async createServiceContainer(service: IService, runner: IRunner, image: string, env: string[]): Promise<Container> {
-    const resp = await this._client.container.create({
-      name: service.hash,
-      image: image,
+  private async setupContainers(service: IService, runner: IRunner, env: string[], labels: Labels) {
+    for (const dependency of service.dependencies) {
+      const depLabels = { ...labels, 'mesg.dependency': dependency.key }
+      if (await this.find('container', depLabels)) continue
+      debug(`create container dep ${dependency.key}`)
+      await this._client.container.create({
+        image: dependency.image,
+        env: dependency.env,
+        command: dependency.command,
+        args: dependency.args,
+        // ports: dependency.ports,
+        mounts: await this.prepareVolumes(service, dependency.volumes, dependency.volumesFrom, dependency),
+        labels: depLabels
+      })
+    }
+    const srvLabels = { ...labels, 'mesg.dependency': 'service' }
+    if (await this.find('container', srvLabels)) return
+    debug('create container service')
+    await this._client.container.create({
+      image: `mesg:${service.hash}`,
       env: [
         ...this.mergeEnv([...(service.configuration.env || []), ...env]),
         `MESG_INSTANCE_HASH=${runner.instanceHash}`,
@@ -117,55 +149,82 @@ export default class DockerContainer implements Provider {
       ],
       command: service.configuration.command,
       args: service.configuration.args,
-      // TODO
-      // ports: service.configuration.ports,
-      // volumes: [service.configuration.volumes, service.configuration.volumesFrom],
-      labels: {
-        'mesg.service': service.hash,
-        'mesg.runner': runner.hash
-      }
+      // ports: dependency.ports,
+      mounts: await this.prepareVolumes(service, service.configuration.volumes, service.configuration.volumesFrom),
+      labels: srvLabels
     })
-    return this._client.container.get(resp.id)
   }
 
-  private async createDependenciesContainer(service: IService, runner: IRunner): Promise<Container[]> {
-    const containers = []
-    for (const dep of service.dependencies || []) {
-      const image = await this.fetchImage(dep.image.split(':')[0], dep.image.split(':')[1] || 'latest')
-      const resp = await this._client.container.create({
-        name: `${service.hash}-${dep.key}`,
-        image: image,
-        env: dep.env,
-        command: dep.command,
-        args: dep.args,
-        // ports: dep.ports,
-        // volumes: [dep.volumes, dep.volumesFrom],
-        labels: {
-          'mesg.service': service.hash,
-          'mesg.runner': runner.hash,
-          'mesg.dependency': dep.key,
-        }
-      })
-      containers.push(await this._client.container.get(resp.id))
-    }
-    return containers
+  private async find(resource: 'volume' | 'container' | 'network', labels: { [key: string]: string }): Promise<Volume | Container | Network> {
+    const allLabels = (data: { [key: string]: string }) => Object.keys(labels)
+      .reduce((prev, x) => prev && data[x] === labels[x], true)
+    const list = await this._client[resource].list({ all: true })
+    const filteredList = (list as any[]).filter(x => allLabels((x.data as any)['Labels'] || {}))
+    if (filteredList.length > 1) throw new Error(`more than one ${resource} found`)
+    return filteredList[0]
   }
 
-  private async fetchImage(image: string, tag: string): Promise<string> {
-    const stream = (await this._client.image.create({}, {
-      fromImage: image,
-      tag: tag 
-    })) as any
-    await new Promise((resolve, reject) => stream
+  private async fetchImages(service: IService) {
+    const streamToPromise = (stream: any) => new Promise((resolve, reject) => stream
       .on('data', (x: any) => x.toString()) // For some reason we need to listen to the data to have the end event
       .on('error', reject)
       .on('end', resolve))
-    return `${image}:${tag}`
+
+    for (const dependency of service.dependencies) {
+      const [fromImage, tag] = dependency.image.split(':')
+      const stream = await this._client.image.create({}, {
+        fromImage,
+        tag: tag || 'latest'
+      })
+      await streamToPromise(stream)
+    }
+    const resp = await fetch(`${this.ipfsGateway}/${service.source}`)
+    const tag = `mesg:${service.hash}`
+    const image: any = await this._client.image.build(resp.body as ReadStream, {
+      t: tag,
+      q: true
+    })
+    return streamToPromise(image)
+  }
+
+  private async prepareVolumes(service: IService, volumes: string[], volumesFrom: string[], dependency?: ServiceType.mesg.types.Service.IDependency): Promise<{ Source: string, Target: string, Type: string }[]> {
+    const res = []
+    for (const volume of volumes || []) {
+      res.push({
+        Source: this.volumeName(service, volume, dependency),
+        Target: volume,
+        Type: 'volume'
+      })
+    }
+
+    // Add volumes from
+    for (const dep of volumesFrom || []) {
+      const dependency = service.dependencies.find(x => x.key === dep)
+      if (!dependency) throw new Error(`dependency "${dependency}" missing`)
+      for (const volume of dependency.volumes) {
+        res.push({
+          Source: this.volumeName(service, volume, dependency),
+          Target: volume,
+          Type: 'volume'
+        })
+      }
+    }
+    return res
+  }
+
+  private volumeName(service: IService, vol: string, dependency?: ServiceType.mesg.types.Service.IDependency): string {
+    return createHash('sha256')
+      .update(JSON.stringify([
+        service.hash,
+        dependency ? dependency.key : null,
+        vol
+      ]))
+      .digest('hex')
   }
 
   private mergeEnv(envs: string[]): string[] {
     const res: { [key: string]: string } = {}
-    for (const e in envs) {
+    for (const e of envs) {
       const [key, value] = e.split('=')
       res[key] = value
     }
