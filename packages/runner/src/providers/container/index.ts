@@ -155,13 +155,17 @@ export default class DockerContainer implements Provider {
     })
   }
 
-  private async find(resource: 'volume' | 'container' | 'network', labels: { [key: string]: string }): Promise<Volume | Container | Network> {
-    const allLabels = (data: { [key: string]: string }) => Object.keys(labels)
+  private async findAll(resource: 'volume' | 'container' | 'network', labels: Labels): Promise<Volume[] | Container[] | Network[]> {
+    const allLabels = (data: Labels) => Object.keys(labels)
       .reduce((prev, x) => prev && data[x] === labels[x], true)
     const list = await this._client[resource].list({ all: true })
-    const filteredList = (list as any[]).filter(x => allLabels((x.data as any)['Labels'] || {}))
-    if (filteredList.length > 1) throw new Error(`more than one ${resource} found`)
-    return filteredList[0]
+    return (list as any[]).filter(x => allLabels((x.data as any)['Labels'] || {}))
+  }
+
+  private async find(resource: 'volume' | 'container' | 'network', labels: Labels): Promise<Volume | Container | Network> {
+    const items = await this.findAll(resource, labels)
+    if (items.length > 1) throw new Error(`more than one ${resource} found`)
+    return items[0]
   }
 
   private async fetchImages(service: IService) {
