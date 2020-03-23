@@ -24,11 +24,13 @@ export default class DockerContainer implements Provider {
   private _client: Docker
   private _mnemonic: string
   private ipfsGateway = "http://ipfs.app.mesg.com:8080/ipfs"
+  private serviceEndpoint: string
 
-  constructor(endpoint: string, mnemonic: string) {
+  constructor(endpoint: string, mnemonic: string, serviceEndpoint: string = ENGINE_NETWORK_NAME) {
     this._api = new API(endpoint)
     this._client = new Docker(null)
     this._mnemonic = mnemonic
+    this.serviceEndpoint = serviceEndpoint
   }
 
   async start(serviceHash: string, env: string[]): Promise<IRunner> {
@@ -50,9 +52,6 @@ export default class DockerContainer implements Provider {
     debug('setup containers')
     await this.setupContainers(service, runner, env, labels)
 
-    const engineNetwork = (await this.find('network', { 'mesg.engine': 'true' }) as Network)
-    if (!engineNetwork) throw new Error('engine network not found')
-
     const serviceNetwork = (await this.find('network', labels) as Network)
     if (!serviceNetwork) throw new Error('service network not found')
 
@@ -72,9 +71,13 @@ export default class DockerContainer implements Provider {
       debug(`connect service to service network`)
       await serviceNetwork.connect({ container: container.id })
     }
-    if (!(await engineNetwork.status() as any).data.Containers[container.id]) {
-      debug(`connect service to engine network`)
-      await engineNetwork.connect({ container: container.id })
+    if (this.serviceEndpoint === ENGINE_NETWORK_NAME) {
+      const engineNetwork = (await this.find('network', { 'mesg.engine': 'true' }) as Network)
+      if (!engineNetwork) throw new Error('engine network not found')
+      if (!(await engineNetwork.status() as any).data.Containers[container.id]) {
+        debug(`connect service to engine network`)
+        await engineNetwork.connect({ container: container.id })
+      }
     }
     debug(`start service`)
     await container.start()
@@ -83,14 +86,25 @@ export default class DockerContainer implements Provider {
   }
 
   async stop(runnerHash: string): Promise<void> {
+    const runner = await this._api.runner.get(runnerHash)
+    const instance = await this._api.instance.get(runner.instanceHash)
     const account = await this._api.account.import(this._mnemonic)
     const tx = await this._api.createTransaction(
       [this._api.runner.deleteMsg(account.address, runnerHash)],
       account
     )
     await this._api.broadcast(tx.signWithMnemonic(this._mnemonic), "block")
-  }
 
+    const labels = {
+      'mesg.service': instance.serviceHash,
+      'mesg.runner': runner.hash,
+    }
+    const containers = await this.findAll('container', labels) as Container[]
+    for (const container of containers) {
+      await container.stop()
+      await container.delete()
+    }
+  }
 
   private async createRunnerTx(service: IService, env: string[]): Promise<IRunner> {
     const envHash = service.hash // HACK TO REMOVE
@@ -145,7 +159,7 @@ export default class DockerContainer implements Provider {
         ...this.mergeEnv([...(service.configuration.env || []), ...env]),
         `MESG_INSTANCE_HASH=${runner.instanceHash}`,
         `MESG_RUNNER_HASH=${runner.hash}`,
-        `MESG_ENDPOINT=${ENGINE_NETWORK_NAME}:50052`
+        `MESG_ENDPOINT=${this.serviceEndpoint}:50052`
       ],
       command: service.configuration.command,
       args: service.configuration.args,
