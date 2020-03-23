@@ -56,7 +56,7 @@ export default class DockerContainer implements Provider {
     const serviceNetwork = (await this.find('network', labels) as Network)
     if (!serviceNetwork) throw new Error('service network not found')
 
-    for (const dep of service.dependencies) {
+    for (const dep of service.dependencies || []) {
       const container = await this.find('container', { ...labels, 'mesg.dependency': dep.key }) as Container
       if (!container) throw new Error('container missing')
       if (!(await serviceNetwork.status() as any).data.Containers[container.id]) {
@@ -122,7 +122,7 @@ export default class DockerContainer implements Provider {
   }
 
   private async setupContainers(service: IService, runner: IRunner, env: string[], labels: Labels) {
-    for (const dependency of service.dependencies) {
+    for (const dependency of service.dependencies || []) {
       const depLabels = { ...labels, 'mesg.dependency': dependency.key }
       if (await this.find('container', depLabels)) continue
       debug(`create container dep ${dependency.key}`)
@@ -170,7 +170,7 @@ export default class DockerContainer implements Provider {
       .on('error', reject)
       .on('end', resolve))
 
-    for (const dependency of service.dependencies) {
+    for (const dependency of service.dependencies || []) {
       const [fromImage, tag] = dependency.image.split(':')
       const stream = await this._client.image.create({}, {
         fromImage,
@@ -199,7 +199,7 @@ export default class DockerContainer implements Provider {
 
     // Add volumes from
     for (const dep of volumesFrom || []) {
-      const dependency = service.dependencies.find(x => x.key === dep)
+      const dependency = (service.dependencies || []).find(x => x.key === dep)
       if (!dependency) throw new Error(`dependency "${dependency}" missing`)
       for (const volume of dependency.volumes) {
         res.push({
