@@ -33,7 +33,7 @@ export default class Runner extends LCDClient {
 
   deleteMsg(owner: string, runnerHash: string): IMsg<IMsgDelete> {
     return {
-      type: 'runner/CreateRunner',
+      type: 'runner/DeleteRunner',
       value: {
         address: owner,
         runnerHash: runnerHash
