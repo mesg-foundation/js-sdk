@@ -131,14 +131,14 @@ export default class DockerContainer implements Provider {
         env: dependency.env,
         command: dependency.command,
         args: dependency.args,
-        // ports: dependency.ports,
         mounts: await this.prepareVolumes(service, dependency.volumes, dependency.volumesFrom, dependency),
-        labels: depLabels
+        labels: depLabels,
+        ...this.preparePorts(dependency.ports)
       })
     }
     const srvLabels = { ...labels, 'mesg.dependency': 'service' }
     if (await this.find('container', srvLabels)) return
-    debug('create container service')
+    debug('create container service', service.configuration.ports.reduce((prev, x) => ({ ...prev, [`${x}/tcp`]: {} }), {}))
     await this._client.container.create({
       image: `mesg:${service.hash}`,
       env: [
@@ -149,9 +149,9 @@ export default class DockerContainer implements Provider {
       ],
       command: service.configuration.command,
       args: service.configuration.args,
-      // ports: dependency.ports,
       mounts: await this.prepareVolumes(service, service.configuration.volumes, service.configuration.volumesFrom),
-      labels: srvLabels
+      labels: srvLabels,
+      ...this.preparePorts(service.configuration.ports)
     })
   }
 
@@ -220,6 +220,22 @@ export default class DockerContainer implements Provider {
         vol
       ]))
       .digest('hex')
+  }
+
+  // https://stackoverflow.com/questions/20428302/binding-a-port-to-a-host-interface-using-the-rest-api/20429133
+  private preparePorts(ports: string[]): Object {
+    return {
+      exposedPorts: ports.reduce((prev, x) => ({
+        ...prev,
+        [`${x}/tcp`]: {}
+      }), {}),
+      hostConfig: {
+        portBindings: ports.reduce((prev, x) => ({
+          ...prev,
+          [`${x}/tcp`]: [{ hostPort: x }]
+        }), {})
+      }
+    }
   }
 
   private mergeEnv(envs: string[]): string[] {
