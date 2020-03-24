@@ -5,7 +5,7 @@ import { process as compileProcess } from '@mesg/compiler'
 import { readFileSync } from "fs"
 import * as Service from './service'
 import * as Runner from './runner'
-import { findHash } from "./txevent"
+import { findHash } from "@mesg/api/lib/util/txevent"
 
 export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD, grpc: API, mnemonic: string, env: string[] = []): Promise<IProcess> => {
   const instanceReolver = async (instanceObject: any): Promise<string> => {
@@ -31,7 +31,7 @@ export const create = async (lcd: LCD, process: IProcess, mnemonic: string): Pro
     account
   )
   const txResult = await lcd.broadcast(tx.signWithMnemonic(mnemonic))
-  const hashes = findHash(txResult, "process", "CreateProcess")
+  const hashes = findHash(txResult, "Process")
   if (hashes.length != 1) throw new Error('error while getting the hash of the process created')
   return lcd.process.get(hashes[0])
 }
