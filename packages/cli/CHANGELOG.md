@@ -41,6 +41,7 @@ Commands `service:dev` and `process:dev` are automatically start a local environ
 - [#196](https://github.com/mesg-foundation/js-sdk/pull/196) Update code organization for tasks
 - [#197](https://github.com/mesg-foundation/js-sdk/pull/197) State of the local chain in the `dataDir` (https://oclif.io/docs/config)
 - [#](https://github.com/mesg-foundation/js-sdk/pull/) Use api helper to get the hash of a created service/process
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Run engine and service with the `@mesg/runner` library
 
 #### Bug fixes
 
