@@ -1,4 +1,5 @@
-import {IProcess, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, FilterPredicate, IOutput, IRefPath} from '@mesg/api/lib/process-lcd'
+import {IProcess, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, FilterPredicate, IOutput, IRefPath, IFilterCondition} from '@mesg/api/lib/process-lcd'
+import {encodeField} from '@mesg/api/lib/util/encoder'
 import decode from './decode'
 import {Process} from './schema/process'
 import validate from './validate'
@@ -54,7 +55,7 @@ const extractPathFromPaths = (paths: string[]): IRefPath => {
     return {
       path: extractPathFromPaths(nextPaths),
       Selector: {
-        type: "mesg.types.Process_Node_Map_Output_Reference_Path_Index",
+        type: "mesg.types.Process_Node_Reference_Path_Index",
         value
       }
     }
@@ -62,7 +63,7 @@ const extractPathFromPaths = (paths: string[]): IRefPath => {
   return {
     path: extractPathFromPaths(nextPaths),
     Selector: {
-      type: 'mesg.types.Process_Node_Map_Output_Reference_Path_Key',
+      type: 'mesg.types.Process_Node_Reference_Path_Key',
       value: {
         key: currentPath
       }
@@ -71,13 +72,13 @@ const extractPathFromPaths = (paths: string[]): IRefPath => {
 }
 
 const compileMapOutput = (def: any, opts: any): IOutput => {
-  if (def === null) return { Value: { type: "mesg.types.Process_Node_Map_Output_Null_", value: { } } }
+  if (def === null) return { Value: { type: "mesg.types.Process_Node_Map_Output_Null_", value: {} } }
   if (typeof def === 'number') return { Value: { type: "mesg.types.Process_Node_Map_Output_DoubleConst", value: { double_const: def } } }
   if (typeof def === 'boolean') return { Value: { type: 'mesg.types.Process_Node_Map_Output_BoolConst', value: { bool_const: def } } }
   if (typeof def === 'string') return { Value: { type: 'mesg.types.Process_Node_Map_Output_StringConst', value: { string_const: def } } }
   if (typeof def === 'object' && !!def.key) return {
     Value: {
-      type: 'mesg.types.Process_Node_Map_Output_Ref',
+      type: 'mesg.types.Process_Node_Reference',
       value: {
         ref: {
           path: extractPathFromPaths(extractPathsFromKey(def.key)),
@@ -126,11 +127,28 @@ const compileFilter = async (def: any): Promise<IFilterType> => ({
   type: 'mesg.types.Process_Node_Filter_',
   value: {
     filter: {
-      conditions: Object.keys(def.conditions).map(key => ({
-        key,
-        predicate: FilterPredicate.EQ,
-        value: def.conditions[key]
-      })).sort((a, b) => a.key.localeCompare(b.key))
+      conditions: Object.keys(def.conditions)
+        .sort((a, b) => a.localeCompare(b))
+        .map((key: string): IFilterCondition => ({
+          ref: {
+            type: 'mesg.types.Process_Node_Reference',
+            value: {
+              ref: {
+                nodeKey: '',
+                path: {
+                  Selector: {
+                    type: 'mesg.types.Process_Node_Reference_Path_Key',
+                    value: {
+                      key: key
+                    }
+                  }
+                }
+              }
+            }
+          },
+          predicate: FilterPredicate.EQ,
+          value: encodeField(def.conditions[key])
+        }))
     }
   }
 })
