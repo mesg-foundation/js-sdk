@@ -13,6 +13,7 @@ export type IService = {
   dependencies?: ServiceType.mesg.types.Service.IDependency[] | null;
   repository?: string | null;
   source?: string | null;
+  address?: string | null;
 }
 
 export type IMsgCreate = {
