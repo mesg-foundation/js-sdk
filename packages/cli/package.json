@@ -32,6 +32,7 @@
     "@mesg/api": "^0.2.0",
     "@mesg/application": "^0.2.1",
     "@mesg/compiler": "^0.2.0",
+    "@mesg/runner": "^0.0.0",
     "@mesg/vault": "^0.0.0",
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.13.3",

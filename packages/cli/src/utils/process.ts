@@ -1,20 +1,19 @@
 import { IProcess } from "@mesg/api/lib/process-lcd"
 import LCD from '@mesg/api/lib/lcd'
-import API from '@mesg/api'
 import { process as compileProcess } from '@mesg/compiler'
 import { readFileSync } from "fs"
 import * as Service from './service'
 import * as Runner from './runner'
 import { findHash } from "@mesg/api/lib/util/txevent"
 
-export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD, grpc: API, mnemonic: string, env: string[] = []): Promise<IProcess> => {
+export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD, lcdEndpoint: string, mnemonic: string, env: string[] = []): Promise<IProcess> => {
   const instanceReolver = async (instanceObject: any): Promise<string> => {
     if (!instanceObject.instanceHash && !instanceObject.instance) throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
     if (instanceObject.instanceHash) return instanceObject.instanceHash
     const { src, env } = instanceObject.instance
     const definition = await Service.compile(src, ipfsClient)
     const service = await Service.create(lcd, definition, mnemonic)
-    const runner = await Runner.create(grpc, lcd, service.hash, env)
+    const runner = await Runner.create(lcdEndpoint, mnemonic, service.hash, env)
     return runner.instanceHash
   }
 

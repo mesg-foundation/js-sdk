@@ -1,20 +1,9 @@
-import GRPCAPI from "@mesg/api";
-import * as base58 from "@mesg/api/lib/util/base58";
 import { IRunner } from "@mesg/api/lib/runner-lcd";
-import API from "@mesg/api/lib/lcd";
-import { IsAlreadyExistsError } from "./error";
+import Runner from "@mesg/runner";
+import DockerContainer from "@mesg/runner/lib/providers/container";
 
-export const create = async (grpc: GRPCAPI, lcd: API, serviceHash: string, env: string[]): Promise<IRunner> => {
-  let runnerHash
-  try {
-    const response = await grpc.runner.create({
-      serviceHash: base58.decode(serviceHash),
-      env: env
-    })
-    runnerHash = base58.encode(response.hash)
-  } catch (e) {
-    if (!IsAlreadyExistsError.match(e)) throw e
-    runnerHash = base58.encode(new IsAlreadyExistsError(e).hash)
-  }
-  return lcd.runner.get(runnerHash)
+export const create = async (endpoint: string, mnemonic: string, serviceHash: string, env: string[]): Promise<IRunner> => {
+  const provider = new DockerContainer(endpoint, mnemonic)
+  const runner = new Runner(serviceHash, provider)
+  return runner.start(env)
 }

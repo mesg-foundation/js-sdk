@@ -5,7 +5,7 @@ import LCD from '@mesg/api/lib/lcd'
 import API from '@mesg/api'
 import chalk from 'chalk'
 import { decode } from '@mesg/api/lib/util/encoder'
-import { parseLog, listServices } from '../../utils/docker'
+import { parseLog, listContainers } from '../../utils/docker'
 import * as Environment from '../../utils/environment-tasks'
 import * as Service from '../../utils/service'
 import * as Runner from '../../utils/runner'
@@ -73,8 +73,8 @@ export default class Dev extends Command {
       },
       {
         title: 'Starting service',
-        task: async () => {
-          runner = await Runner.create(this.grpc, this.lcd, service.hash, flags.env)
+        task: async ctx => {
+          runner = await Runner.create(this.lcdEndpoint, ctx.mnemonic, service.hash, flags.env)
         }
       },
       {
@@ -83,8 +83,8 @@ export default class Dev extends Command {
           {
             title: 'Fetching service\'s logs',
             task: async () => {
-              const dockerServices = await listServices({ label: [`mesg.runner=${runner.hash}`] })
-              this.logs = await Promise.all(dockerServices.map(x => x.logs({
+              const dockerContainers = await listContainers({ label: [`mesg.runner=${runner.hash}`] })
+              this.logs = await Promise.all(dockerContainers.map(x => x.logs({
                 stderr: true,
                 stdout: true,
                 follow: true,
