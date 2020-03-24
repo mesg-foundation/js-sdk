@@ -7,16 +7,14 @@ export interface Provider {
 
 export default class Runner {
 
-  private _serviceHash: string
   private _provider: Provider
 
-  constructor(serviceHash: string, provider: Provider) {
-    this._serviceHash = serviceHash
+  constructor(provider: Provider) {
     this._provider = provider
   }
 
-  async start(env: string[]): Promise<IRunner> {
-    return this._provider.start(this._serviceHash, env)
+  async start(serviceHash: string, env: string[]): Promise<IRunner> {
+    return this._provider.start(serviceHash, env)
   }
 
   async stop(runnerHash: string): Promise<void> {

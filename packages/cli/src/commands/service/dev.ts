@@ -158,7 +158,7 @@ export default class Dev extends Command {
           title: 'Stopping service',
           skip: () => !service && !runner,
           task: async () => {
-            return Runner.stop(this.lcdEndpoint, res.mnemonic, service.hash, runner.hash)
+            return Runner.stop(this.lcdEndpoint, res.mnemonic, runner.hash)
           }
         },
         Environment.stop,
