@@ -10,6 +10,7 @@ import { Provider } from '../../index'
 import { Network } from "node-docker-api/lib/network"
 import Container from './container'
 import { createHash } from 'crypto'
+import { IAccount } from "@mesg/api/lib/account-lcd";
 
 const debug = require('debug')('runner')
 
@@ -36,12 +37,13 @@ export default class DockerContainer implements Provider {
 
     debug('fetch service')
     const service = await this._api.service.get(serviceHash)
+    const account = await this._api.account.import(this._mnemonic)
+    const { runnerHash, instanceHash, envHash } = await this._api.runner.hash(account.address, service.hash, env)
     debug('broadcast tx')
-    const runner = await this.createRunnerTx(service, env)
 
     const labels = {
       'mesg.service': service.hash,
-      'mesg.runner': runner.hash,
+      'mesg.runner': runnerHash,
     }
 
     const image = await this.build(service)
@@ -78,8 +80,8 @@ export default class DockerContainer implements Provider {
           ...service.configuration.env || [],
           ...env || []
         ]),
-        `MESG_INSTANCE_HASH=${runner.instanceHash}`,
-        `MESG_RUNNER_HASH=${runner.hash}`,
+        `MESG_INSTANCE_HASH=${instanceHash}`,
+        `MESG_RUNNER_HASH=${runnerHash}`,
         `MESG_ENDPOINT=${this.serviceEndpoint}:50052`
       ],
       Image: image,
@@ -96,7 +98,7 @@ export default class DockerContainer implements Provider {
     container.connectTo(engineNetwork, ['engine'])
     await container.start()
 
-    return runner
+    return this.createRunnerTx(account, service, envHash)
   }
 
   async stop(runnerHash: string): Promise<void> {
@@ -120,9 +122,7 @@ export default class DockerContainer implements Provider {
     }
   }
 
-  private async createRunnerTx(service: IService, env: string[]): Promise<IRunner> {
-    const envHash = service.hash // HACK TO REMOVE
-    const account = await this._api.account.import(this._mnemonic)
+  private async createRunnerTx(account: IAccount, service: IService, envHash: string): Promise<IRunner> {
     let runnerHash: string
     try {
       const tx = await this._api.createTransaction(

@@ -51,4 +51,16 @@ export default class Runner extends LCDClient {
     if (filter && filter.address) runners = runners.filter(x => x.address === filter.address)
     return runners
   }
+
+  async hash(owner: string, serviceHash: string, env: string[]): Promise<{
+    runnerHash: string,
+    instanceHash: string,
+    envHash: string
+  }> {
+    return (await this.query('/runner/hash', {
+      serviceHash,
+      env,
+      address: owner,
+    }, 'POST')).result
+  }
 }

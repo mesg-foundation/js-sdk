@@ -8,7 +8,7 @@ export default class LCDClient {
     this._endpoint = endpoint
   }
 
-  protected async query(path: string, data?: any, method: string = 'GET'): Promise<{ height: string, result: any }> {
+  protected async query(path: string, data?: any, method: 'POST' | 'GET' = 'GET'): Promise<{ height: string, result: any }> {
     const result = method === 'GET'
       ? await this.getRequest(path, data)
       : await this.postRequest(path, data)

@@ -13,7 +13,7 @@
 - [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Add transfer message to account
 - [#188](https://github.com/mesg-foundation/js-sdk/pull/188) Add mnemonic generation to account
 - [#](https://github.com/mesg-foundation/js-sdk/pull/) Add helper to get a hash of a resource created from a tx result
-- [#](https://github.com/mesg-foundation/js-sdk/pull/) Add create/delete messages for runners
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Add create/delete/hash messages for runners
 
 #### Bug fixes
 
