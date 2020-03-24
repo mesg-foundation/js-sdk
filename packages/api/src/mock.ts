@@ -41,7 +41,7 @@ export default (endpoint: string): IApi => ({
   },
   runner: {
     async create() { return { hash } },
-    async get() { return { hash: hash, address: '', instanceHash: hash } },
+    async get() { return { hash: hash, owner: '', instanceHash: hash } },
     async list() { return { runners: [] } },
     async delete() { return {} }
   },
