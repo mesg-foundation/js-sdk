@@ -84,7 +84,7 @@ export const start: ListrTask<IStart> = {
     {
       title: 'Creating default configuration',
       skip: ctx => existsSync(ctx.configDir),
-      task: ctx => mkdirSync(ctx.configDir)
+      task: ctx => mkdirSync(ctx.configDir, { recursive: true })
     },
     {
       title: 'Registering CLI',
