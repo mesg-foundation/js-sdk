@@ -7,9 +7,8 @@ import { IService } from "@mesg/api/lib/service-lcd"
 import { IRunner } from '@mesg/api/lib/runner-lcd'
 import { findHash } from "@mesg/api/lib/util/txevent"
 import { Provider } from '../../index'
-import { Container } from "node-docker-api/lib/container"
 import { Network } from "node-docker-api/lib/network"
-import { Volume } from "node-docker-api/lib/volume";
+import Container from './container'
 import { createHash } from 'crypto'
 
 const debug = require('debug')('runner')
@@ -45,41 +44,56 @@ export default class DockerContainer implements Provider {
       'mesg.runner': runner.hash,
     }
 
-    debug('setup networks')
-    await this.setupNetworks(service, runner, labels)
-    debug('setup images')
-    await this.fetchImages(service)
-    debug('setup containers')
-    await this.setupContainers(service, runner, env, labels)
+    const image = await this.build(service)
 
-    const serviceNetwork = (await this.find('network', labels) as Network)
-    if (!serviceNetwork) throw new Error('service network not found')
+    let serviceNetwork = (await this.findNetwork(labels) as Network)
+    if (!serviceNetwork) serviceNetwork = await this._client.network.create({ name: service.hash, labels })
+
+    const engineNetwork = (await this.findNetwork({ 'mesg.engine': 'true' }) as Network)
+    if (!engineNetwork) throw new Error('engine network not found')
 
     for (const dep of service.dependencies || []) {
-      const container = await this.find('container', { ...labels, 'mesg.dependency': dep.key }) as Container
-      if (!container) throw new Error('container missing')
-      if (!(await serviceNetwork.status() as any).data.Containers[container.id]) {
-        debug(`connect ${dep.key} to service network`)
-        await serviceNetwork.connect({ container: container.id })
-      }
-      debug(`start ${dep.key}`)
+      const container = new Container({
+        Args: dep.args,
+        Command: dep.command,
+        Env: dep.env,
+        Image: dep.image,
+        Labels: {
+          ...labels,
+          'mesg.dependency': dep.key,
+        },
+        HostConfig: {
+          Mounts: this.convertVolumes(service, dep.volumes, dep.volumesFrom, dep)
+        }
+      })
+      container.addPorts(dep.ports)
+      container.connectTo(serviceNetwork, ['service'])
       await container.start()
     }
-    const container = await this.find('container', { ...labels, 'mesg.dependency': 'service' }) as Container
-    if (!container) throw new Error('container missing')
-    if (!(await serviceNetwork.status() as any).data.Containers[container.id]) {
-      debug(`connect service to service network`)
-      await serviceNetwork.connect({ container: container.id })
-    }
-    if (this.serviceEndpoint === ENGINE_NETWORK_NAME) {
-      const engineNetwork = (await this.find('network', { 'mesg.engine': 'true' }) as Network)
-      if (!engineNetwork) throw new Error('engine network not found')
-      if (!(await engineNetwork.status() as any).data.Containers[container.id]) {
-        debug(`connect service to engine network`)
-        await engineNetwork.connect({ container: container.id })
+    const container = new Container({
+      Args: service.configuration.args,
+      Command: service.configuration.command,
+      Env: [
+        ...this.mergeEnv([
+          ...service.configuration.env || [],
+          ...env || []
+        ]),
+        `MESG_INSTANCE_HASH=${runner.instanceHash}`,
+        `MESG_RUNNER_HASH=${runner.hash}`,
+        `MESG_ENDPOINT=${this.serviceEndpoint}:50052`
+      ],
+      Image: image,
+      Labels: {
+        ...labels,
+        'mesg.dependency': 'service'
+      },
+      HostConfig: {
+        Mounts: this.convertVolumes(service, service.configuration.volumes, service.configuration.volumesFrom)
       }
-    }
-    debug(`start service`)
+    })
+    container.addPorts(service.configuration.ports)
+    container.connectTo(serviceNetwork, ['service'])
+    container.connectTo(engineNetwork, ['engine'])
     await container.start()
 
     return runner
@@ -99,7 +113,7 @@ export default class DockerContainer implements Provider {
       'mesg.service': instance.serviceHash,
       'mesg.runner': runner.hash,
     }
-    const containers = await this.findAll('container', labels) as Container[]
+    const containers = await Container.findAll(this._client, labels)
     for (const container of containers) {
       await container.stop()
       await container.delete()
@@ -129,83 +143,40 @@ export default class DockerContainer implements Provider {
     return this._api.runner.get(runnerHash)
   }
 
-  private async setupNetworks(service: IService, runner: IRunner, labels: Labels) {
-    if (await this.find('network', labels)) return
-    debug(`create network ${service.hash}`)
-    await this._client.network.create({ name: service.hash, labels })
-  }
-
-  private async setupContainers(service: IService, runner: IRunner, env: string[], labels: Labels) {
-    for (const dependency of service.dependencies || []) {
-      const depLabels = { ...labels, 'mesg.dependency': dependency.key }
-      if (await this.find('container', depLabels)) continue
-      debug(`create container dep ${dependency.key}`)
-      await this._client.container.create({
-        image: dependency.image,
-        env: dependency.env,
-        command: dependency.command,
-        args: dependency.args,
-        mounts: await this.prepareVolumes(service, dependency.volumes, dependency.volumesFrom, dependency),
-        labels: depLabels,
-        ...this.preparePorts(dependency.ports)
-      })
-    }
-    const srvLabels = { ...labels, 'mesg.dependency': 'service' }
-    if (await this.find('container', srvLabels)) return
-    debug('create container service', service.configuration.ports.reduce((prev, x) => ({ ...prev, [`${x}/tcp`]: {} }), {}))
-    await this._client.container.create({
-      image: `mesg:${service.hash}`,
-      env: [
-        ...this.mergeEnv([...(service.configuration.env || []), ...env]),
-        `MESG_INSTANCE_HASH=${runner.instanceHash}`,
-        `MESG_RUNNER_HASH=${runner.hash}`,
-        `MESG_ENDPOINT=${this.serviceEndpoint}:50052`
-      ],
-      command: service.configuration.command,
-      args: service.configuration.args,
-      mounts: await this.prepareVolumes(service, service.configuration.volumes, service.configuration.volumesFrom),
-      labels: srvLabels,
-      ...this.preparePorts(service.configuration.ports)
-    })
-  }
-
-  private async findAll(resource: 'volume' | 'container' | 'network', labels: Labels): Promise<Volume[] | Container[] | Network[]> {
+  private async findNetwork(labels: Labels): Promise<Network> {
     const allLabels = (data: Labels) => Object.keys(labels)
       .reduce((prev, x) => prev && data[x] === labels[x], true)
-    const list = await this._client[resource].list({ all: true })
-    return (list as any[]).filter(x => allLabels((x.data as any)['Labels'] || {}))
-  }
-
-  private async find(resource: 'volume' | 'container' | 'network', labels: Labels): Promise<Volume | Container | Network> {
-    const items = await this.findAll(resource, labels)
-    if (items.length > 1) throw new Error(`more than one ${resource} found`)
+    const list = await this._client.network.list()
+    const items = (list as any[]).filter(x => allLabels((x.data as any)['Labels'] || {}))
+    if (items.length > 1) throw new Error(`more than one network found`)
     return items[0]
   }
 
-  private async fetchImages(service: IService) {
+  private async build(service: IService) {
     const streamToPromise = (stream: any) => new Promise((resolve, reject) => stream
       .on('data', (x: any) => x.toString()) // For some reason we need to listen to the data to have the end event
       .on('error', reject)
       .on('end', resolve))
-
-    for (const dependency of service.dependencies || []) {
-      const [fromImage, tag] = dependency.image.split(':')
-      const stream = await this._client.image.create({}, {
-        fromImage,
-        tag: tag || 'latest'
-      })
-      await streamToPromise(stream)
-    }
     const resp = await fetch(`${this.ipfsGateway}/${service.source}`)
     const tag = `mesg:${service.hash}`
     const image: any = await this._client.image.build(resp.body as ReadStream, {
       t: tag,
       q: true
     })
-    return streamToPromise(image)
+    await streamToPromise(image)
+    return tag
   }
 
-  private async prepareVolumes(service: IService, volumes: string[], volumesFrom: string[], dependency?: ServiceType.mesg.types.Service.IDependency): Promise<{ Source: string, Target: string, Type: string }[]> {
+  private mergeEnv(envs: string[]): string[] {
+    const res: { [key: string]: string } = {}
+    for (const e of envs) {
+      const [key, value] = e.split('=')
+      res[key] = value
+    }
+    return Object.keys(res).map(x => `${x}=${res[x]}`)
+  }
+
+  private convertVolumes(service: IService, volumes: string[], volumesFrom: string[], dependency?: ServiceType.mesg.types.Service.IDependency): any[] {
     const res = []
     for (const volume of volumes || []) {
       res.push({
@@ -238,30 +209,5 @@ export default class DockerContainer implements Provider {
         vol
       ]))
       .digest('hex')
-  }
-
-  // https://stackoverflow.com/questions/20428302/binding-a-port-to-a-host-interface-using-the-rest-api/20429133
-  private preparePorts(ports: string[]): Object {
-    return {
-      exposedPorts: ports.reduce((prev, x) => ({
-        ...prev,
-        [`${x}/tcp`]: {}
-      }), {}),
-      hostConfig: {
-        portBindings: ports.reduce((prev, x) => ({
-          ...prev,
-          [`${x}/tcp`]: [{ hostPort: x }]
-        }), {})
-      }
-    }
-  }
-
-  private mergeEnv(envs: string[]): string[] {
-    const res: { [key: string]: string } = {}
-    for (const e of envs) {
-      const [key, value] = e.split('=')
-      res[key] = value
-    }
-    return Object.keys(res).map(x => `${x}=${res[x]}`)
   }
 }
