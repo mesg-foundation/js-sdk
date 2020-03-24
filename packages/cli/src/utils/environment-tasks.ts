@@ -44,7 +44,7 @@ const waitToBeReady = async (endpoint?: string): Promise<void> => {
 
 export type IStop = { configDir: string }
 export const stop: ListrTask<IStop> = {
-  title: 'Stop environment',
+  title: 'Stopping environment',
   task: () => new Listr([
     {
       title: 'Stopping the Engine',

@@ -119,7 +119,7 @@ export default class Dev extends Command {
         ])
       }
     ])
-    await tasks.run({
+    const res = await tasks.run({
       configDir: this.config.dataDir,
       image: flags.image,
       pull: flags.pull,
@@ -152,6 +152,13 @@ export default class Dev extends Command {
             if (this.events) this.events.cancel()
             if (this.results) this.results.cancel()
             return Promise.resolve()
+          }
+        },
+        {
+          title: 'Stopping service',
+          skip: () => !service && !runner,
+          task: async () => {
+            return Runner.stop(this.lcdEndpoint, res.mnemonic, service.hash, runner.hash)
           }
         },
         Environment.stop,

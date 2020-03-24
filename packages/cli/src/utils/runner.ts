@@ -7,3 +7,9 @@ export const create = async (endpoint: string, mnemonic: string, serviceHash: st
   const runner = new Runner(serviceHash, provider)
   return runner.start(env)
 }
+
+export const stop = async (endpoint: string, mnemonic: string, serviceHash: string, runnerHash: string): Promise<void> => {
+  const provider = new DockerContainer(endpoint, mnemonic)
+  const runner = new Runner(serviceHash, provider)
+  return runner.stop(runnerHash)
+}

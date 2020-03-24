@@ -20,6 +20,6 @@ export default class Runner {
   }
 
   async stop(runnerHash: string): Promise<void> {
-    this._provider.stop(runnerHash)
+    await this._provider.stop(runnerHash)
   }
 }
