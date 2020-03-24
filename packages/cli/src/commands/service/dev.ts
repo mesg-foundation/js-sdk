@@ -28,8 +28,6 @@ export default class Dev extends Command {
     image: flags.string({ name: 'Engine image', default: 'mesg/engine' }),
     tag: flags.string({ name: 'Engine version', default: version.engine }),
     pull: flags.boolean({ name: 'Force to pull the docker image', default: false }),
-    configDir: flags.string({ name: 'Configuration directory', default: join(process.cwd(), '.mesg') }),
-    configFile: flags.string({ name: 'Config filename', default: 'config.yml' }),
     env: flags.string({
       description: 'Environment variables to inject to the service',
       multiple: true,
@@ -122,8 +120,7 @@ export default class Dev extends Command {
       }
     ])
     await tasks.run({
-      configDir: flags.configDir,
-      configFile: flags.configFile,
+      configDir: this.config.dataDir,
       image: flags.image,
       pull: flags.pull,
       tag: flags.tag,
@@ -159,7 +156,7 @@ export default class Dev extends Command {
         },
         Environment.stop,
       ]).run({
-        configDir: flags.configFile
+        configDir: this.config.dataDir
       })
     })
   }
