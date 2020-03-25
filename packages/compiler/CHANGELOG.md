@@ -8,6 +8,9 @@
 - [#188](https://github.com/mesg-foundation/js-sdk/pull/188) Compile services in a LCD format
 
 #### Improvements
+
+- [#203](https://github.com/mesg-foundation/js-sdk/pull/203) Add support of any value for filters value (string, boolean or number)
+
 #### Bug fixes
 
 ## [v0.2.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcompiler%400.2.0)
