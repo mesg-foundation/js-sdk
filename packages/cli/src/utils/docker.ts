@@ -3,6 +3,10 @@ import Container from '@mesg/runner/lib/providers/container/container'
 
 const defaultClient = new Docker(null)
 
+export const engineLabel = "mesg.engine=true"
+export const engineLabelMap = { [engineLabel.split("=")[0]]: engineLabel.split("=")[1] }
+export const engineName = "mesg_engine"
+
 export const parseLog = (buffer: Buffer): string[] => {
   return buffer.toString()
     .split('\n')
@@ -18,25 +22,27 @@ export const fetchImageTag = async (image: string, tag: string = 'latest', clien
   return Container.fetchImage(client, `${image}:${tag}`)
 }
 
-export const createNetwork = async (name: string, client = defaultClient) => {
+export const findNetwork = async (name: string, client = defaultClient) => {
   const networks = await client.network.list({
     filters: { name: [name] }
   })
-  if (networks.length > 0) return networks[0]
+  return networks[0]
+}
+
+export const createNetwork = async (client = defaultClient) => {
+  const network = await findNetwork(name, client)
+  if (network) return network
   return client.network.create({
     CheckDuplicate: true,
-    Name: name,
-    labels: { 'mesg.engine': 'true' }
+    Name: engineName,
+    labels: engineLabelMap
   })
 }
 
-export const createContainer = async (image: string, name: string, directory: string, client = defaultClient) => {
-  const resourceName = `mesg_${name}`
-  const network = await createNetwork(resourceName, client)
+export const createContainer = async (image: string, directory: string, client = defaultClient) => {
+  const network = await createNetwork(client)
   const container = new Container({
-    Labels: {
-      'mesg.engine': 'true'
-    },
+    Labels: engineLabelMap,
     Image: image,
     HostConfig: {
       RestartPolicy: {
@@ -52,9 +58,9 @@ export const createContainer = async (image: string, name: string, directory: st
         Type: 'bind',
       }]
     }
-  }, resourceName)
+  }, engineName)
   container.addPorts(['1317', '50052'])
-  container.connectTo(network, [name])
+  container.connectTo(network, ["engine"])
   return container.start()
 }
 

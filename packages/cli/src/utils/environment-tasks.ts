@@ -1,7 +1,7 @@
 import Listr, { ListrTask } from "listr"
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
 import { join } from "path"
-import { hasImage, fetchImageTag, createContainer, listContainers } from "./docker"
+import { hasImage, fetchImageTag, createContainer, listContainers, findNetwork, engineLabel, engineName } from "./docker"
 import { getOrGenerateAccount, write, clear } from "./config"
 import fetch from "node-fetch"
 
@@ -50,11 +50,13 @@ export const stop: ListrTask<IStop> = {
       title: 'Stopping the Engine',
       skip: ctx => hasOtherInstances(ctx.configDir),
       task: async () => {
-        const containers = await listContainers({ label: ['mesg.engine=true'] })
+        const containers = await listContainers({ label: [engineLabel] })
         if (containers.length === 0) throw new Error('Cannot find engine')
         const container = containers[0]
         await container.stop()
         await container.delete()
+        const network = await findNetwork(engineName)
+        if (network) await network.remove()
       },
     },
     {
@@ -94,14 +96,14 @@ export const start: ListrTask<IStart> = {
     },
     {
       title: 'Starting the Engine',
-      skip: async () => (await listContainers({ label: ['mesg.engine=true'] })).length > 0,
+      skip: async () => (await listContainers({ label: [engineLabel] })).length > 0,
       task: ctx => {
         write(ctx.configDir, {
           account: {
             mnemonic: ctx.mnemonic
           }
         })
-        return createContainer(ctx.image, 'engine', ctx.configDir)
+        return createContainer(ctx.image, ctx.configDir)
       }
     },
     {
