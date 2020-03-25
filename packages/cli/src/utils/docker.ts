@@ -31,7 +31,8 @@ export const createNetwork = async (name: string, client = defaultClient) => {
 }
 
 export const createContainer = async (image: string, name: string, directory: string, client = defaultClient) => {
-  const network = await createNetwork(name, client)
+  const resourceName = `mesg_${name}`
+  const network = await createNetwork(resourceName, client)
   const container = new Container({
     Labels: {
       'mesg.engine': 'true'
@@ -51,7 +52,7 @@ export const createContainer = async (image: string, name: string, directory: st
         Type: 'bind',
       }]
     }
-  })
+  }, resourceName)
   container.addPorts(['1317', '50052'])
   container.connectTo(network, [name])
   return container.start()

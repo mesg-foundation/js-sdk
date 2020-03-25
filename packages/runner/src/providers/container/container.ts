@@ -3,7 +3,6 @@ import { Network } from "node-docker-api/lib/network";
 import { Container as DockerContainer } from "node-docker-api/lib/container";
 
 export type IContainer = {
-  Name?: string;
   Image?: string;
   ExposedPorts?: { [key: string]: Object };
   Labels?: { [key: string]: string };
@@ -34,6 +33,7 @@ export default class Container {
   private client = new Docker(null)
   private _containerInfo: IContainer = {}
   private _networks: Network[] = []
+  private _name: string
 
   static async findAll(client: any, labels: { [key: string]: string }): Promise<DockerContainer[]> {
     const allLabels = (data: { [key: string]: string }) => Object.keys(labels)
@@ -66,8 +66,9 @@ export default class Container {
     await streamToPromise(stream)
   }
 
-  constructor(options: IContainer) {
+  constructor(options: IContainer, name: string) {
     this._containerInfo = options
+    this._name = name
   }
 
   // https://stackoverflow.com/questions/20428302/binding-a-port-to-a-host-interface-using-the-rest-api/20429133
@@ -103,7 +104,10 @@ export default class Container {
     const containers = await Container.findAll(this.client, this._containerInfo.Labels)
     const container = containers.length === 1
       ? containers[0]
-      : await this.client.container.create(this._containerInfo)
+      : await this.client.container.create({
+        ...this._containerInfo,
+        name: this._name
+      })
     for (const network of this._networks) {
       if ((await network.status() as any).data.Containers[container.id]) continue
       await network.connect({ container: container.id })
