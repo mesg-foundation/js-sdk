@@ -109,6 +109,15 @@ export enum FilterPredicate {
   CONTAINS = 6
 }
 
+export const Predicate = {
+  EQ: FilterPredicate.EQ,
+  GT: FilterPredicate.GT,
+  GTE: FilterPredicate.GTE,
+  LT: FilterPredicate.LT,
+  LTE: FilterPredicate.LTE,
+  CONTAINS: FilterPredicate.CONTAINS
+}
+
 export type IFilterValueNullType = {
   type: 'mesg.types.Value_NullValue';
   value: {

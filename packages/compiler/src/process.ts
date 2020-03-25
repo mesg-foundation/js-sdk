@@ -1,4 +1,4 @@
-import { IProcess, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, FilterPredicate, IOutput, IRefPath, IFilterCondition, IFilterValueNullType, IFilterValueStringType, IFilterValueNumberType, IFilterValueBoolType } from '@mesg/api/lib/process-lcd'
+import { IProcess, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, Predicate, IOutput, IRefPath, IFilterCondition, IFilterValueNullType, IFilterValueStringType, IFilterValueNumberType, IFilterValueBoolType } from '@mesg/api/lib/process-lcd'
 import decode from './decode'
 import { Process } from './schema/process'
 import validate from './validate'
@@ -130,32 +130,33 @@ const compileFilterValue = (def: any): IFilterValueNullType | IFilterValueString
   throw new Error('unsupported filter value')
 }
 
-const compileFilter = async (def: any, opts: any): Promise<IFilterType> => ({
-  type: 'mesg.types.Process_Node_Filter_',
-  value: {
-    filter: {
-      conditions: Object.keys(def.conditions)
-        .sort((a, b) => a.localeCompare(b))
-        .map((key: string): IFilterCondition => ({
-          ref: {
-            nodeKey: opts.defaultNodeKey,
-            path: {
-              Selector: {
-                type: 'mesg.types.Process_Node_Reference_Path_Key',
-                value: {
-                  key: key
-                }
-              }
+const compileFilter = async (def: any, opts: any): Promise<IFilterType> => {
+  const conditions = Array.isArray(def.conditions)
+    ? def.conditions
+    : Object.keys(def.conditions).sort((a, b) => a.localeCompare(b)).map(x => ({
+      key: x,
+      predicate: 'EQ',
+      value: def.conditions[x]
+    }))
+  return {
+    type: 'mesg.types.Process_Node_Filter_',
+    value: {
+      filter: {
+        conditions: conditions
+          .map((condition: { key: string, predicate: 'EQ' | 'GT' | 'GTE' | 'LT' | 'LTE' | 'CONTAINS', value: any }): IFilterCondition => ({
+            ref: {
+              path: extractPathFromPaths(extractPathsFromKey(condition.key)),
+              nodeKey: def.stepKey || opts.defaultNodeKey
+            },
+            predicate: Predicate[condition.predicate],
+            value: {
+              Kind: compileFilterValue(condition.value)
             }
-          },
-          predicate: FilterPredicate.EQ,
-          value: {
-            Kind: compileFilterValue(def.conditions[key])
-          }
-        }))
+          }))
+      }
     }
   }
-})
+}
 
 const nodeCompiler = async (
   type: 'result' | 'event' | 'task' | 'map' | 'filter',
