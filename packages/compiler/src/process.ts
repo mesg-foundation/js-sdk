@@ -1,7 +1,6 @@
-import {IProcess, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, FilterPredicate, IOutput, IRefPath, IFilterCondition} from '@mesg/api/lib/process-lcd'
-import {encodeField} from '@mesg/api/lib/util/encoder'
+import { IProcess, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, FilterPredicate, IOutput, IRefPath, IFilterCondition, IFilterValueNullType, IFilterValueStringType, IFilterValueDoubleType, IFilterValueBoolType } from '@mesg/api/lib/process-lcd'
 import decode from './decode'
-import {Process} from './schema/process'
+import { Process } from './schema/process'
 import validate from './validate'
 const schema = require('./schema/process.json')
 
@@ -123,7 +122,15 @@ const compileMap = async (def: any, opts: any): Promise<IMapType> => {
   }
 }
 
-const compileFilter = async (def: any): Promise<IFilterType> => ({
+const compileFilterValue = (def: any): IFilterValueNullType | IFilterValueStringType | IFilterValueDoubleType | IFilterValueBoolType => {
+  if (def === null) return { type: "mesg.types.Value_NullValue", value: {} }
+  if (typeof def === 'number') return { type: "mesg.types.Value_DoubleValue", value: { double_value: def } }
+  if (typeof def === 'boolean') return { type: 'mesg.types.Value_BoolValue', value: { bool_value: def } }
+  if (typeof def === 'string') return { type: 'mesg.types.Value_StringValue', value: { string_value: def } }
+  throw new Error('unsupported filter value')
+}
+
+const compileFilter = async (def: any, opts: any): Promise<IFilterType> => ({
   type: 'mesg.types.Process_Node_Filter_',
   value: {
     filter: {
@@ -131,23 +138,20 @@ const compileFilter = async (def: any): Promise<IFilterType> => ({
         .sort((a, b) => a.localeCompare(b))
         .map((key: string): IFilterCondition => ({
           ref: {
-            type: 'mesg.types.Process_Node_Reference',
-            value: {
-              ref: {
-                nodeKey: '',
-                path: {
-                  Selector: {
-                    type: 'mesg.types.Process_Node_Reference_Path_Key',
-                    value: {
-                      key: key
-                    }
-                  }
+            nodeKey: opts.defaultNodeKey,
+            path: {
+              Selector: {
+                type: 'mesg.types.Process_Node_Reference_Path_Key',
+                value: {
+                  key: key
                 }
               }
             }
           },
           predicate: FilterPredicate.EQ,
-          value: encodeField(def.conditions[key])
+          value: {
+            Kind: compileFilterValue(def.conditions[key])
+          }
         }))
     }
   }
@@ -187,12 +191,13 @@ export default async (content: Buffer, instanceResolver: (object: any) => Promis
   let i = 0
   for (const step of definition.steps) {
     step.key = step.key || `node-${i}`
+    const opts = { defaultNodeKey: previousKey, instanceResolver }
     if (step.type === 'task' && step.inputs) {
       const mapKey = `${step.key}-inputs`
-      const mapNode = await nodeCompiler('map', step.inputs, mapKey, {defaultNodeKey: previousKey})
+      const mapNode = await nodeCompiler('map', step.inputs, mapKey, opts)
       nodes.push(mapNode)
       if (previousKey) {
-        edges.push({src: previousKey, dst: mapKey})
+        edges.push({ src: previousKey, dst: mapKey })
       }
       previousKey = mapKey
       i++
@@ -202,10 +207,10 @@ export default async (content: Buffer, instanceResolver: (object: any) => Promis
       : step.eventKey
         ? 'event'
         : 'result'
-    const stepNode = await nodeCompiler(type, step, step.key, {instanceResolver})
+    const stepNode = await nodeCompiler(type, step, step.key, opts)
     nodes.push(stepNode)
     if (previousKey) {
-      edges.push({src: previousKey, dst: step.key})
+      edges.push({ src: previousKey, dst: step.key })
     }
     previousKey = step.key
     i++

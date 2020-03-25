@@ -2,7 +2,7 @@ import { Test } from 'tape'
 import test from 'tape'
 import { readFileSync } from 'fs';
 import compile from './process'
-import { IOutputStringType, IOutputNullType, IOutputDoubleType, IOutputBoolType, IOutputListType, IOutputMapType, IReference, IRefSelectorKey, IRefSelectorIndex } from '@mesg/api/lib/process-lcd';
+import { IOutputStringType, IOutputNullType, IOutputDoubleType, IOutputBoolType, IOutputListType, IOutputMapType, IReference, IRefSelectorKey, IRefSelectorIndex, IFilterValueStringType } from '@mesg/api/lib/process-lcd';
 
 test('valid compilation', async (t: Test) => {
   t.plan(101)
@@ -45,12 +45,12 @@ test('valid compilation', async (t: Test) => {
   // Test filter
   t.equal(filter.key, "node-1")
   t.equal(filter.Type.value.filter.conditions.length, 2)
-  t.equal((filter.Type.value.filter.conditions[0].ref.value.ref.path.Selector as IRefSelectorKey).value.key, "foo")
+  t.equal((filter.Type.value.filter.conditions[0].ref.path.Selector as IRefSelectorKey).value.key, "foo")
   t.equal(filter.Type.value.filter.conditions[0].predicate, 1)
-  t.equal(filter.Type.value.filter.conditions[0].value.stringValue, "bar")
-  t.equal((filter.Type.value.filter.conditions[1].ref.value.ref.path.Selector as IRefSelectorKey).value.key, "hello")
+  t.equal((filter.Type.value.filter.conditions[0].value.Kind as IFilterValueStringType).value.string_value, "bar")
+  t.equal((filter.Type.value.filter.conditions[1].ref.path.Selector as IRefSelectorKey).value.key, "hello")
   t.equal(filter.Type.value.filter.conditions[1].predicate, 1)
-  t.equal(filter.Type.value.filter.conditions[1].value.stringValue, "world")
+  t.equal((filter.Type.value.filter.conditions[1].value.Kind as IFilterValueStringType).value.string_value, "world")
 
   // Test map
   t.equal(mapTask1.key, "task1-inputs")

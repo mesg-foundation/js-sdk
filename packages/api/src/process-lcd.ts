@@ -109,10 +109,44 @@ export enum FilterPredicate {
   CONTAINS = 6
 }
 
+export type IFilterValueNullType = {
+  type: 'mesg.types.Value_NullValue';
+  value: {
+    null?: 0
+  }
+}
+
+export type IFilterValueStringType = {
+  type: 'mesg.types.Value_StringValue';
+  value: {
+    string_value: string;
+  }
+}
+
+export type IFilterValueDoubleType = {
+  type: 'mesg.types.Value_DoubleValue';
+  value: {
+    double_value: number;
+  }
+}
+
+export type IFilterValueBoolType = {
+  type: 'mesg.types.Value_BoolValue';
+  value: {
+    bool_value: boolean;
+  }
+}
+
+
 export type IFilterCondition = {
-  ref: IReference;
+  ref: {
+    nodeKey: string;
+    path: IRefPath;
+  };
   predicate: FilterPredicate;
-  value: ProcessType.mesg.protobuf.IValue;
+  value: {
+    Kind: IFilterValueNullType | IFilterValueStringType | IFilterValueDoubleType | IFilterValueBoolType
+  };
 }
 
 export type IFilter = {
