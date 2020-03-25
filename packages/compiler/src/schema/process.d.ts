@@ -47,7 +47,7 @@ export type Filter = {
        * This interface was referenced by `undefined`'s JSON-Schema definition
        * via the `patternProperty` "^[a-zA-Z0-9_]+$".
        */
-      [k: string]: string;
+      [k: string]: string | number | boolean | null;
     };
     [k: string]: any;
   };

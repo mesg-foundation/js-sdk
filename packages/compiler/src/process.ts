@@ -1,4 +1,4 @@
-import { IProcess, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, FilterPredicate, IOutput, IRefPath, IFilterCondition, IFilterValueNullType, IFilterValueStringType, IFilterValueDoubleType, IFilterValueBoolType } from '@mesg/api/lib/process-lcd'
+import { IProcess, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, FilterPredicate, IOutput, IRefPath, IFilterCondition, IFilterValueNullType, IFilterValueStringType, IFilterValueNumberType, IFilterValueBoolType } from '@mesg/api/lib/process-lcd'
 import decode from './decode'
 import { Process } from './schema/process'
 import validate from './validate'
@@ -122,9 +122,9 @@ const compileMap = async (def: any, opts: any): Promise<IMapType> => {
   }
 }
 
-const compileFilterValue = (def: any): IFilterValueNullType | IFilterValueStringType | IFilterValueDoubleType | IFilterValueBoolType => {
+const compileFilterValue = (def: any): IFilterValueNullType | IFilterValueStringType | IFilterValueNumberType | IFilterValueBoolType => {
   if (def === null) return { type: "mesg.types.Value_NullValue", value: {} }
-  if (typeof def === 'number') return { type: "mesg.types.Value_DoubleValue", value: { double_value: def } }
+  if (typeof def === 'number') return { type: "mesg.types.Value_NumberValue", value: { number_value: def } }
   if (typeof def === 'boolean') return { type: 'mesg.types.Value_BoolValue', value: { bool_value: def } }
   if (typeof def === 'string') return { type: 'mesg.types.Value_StringValue', value: { string_value: def } }
   throw new Error('unsupported filter value')

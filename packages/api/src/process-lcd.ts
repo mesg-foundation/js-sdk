@@ -123,10 +123,10 @@ export type IFilterValueStringType = {
   }
 }
 
-export type IFilterValueDoubleType = {
-  type: 'mesg.types.Value_DoubleValue';
+export type IFilterValueNumberType = {
+  type: 'mesg.types.Value_NumberValue';
   value: {
-    double_value: number;
+    number_value: number;
   }
 }
 
@@ -145,7 +145,7 @@ export type IFilterCondition = {
   };
   predicate: FilterPredicate;
   value: {
-    Kind: IFilterValueNullType | IFilterValueStringType | IFilterValueDoubleType | IFilterValueBoolType
+    Kind: IFilterValueNullType | IFilterValueStringType | IFilterValueNumberType | IFilterValueBoolType
   };
 }
 
