@@ -15,6 +15,7 @@ import { IAccount } from "@mesg/api/lib/account-lcd";
 const debug = require('debug')('runner')
 
 const ENGINE_NETWORK_NAME = 'engine'
+const PREFIX = 'mesg_srv_'
 
 type Labels = { [key: string]: string }
 
@@ -48,10 +49,13 @@ export default class DockerContainer implements Provider {
 
     const image = await this.build(service)
 
-    let serviceNetwork = (await this.findNetwork(labels) as Network)
-    if (!serviceNetwork) serviceNetwork = await this._client.network.create({ name: service.hash, labels })
+    let serviceNetwork = await this.findNetwork(labels)
+    if (!serviceNetwork) serviceNetwork = await this._client.network.create({
+      name: PREFIX + service.hash,
+      labels
+    })
 
-    const engineNetwork = (await this.findNetwork({ 'mesg.engine': 'true' }) as Network)
+    const engineNetwork = await this.findNetwork({ 'mesg.engine': 'true' })
     if (!engineNetwork) throw new Error('engine network not found')
 
     for (const dep of service.dependencies || []) {
@@ -120,6 +124,8 @@ export default class DockerContainer implements Provider {
       await container.stop()
       await container.delete()
     }
+    const serviceNetwork = await this.findNetwork(labels)
+    if (serviceNetwork) await serviceNetwork.remove()
   }
 
   private async createRunnerTx(account: IAccount, service: IService, envHash: string): Promise<IRunner> {
