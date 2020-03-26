@@ -162,44 +162,38 @@ export type IProcess = {
   edges: ProcessType.mesg.types.Process.IEdge[];
 }
 
-export type IProcessRequest = {
+export type IMsgCreate = {
+  owner: string;
   name: string;
   nodes: INode[];
   edges: ProcessType.mesg.types.Process.IEdge[];
 }
 
-export type IMsgCreate = {
-  address: string;
-  request: IProcessRequest;
-}
-
 export type IMsgDelete = {
-  address: string;
-  request: {
-    hash: string;
-  }
+  owner: string;
+  hash: string;
 }
 
 export default class Process extends LCDClient {
 
-  createMsg(owner: string, process: IProcessRequest): IMsg<IMsgCreate> {
+  createMsg(owner: string, name: string, nodes: INode[], edges: ProcessType.mesg.types.Process.IEdge[]): IMsg<IMsgCreate> {
     return {
-      type: 'process/CreateProcess',
+      type: 'process/create',
       value: {
-        address: owner,
-        request: process
+        owner,
+        edges,
+        name,
+        nodes
       }
     }
   }
 
   deleteMsg(owner: string, hash: string): IMsg<IMsgDelete> {
     return {
-      type: 'process/DeleteProcess',
+      type: 'process/delete',
       value: {
-        address: owner,
-        request: {
-          hash
-        }
+        owner,
+        hash
       }
     }
   }
