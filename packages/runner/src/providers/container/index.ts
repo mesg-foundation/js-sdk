@@ -73,7 +73,7 @@ export default class DockerContainer implements Provider {
         }
       }, PREFIX + service.hash + '_' + dep.key)
       container.addPorts(dep.ports)
-      container.connectTo(serviceNetwork, ['service'])
+      container.connectTo(serviceNetwork, [dep.key])
       await container.start()
     }
     const container = new Container({
