@@ -9,8 +9,8 @@
 
 #### Improvements
 
-- [#203](https://github.com/mesg-foundation/js-sdk/pull/203) Add support of any value for filters value (string, boolean or number)
-- [#](https://github.com/mesg-foundation/js-sdk/pull/) Add advance filter conditions
+- [#205](https://github.com/mesg-foundation/js-sdk/pull/205) Add support of any value for filters value (string, boolean or number)
+- [#205](https://github.com/mesg-foundation/js-sdk/pull/205) Add advance filter conditions
 A filter can now be defined as a list of conditions that contains a key, a predicate and a value. Previous definition of conditions with maps still works.
 eg: 
 ```yaml
