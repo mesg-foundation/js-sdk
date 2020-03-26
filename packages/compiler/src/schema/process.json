@@ -274,13 +274,70 @@
           ],
           "properties": {
             "conditions": {
-              "type": "object",
-              "additionalProperties": false,
-              "patternProperties": {
-                "^[a-zA-Z0-9_]+$": {
-                  "type": "string"
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "patternProperties": {
+                    "^[a-zA-Z0-9_]+$": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "array",
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "predicate": {
+                        "type": "string",
+                        "enum": [
+                          "EQ",
+                          "GT",
+                          "GTE",
+                          "LT",
+                          "LTE",
+                          "CONTAINS"
+                        ]
+                      },
+                      "value": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    }
+                  }
                 }
-              }
+              ]
             }
           }
         }

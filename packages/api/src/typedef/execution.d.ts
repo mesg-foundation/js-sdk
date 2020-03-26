@@ -13,7 +13,7 @@ declare namespace mesg {
             /** Status enum. */
             enum Status {
                 Unknown = 0,
-                Created = 1,
+                Proposed = 1,
                 InProgress = 2,
                 Completed = 3,
                 Failed = 4
@@ -60,6 +60,18 @@ declare namespace mesg {
 
                 /** Execution executorHash */
                 executorHash?: (Uint8Array|null);
+
+                /** Execution price */
+                price?: (string|null);
+
+                /** Execution blockHeight */
+                blockHeight?: (number|Long|null);
+
+                /** Execution emitters */
+                emitters?: (mesg.types.Execution.IEmitter[]|null);
+
+                /** Execution address */
+                address?: (Uint8Array|null);
             }
 
             /** Represents an Execution. */
@@ -109,6 +121,47 @@ declare namespace mesg {
 
                 /** Execution executorHash. */
                 public executorHash: Uint8Array;
+
+                /** Execution price. */
+                public price: string;
+
+                /** Execution blockHeight. */
+                public blockHeight: (number|Long);
+
+                /** Execution emitters. */
+                public emitters: mesg.types.Execution.IEmitter[];
+
+                /** Execution address. */
+                public address: Uint8Array;
+            }
+
+            namespace Execution {
+
+                /** Properties of an Emitter. */
+                interface IEmitter {
+
+                    /** Emitter runnerHash */
+                    runnerHash?: (Uint8Array|null);
+
+                    /** Emitter blockHeight */
+                    blockHeight?: (number|Long|null);
+                }
+
+                /** Represents an Emitter. */
+                class Emitter implements IEmitter {
+
+                    /**
+                     * Constructs a new Emitter.
+                     * @param [properties] Properties to set
+                     */
+                    constructor(properties?: mesg.types.Execution.IEmitter);
+
+                    /** Emitter runnerHash. */
+                    public runnerHash: Uint8Array;
+
+                    /** Emitter blockHeight. */
+                    public blockHeight: (number|Long);
+                }
             }
         }
 
@@ -363,6 +416,9 @@ declare namespace mesg {
 
                 /** CreateExecutionRequest executorHash */
                 executorHash?: (Uint8Array|null);
+
+                /** CreateExecutionRequest price */
+                price?: (string|null);
             }
 
             /** Represents a CreateExecutionRequest. */
@@ -397,6 +453,9 @@ declare namespace mesg {
 
                 /** CreateExecutionRequest executorHash. */
                 public executorHash: Uint8Array;
+
+                /** CreateExecutionRequest price. */
+                public price: string;
             }
 
             /** Properties of a CreateExecutionResponse. */

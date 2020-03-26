@@ -12,6 +12,7 @@ export type IOwnership = {
   owner: string;
   resourceHash: string;
   resource: Resource;
+  resourceAddress: string;
 }
 
 export default class Ownership extends LCDClient {

@@ -47,8 +47,8 @@ message ListRunnerRequest {
       (gogoproto.nullable) = false
     ];
 
-    // Filter by address
-    string address = 2 [
+    // Filter by owner
+    string owner = 2 [
       (gogoproto.moretags) = 'validate:"accaddress"'
     ];
   }
@@ -60,7 +60,9 @@ message ListRunnerRequest {
 // The response's data for the `List` API.
 message ListRunnerResponse {
   // List of runners that match the request's filters.
-  repeated types.Runner runners = 1;
+  repeated types.Runner runners = 1 [
+    (gogoproto.moretags) = 'validate:"dive"'
+  ];
 }
 
 // The request's data for the `Create` API.

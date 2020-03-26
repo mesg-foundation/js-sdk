@@ -62,14 +62,14 @@ export type IOutputMapType = {
 }
 
 export type IRefSelectorKey = {
-  type: "mesg.types.Process_Node_Map_Output_Reference_Path_Key";
+  type: "mesg.types.Process_Node_Reference_Path_Key";
   value: {
     key: string;
   }
 }
 
 export type IRefSelectorIndex = {
-  type: "mesg.types.Process_Node_Map_Output_Reference_Path_Index";
+  type: "mesg.types.Process_Node_Reference_Path_Index";
   value: {
     index?: string;
   }
@@ -80,8 +80,8 @@ export type IRefPath = {
   Selector: IRefSelectorKey | IRefSelectorIndex
 }
 
-export type IOutputRefType = {
-  type: 'mesg.types.Process_Node_Map_Output_Ref';
+export type IReference = {
+  type: 'mesg.types.Process_Node_Reference';
   value: {
     ref: {
       nodeKey: string;
@@ -91,7 +91,7 @@ export type IOutputRefType = {
 }
 
 export type IOutput = {
-  Value: IOutputNullType | IOutputStringType | IOutputDoubleType | IOutputBoolType | IOutputListType | IOutputMapType | IOutputRefType
+  Value: IOutputNullType | IOutputStringType | IOutputDoubleType | IOutputBoolType | IOutputListType | IOutputMapType | IReference
 }
 
 export type IMapOutput = {
@@ -101,13 +101,61 @@ export type IMapOutput = {
 
 export enum FilterPredicate {
   Unknown = 0,
-  EQ = 1
+  EQ = 1,
+  GT = 2,
+  GTE = 3,
+  LT = 4,
+  LTE = 5,
+  CONTAINS = 6
 }
 
+export const Predicate = {
+  EQ: FilterPredicate.EQ,
+  GT: FilterPredicate.GT,
+  GTE: FilterPredicate.GTE,
+  LT: FilterPredicate.LT,
+  LTE: FilterPredicate.LTE,
+  CONTAINS: FilterPredicate.CONTAINS
+}
+
+export type IFilterValueNullType = {
+  type: 'mesg.types.Value_NullValue';
+  value: {
+    null?: 0
+  }
+}
+
+export type IFilterValueStringType = {
+  type: 'mesg.types.Value_StringValue';
+  value: {
+    string_value: string;
+  }
+}
+
+export type IFilterValueNumberType = {
+  type: 'mesg.types.Value_NumberValue';
+  value: {
+    number_value: number;
+  }
+}
+
+export type IFilterValueBoolType = {
+  type: 'mesg.types.Value_BoolValue';
+  value: {
+    bool_value: boolean;
+  }
+}
+
+
 export type IFilterCondition = {
-  key: string;
+  ref: {
+    nodeKey: string;
+    path: IRefPath;
+  };
   predicate: FilterPredicate;
-  value: string;
+  value: {
+    Kind: IFilterValueNullType | IFilterValueStringType | IFilterValueNumberType | IFilterValueBoolType
+  };
 }
 
 export type IFilter = {

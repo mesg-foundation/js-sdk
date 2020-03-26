@@ -24,6 +24,9 @@ declare namespace mesg {
 
                 /** Process edges */
                 edges?: (mesg.types.Process.IEdge[]|null);
+
+                /** Process address */
+                address?: (Uint8Array|null);
             }
 
             /** Represents a Process. */
@@ -46,6 +49,9 @@ declare namespace mesg {
 
                 /** Process edges. */
                 public edges: mesg.types.Process.IEdge[];
+
+                /** Process address. */
+                public address: Uint8Array;
             }
 
             namespace Process {
@@ -221,7 +227,7 @@ declare namespace mesg {
                             boolConst?: (boolean|null);
 
                             /** Output ref */
-                            ref?: (mesg.types.Process.Node.Map.Output.IReference|null);
+                            ref?: (mesg.types.Process.Node.IReference|null);
 
                             /** Output list */
                             list?: (mesg.types.Process.Node.Map.Output.IList|null);
@@ -252,7 +258,7 @@ declare namespace mesg {
                             public boolConst: boolean;
 
                             /** Output ref. */
-                            public ref?: (mesg.types.Process.Node.Map.Output.IReference|null);
+                            public ref?: (mesg.types.Process.Node.IReference|null);
 
                             /** Output list. */
                             public list?: (mesg.types.Process.Node.Map.Output.IList|null);
@@ -310,70 +316,6 @@ declare namespace mesg {
                                 /** Map outputs. */
                                 public outputs: { [k: string]: mesg.types.Process.Node.Map.IOutput };
                             }
-
-                            /** Properties of a Reference. */
-                            interface IReference {
-
-                                /** Reference nodeKey */
-                                nodeKey?: (string|null);
-
-                                /** Reference path */
-                                path?: (mesg.types.Process.Node.Map.Output.Reference.IPath|null);
-                            }
-
-                            /** Represents a Reference. */
-                            class Reference implements IReference {
-
-                                /**
-                                 * Constructs a new Reference.
-                                 * @param [properties] Properties to set
-                                 */
-                                constructor(properties?: mesg.types.Process.Node.Map.Output.IReference);
-
-                                /** Reference nodeKey. */
-                                public nodeKey: string;
-
-                                /** Reference path. */
-                                public path?: (mesg.types.Process.Node.Map.Output.Reference.IPath|null);
-                            }
-
-                            namespace Reference {
-
-                                /** Properties of a Path. */
-                                interface IPath {
-
-                                    /** Path key */
-                                    key?: (string|null);
-
-                                    /** Path index */
-                                    index?: (number|Long|null);
-
-                                    /** Path path */
-                                    path?: (mesg.types.Process.Node.Map.Output.Reference.IPath|null);
-                                }
-
-                                /** Represents a Path. */
-                                class Path implements IPath {
-
-                                    /**
-                                     * Constructs a new Path.
-                                     * @param [properties] Properties to set
-                                     */
-                                    constructor(properties?: mesg.types.Process.Node.Map.Output.Reference.IPath);
-
-                                    /** Path key. */
-                                    public key: string;
-
-                                    /** Path index. */
-                                    public index: (number|Long);
-
-                                    /** Path path. */
-                                    public path?: (mesg.types.Process.Node.Map.Output.Reference.IPath|null);
-
-                                    /** Path selector. */
-                                    public selector?: ("key"|"index");
-                                }
-                            }
                         }
                     }
 
@@ -402,14 +344,14 @@ declare namespace mesg {
                         /** Properties of a Condition. */
                         interface ICondition {
 
-                            /** Condition key */
-                            key?: (string|null);
-
                             /** Condition predicate */
                             predicate?: (mesg.types.Process.Node.Filter.Condition.Predicate|null);
 
                             /** Condition value */
-                            value?: (string|null);
+                            value?: (mesg.protobuf.IValue|null);
+
+                            /** Condition ref */
+                            ref?: (mesg.types.Process.Node.IReference|null);
                         }
 
                         /** Represents a Condition. */
@@ -421,14 +363,14 @@ declare namespace mesg {
                              */
                             constructor(properties?: mesg.types.Process.Node.Filter.ICondition);
 
-                            /** Condition key. */
-                            public key: string;
-
                             /** Condition predicate. */
                             public predicate: mesg.types.Process.Node.Filter.Condition.Predicate;
 
                             /** Condition value. */
-                            public value: string;
+                            public value?: (mesg.protobuf.IValue|null);
+
+                            /** Condition ref. */
+                            public ref?: (mesg.types.Process.Node.IReference|null);
                         }
 
                         namespace Condition {
@@ -436,8 +378,77 @@ declare namespace mesg {
                             /** Predicate enum. */
                             enum Predicate {
                                 Unknown = 0,
-                                EQ = 1
+                                EQ = 1,
+                                GT = 2,
+                                GTE = 3,
+                                LT = 4,
+                                LTE = 5,
+                                CONTAINS = 6
                             }
+                        }
+                    }
+
+                    /** Properties of a Reference. */
+                    interface IReference {
+
+                        /** Reference nodeKey */
+                        nodeKey?: (string|null);
+
+                        /** Reference path */
+                        path?: (mesg.types.Process.Node.Reference.IPath|null);
+                    }
+
+                    /** Represents a Reference. */
+                    class Reference implements IReference {
+
+                        /**
+                         * Constructs a new Reference.
+                         * @param [properties] Properties to set
+                         */
+                        constructor(properties?: mesg.types.Process.Node.IReference);
+
+                        /** Reference nodeKey. */
+                        public nodeKey: string;
+
+                        /** Reference path. */
+                        public path?: (mesg.types.Process.Node.Reference.IPath|null);
+                    }
+
+                    namespace Reference {
+
+                        /** Properties of a Path. */
+                        interface IPath {
+
+                            /** Path key */
+                            key?: (string|null);
+
+                            /** Path index */
+                            index?: (number|Long|null);
+
+                            /** Path path */
+                            path?: (mesg.types.Process.Node.Reference.IPath|null);
+                        }
+
+                        /** Represents a Path. */
+                        class Path implements IPath {
+
+                            /**
+                             * Constructs a new Path.
+                             * @param [properties] Properties to set
+                             */
+                            constructor(properties?: mesg.types.Process.Node.Reference.IPath);
+
+                            /** Path key. */
+                            public key: string;
+
+                            /** Path index. */
+                            public index: (number|Long);
+
+                            /** Path path. */
+                            public path?: (mesg.types.Process.Node.Reference.IPath|null);
+
+                            /** Path selector. */
+                            public selector?: ("key"|"index");
                         }
                     }
                 }
@@ -467,6 +478,108 @@ declare namespace mesg {
                     /** Edge dst. */
                     public dst: string;
                 }
+            }
+        }
+
+        /** Namespace protobuf. */
+        namespace protobuf {
+
+            /** Properties of a Struct. */
+            interface IStruct {
+
+                /** Struct fields */
+                fields?: ({ [k: string]: mesg.protobuf.IValue }|null);
+            }
+
+            /** Represents a Struct. */
+            class Struct implements IStruct {
+
+                /**
+                 * Constructs a new Struct.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: mesg.protobuf.IStruct);
+
+                /** Struct fields. */
+                public fields: { [k: string]: mesg.protobuf.IValue };
+            }
+
+            /** Properties of a Value. */
+            interface IValue {
+
+                /** Value nullValue */
+                nullValue?: (mesg.protobuf.NullValue|null);
+
+                /** Value numberValue */
+                numberValue?: (number|null);
+
+                /** Value stringValue */
+                stringValue?: (string|null);
+
+                /** Value boolValue */
+                boolValue?: (boolean|null);
+
+                /** Value structValue */
+                structValue?: (mesg.protobuf.IStruct|null);
+
+                /** Value listValue */
+                listValue?: (mesg.protobuf.IListValue|null);
+            }
+
+            /** Represents a Value. */
+            class Value implements IValue {
+
+                /**
+                 * Constructs a new Value.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: mesg.protobuf.IValue);
+
+                /** Value nullValue. */
+                public nullValue: mesg.protobuf.NullValue;
+
+                /** Value numberValue. */
+                public numberValue: number;
+
+                /** Value stringValue. */
+                public stringValue: string;
+
+                /** Value boolValue. */
+                public boolValue: boolean;
+
+                /** Value structValue. */
+                public structValue?: (mesg.protobuf.IStruct|null);
+
+                /** Value listValue. */
+                public listValue?: (mesg.protobuf.IListValue|null);
+
+                /** Value kind. */
+                public kind?: ("nullValue"|"numberValue"|"stringValue"|"boolValue"|"structValue"|"listValue");
+            }
+
+            /** NullValue enum. */
+            enum NullValue {
+                NULL_VALUE = 0
+            }
+
+            /** Properties of a ListValue. */
+            interface IListValue {
+
+                /** ListValue values */
+                values?: (mesg.protobuf.IValue[]|null);
+            }
+
+            /** Represents a ListValue. */
+            class ListValue implements IListValue {
+
+                /**
+                 * Constructs a new ListValue.
+                 * @param [properties] Properties to set
+                 */
+                constructor(properties?: mesg.protobuf.IListValue);
+
+                /** ListValue values. */
+                public values: mesg.protobuf.IValue[];
             }
         }
 
