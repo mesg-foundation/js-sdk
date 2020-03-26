@@ -71,7 +71,7 @@ export default class DockerContainer implements Provider {
         HostConfig: {
           Mounts: this.convertVolumes(service, dep.volumes, dep.volumesFrom, dep)
         }
-      }, PREFIX + service.hash + dep.key)
+      }, PREFIX + service.hash + '_' + dep.key)
       container.addPorts(dep.ports)
       container.connectTo(serviceNetwork, ['service'])
       await container.start()
