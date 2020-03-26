@@ -245,34 +245,36 @@ test('process', async (tt: Test) => {
 
     const account = await api.account.get(address)
     const tx = await api.createTransaction([
-      api.process.createMsg(account.address, 'test', [{
-        key: 'trigger',
-        Type: {
-          type: "mesg.types.Process_Node_Event_",
-          value: {
-            event: {
-              eventKey: 'xxx',
-              instanceHash
+      api.process.createMsg(account.address, {
+        name: 'test',
+        nodes: [{
+          key: 'trigger',
+          Type: {
+            type: "mesg.types.Process_Node_Event_",
+            value: {
+              event: {
+                eventKey: 'xxx',
+                instanceHash
+              }
             }
           }
-        }
-      }, {
-        key: 'task',
-        Type: {
-          type: 'mesg.types.Process_Node_Task_',
-          value: {
-            task: {
-              instanceHash,
-              taskKey: 'execute'
+        }, {
+          key: 'task',
+          Type: {
+            type: 'mesg.types.Process_Node_Task_',
+            value: {
+              task: {
+                instanceHash,
+                taskKey: 'execute'
+              }
             }
-          }
-        },
-      }],
-        [{
+          },
+        }],
+        edges: [{
           src: 'trigger',
           dst: 'task'
         }]
-      )
+      })
     ], account, {
       fee: {
         amount: [{ denom: 'atto', amount: '88801' }],

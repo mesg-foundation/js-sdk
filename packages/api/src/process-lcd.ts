@@ -154,12 +154,15 @@ export type INode = {
   Type: IEventType | IResultType | ITaskType | IMapType | IFilterType;
 }
 
-export type IProcess = {
-  hash?: string;
-  address?: string;
+export type IDefinition = {
   name: string;
   nodes: INode[];
   edges: ProcessType.mesg.types.Process.IEdge[];
+}
+
+export type IProcess = IDefinition & {
+  hash: string;
+  address: string;
 }
 
 export type IMsgCreate = {
@@ -176,14 +179,14 @@ export type IMsgDelete = {
 
 export default class Process extends LCDClient {
 
-  createMsg(owner: string, name: string, nodes: INode[], edges: ProcessType.mesg.types.Process.IEdge[]): IMsg<IMsgCreate> {
+  createMsg(owner: string, definition: IDefinition): IMsg<IMsgCreate> {
     return {
       type: 'process/create',
       value: {
         owner,
-        edges,
-        name,
-        nodes
+        edges: definition.edges,
+        name: definition.name,
+        nodes: definition.nodes
       }
     }
   }

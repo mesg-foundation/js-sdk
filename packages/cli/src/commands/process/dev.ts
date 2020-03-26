@@ -5,12 +5,11 @@ import * as Process from '../../utils/process'
 import version from '../../version'
 import API from '@mesg/api'
 import LCDClient from '@mesg/api/lib/lcd'
-import { join } from 'path'
 import * as base58 from '@mesg/api/lib/util/base58'
 import chalk from 'chalk'
 import { inspect } from 'util'
 import { decode } from '@mesg/api/lib/util/encoder'
-import { IProcess } from '@mesg/api/lib/process-lcd'
+import { IProcess, IDefinition } from '@mesg/api/lib/process-lcd'
 import { IExecution } from "@mesg/api/lib/execution";
 import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
 import { ExecutionStatus } from '@mesg/api/lib/types'
@@ -46,7 +45,7 @@ export default class Dev extends Command {
   async run() {
     const { args, flags } = this.parse(Dev)
 
-    let definition: IProcess
+    let definition: IDefinition
     let deployedProcess: IProcess
 
     const tasks = new Listr<Environment.IStart>([
