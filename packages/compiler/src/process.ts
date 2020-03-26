@@ -1,6 +1,6 @@
-import {IProcess, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, FilterPredicate, IOutput, IRefPath} from '@mesg/api/lib/process-lcd'
+import { IDefinition, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, FilterPredicate, IOutput, IRefPath } from '@mesg/api/lib/process-lcd'
 import decode from './decode'
-import {Process} from './schema/process'
+import { Process } from './schema/process'
 import validate from './validate'
 const schema = require('./schema/process.json')
 
@@ -71,7 +71,7 @@ const extractPathFromPaths = (paths: string[]): IRefPath => {
 }
 
 const compileMapOutput = (def: any, opts: any): IOutput => {
-  if (def === null) return { Value: { type: "mesg.types.Process_Node_Map_Output_Null_", value: { } } }
+  if (def === null) return { Value: { type: "mesg.types.Process_Node_Map_Output_Null_", value: {} } }
   if (typeof def === 'number') return { Value: { type: "mesg.types.Process_Node_Map_Output_DoubleConst", value: { double_const: def } } }
   if (typeof def === 'boolean') return { Value: { type: 'mesg.types.Process_Node_Map_Output_BoolConst', value: { bool_const: def } } }
   if (typeof def === 'string') return { Value: { type: 'mesg.types.Process_Node_Map_Output_StringConst', value: { string_const: def } } }
@@ -158,7 +158,7 @@ const nodeCompiler = async (
   }
 }
 
-export default async (content: Buffer, instanceResolver: (object: any) => Promise<string>, envs: { [key: string]: string }): Promise<IProcess> => {
+export default async (content: Buffer, instanceResolver: (object: any) => Promise<string>, envs: { [key: string]: string }): Promise<IDefinition> => {
   const definition = decode(content, envs) as Process
   validate(schema, definition)
 
@@ -171,10 +171,10 @@ export default async (content: Buffer, instanceResolver: (object: any) => Promis
     step.key = step.key || `node-${i}`
     if (step.type === 'task' && step.inputs) {
       const mapKey = `${step.key}-inputs`
-      const mapNode = await nodeCompiler('map', step.inputs, mapKey, {defaultNodeKey: previousKey})
+      const mapNode = await nodeCompiler('map', step.inputs, mapKey, { defaultNodeKey: previousKey })
       nodes.push(mapNode)
       if (previousKey) {
-        edges.push({src: previousKey, dst: mapKey})
+        edges.push({ src: previousKey, dst: mapKey })
       }
       previousKey = mapKey
       i++
@@ -184,10 +184,10 @@ export default async (content: Buffer, instanceResolver: (object: any) => Promis
       : step.eventKey
         ? 'event'
         : 'result'
-    const stepNode = await nodeCompiler(type, step, step.key, {instanceResolver})
+    const stepNode = await nodeCompiler(type, step, step.key, { instanceResolver })
     nodes.push(stepNode)
     if (previousKey) {
-      edges.push({src: previousKey, dst: step.key})
+      edges.push({ src: previousKey, dst: step.key })
     }
     previousKey = step.key
     i++
