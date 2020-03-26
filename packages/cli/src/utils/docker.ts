@@ -30,7 +30,7 @@ export const findNetwork = async (name: string, client = defaultClient) => {
 }
 
 export const createNetwork = async (client = defaultClient) => {
-  const network = await findNetwork(name, client)
+  const network = await findNetwork(engineName, client)
   if (network) return network
   return client.network.create({
     CheckDuplicate: true,
