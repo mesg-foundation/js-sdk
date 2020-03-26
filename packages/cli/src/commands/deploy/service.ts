@@ -7,7 +7,7 @@ import { join } from 'path'
 import { parse } from 'url'
 import { prompt } from 'inquirer'
 import { Credential } from '../login'
-import { IService } from '@mesg/api/lib/service-lcd'
+import { IService, IDefinition } from '@mesg/api/lib/service-lcd'
 import { compile, create } from '../../utils/service'
 
 const ipfsClient = require('ipfs-http-client')
@@ -41,7 +41,7 @@ export default class Service extends Command {
 
     const credential = this.vault.get(key, password)
 
-    let definition: IService
+    let definition: IDefinition
     let service: IService
 
     const tasks = new Listr([

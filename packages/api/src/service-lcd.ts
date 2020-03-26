@@ -17,14 +17,14 @@ export type IService = {
 
 export type IDefinition = {
   sid?: string | null;
-  name: string | null;
+  name?: string | null;
   description?: string | null;
   configuration?: ServiceType.mesg.types.Service.IConfiguration;
   tasks?: ServiceType.mesg.types.Service.ITask[] | null;
   events?: ServiceType.mesg.types.Service.IEvent[] | null;
   dependencies?: ServiceType.mesg.types.Service.IDependency[] | null;
   repository?: string | null;
-  source: string | null;
+  source?: string | null;
 }
 
 export type IMsgCreate = IDefinition & {

@@ -1,5 +1,5 @@
 import pick from 'lodash.pick'
-import {IService} from '@mesg/api/lib/service-lcd'
+import { IDefinition } from '@mesg/api/lib/service-lcd'
 import decode from './decode'
 
 const mapToArray = (inputs: any) => Object.keys(inputs || {}).map(key => ({
@@ -12,7 +12,7 @@ const parseParams = (params: any): any => mapToArray(params).map(x => ({
   object: parseParams(x.object),
 }))
 
-export default async (content: Buffer): Promise<IService> => {
+export default async (content: Buffer): Promise<IDefinition> => {
   const definition = decode(content, {})
   return {
     ...pick(definition, ['sid', 'name', 'description', 'repository']),
