@@ -1,4 +1,4 @@
-import { IProcess } from "@mesg/api/lib/process-lcd"
+import { IProcess, IDefinition } from "@mesg/api/lib/process-lcd"
 import LCD from '@mesg/api/lib/lcd'
 import { process as compileProcess } from '@mesg/compiler'
 import { readFileSync } from "fs"
@@ -6,7 +6,7 @@ import * as Service from './service'
 import * as Runner from './runner'
 import { findHash } from "@mesg/api/lib/util/txevent"
 
-export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD, lcdEndpoint: string, mnemonic: string, env: string[] = []): Promise<IProcess> => {
+export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD, lcdEndpoint: string, mnemonic: string, env: string[] = []): Promise<IDefinition> => {
   const instanceReolver = async (instanceObject: any): Promise<string> => {
     if (!instanceObject.instanceHash && !instanceObject.instance) throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
     if (instanceObject.instanceHash) return instanceObject.instanceHash
@@ -23,7 +23,7 @@ export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD
   }), {}))
 }
 
-export const create = async (lcd: LCD, process: IProcess, mnemonic: string): Promise<IProcess> => {
+export const create = async (lcd: LCD, process: IDefinition, mnemonic: string): Promise<IProcess> => {
   const account = await lcd.account.import(mnemonic)
   const tx = await lcd.createTransaction(
     [lcd.process.createMsg(account.address, process)],
