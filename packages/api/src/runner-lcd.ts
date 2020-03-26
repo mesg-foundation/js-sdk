@@ -9,35 +9,35 @@ export type IRunner = {
 }
 
 export type IMsgCreate = {
-  address: string;
+  owner: string;
   serviceHash: string;
   envHash: string;
 }
 
 export type IMsgDelete = {
-  address: string;
-  runnerHash: string;
+  owner: string;
+  hash: string;
 }
 
 export default class Runner extends LCDClient {
 
   createMsg(owner: string, serviceHash: string, envHash: string): IMsg<IMsgCreate> {
     return {
-      type: 'runner/CreateRunner',
+      type: 'runner/create',
       value: {
-        address: owner,
-        serviceHash: serviceHash,
-        envHash: envHash
+        owner,
+        serviceHash,
+        envHash
       }
     }
   }
 
-  deleteMsg(owner: string, runnerHash: string): IMsg<IMsgDelete> {
+  deleteMsg(owner: string, hash: string): IMsg<IMsgDelete> {
     return {
-      type: 'runner/DeleteRunner',
+      type: 'runner/delete',
       value: {
-        address: owner,
-        runnerHash: runnerHash
+        owner,
+        hash
       }
     }
   }

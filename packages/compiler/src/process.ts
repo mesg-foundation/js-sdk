@@ -1,4 +1,4 @@
-import { IProcess, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, Predicate, IOutput, IRefPath, IFilterCondition, IFilterValueNullType, IFilterValueStringType, IFilterValueNumberType, IFilterValueBoolType } from '@mesg/api/lib/process-lcd'
+import { IDefinition, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, Predicate, IOutput, IRefPath, IFilterCondition, IFilterValueNullType, IFilterValueStringType, IFilterValueNumberType, IFilterValueBoolType } from '@mesg/api/lib/process-lcd'
 import decode from './decode'
 import { Process } from './schema/process'
 import validate from './validate'
@@ -181,7 +181,7 @@ const nodeCompiler = async (
   }
 }
 
-export default async (content: Buffer, instanceResolver: (object: any) => Promise<string>, envs: { [key: string]: string }): Promise<IProcess> => {
+export default async (content: Buffer, instanceResolver: (object: any) => Promise<string>, envs: { [key: string]: string }): Promise<IDefinition> => {
   const definition = decode(content, envs) as Process
   validate(schema, definition)
 

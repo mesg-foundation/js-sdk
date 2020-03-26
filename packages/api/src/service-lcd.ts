@@ -16,19 +16,41 @@ export type IService = {
   address?: string | null;
 }
 
-export type IMsgCreate = {
-  owner: string,
-  request: IService
+export type IDefinition = {
+  sid?: string | null;
+  name?: string | null;
+  description?: string | null;
+  configuration?: ServiceType.mesg.types.Service.IConfiguration;
+  tasks?: ServiceType.mesg.types.Service.ITask[] | null;
+  events?: ServiceType.mesg.types.Service.IEvent[] | null;
+  dependencies?: ServiceType.mesg.types.Service.IDependency[] | null;
+  repository?: string | null;
+  source?: string | null;
+}
+
+export type IMsgCreate = IDefinition & {
+  owner: string;
 }
 
 export default class ServiceLCD extends LCDClient {
 
-  createMsg(owner: string, service: IService): IMsg<IMsgCreate> {
+  createMsg(owner: string, definition: IDefinition): IMsg<IMsgCreate> {
+    const {
+      sid, name, description, configuration, tasks, events, dependencies, repository, source
+    } = definition
     return {
-      type: 'service/CreateService',
+      type: 'service/create',
       value: {
         owner,
-        request: service
+        sid,
+        name,
+        description,
+        configuration,
+        tasks,
+        events,
+        dependencies,
+        repository,
+        source,
       }
     }
   }
@@ -41,8 +63,8 @@ export default class ServiceLCD extends LCDClient {
     return (await this.query(`/service/exist/${hash}`)).result
   }
 
-  async hash(request: IService): Promise<string> {
-    return (await this.query(`/service/hash`, request, 'POST')).result
+  async hash(definition: IDefinition): Promise<string> {
+    return (await this.query(`/service/hash`, definition, 'POST')).result
   }
 
   async list(): Promise<IService[]> {

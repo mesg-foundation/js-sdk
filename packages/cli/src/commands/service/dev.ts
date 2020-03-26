@@ -12,7 +12,7 @@ import * as Runner from '../../utils/runner'
 import * as base58 from "@mesg/api/lib/util/base58";
 import { ExecutionStatus } from "@mesg/api/lib/types";
 import version from '../../version'
-import { IService } from '@mesg/api/lib/service-lcd'
+import { IService, IDefinition } from '@mesg/api/lib/service-lcd'
 import { IRunner } from '@mesg/api/lib/runner-lcd'
 import { Stream } from 'stream'
 import { IEvent } from "@mesg/api/lib/event";
@@ -53,7 +53,7 @@ export default class Dev extends Command {
   async run() {
     const { args, flags } = this.parse(Dev)
 
-    let definition: IService
+    let definition: IDefinition
     let service: IService
     let runner: IRunner
 
