@@ -5,8 +5,15 @@ import { readFileSync } from "fs"
 import * as Service from './service'
 import * as Runner from './runner'
 import { findHash } from "@mesg/api/lib/util/txevent"
+import { IRunner } from "@mesg/api/lib/runner-lcd"
 
-export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD, lcdEndpoint: string, mnemonic: string, env: string[] = []): Promise<IDefinition> => {
+export type CompilationResult = {
+  definition: IDefinition,
+  runners: IRunner[]
+}
+
+export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD, lcdEndpoint: string, mnemonic: string, env: string[] = []): Promise<CompilationResult> => {
+  const runners: IRunner[] = []
   const instanceReolver = async (instanceObject: any): Promise<string> => {
     if (!instanceObject.instanceHash && !instanceObject.instance) throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
     if (instanceObject.instanceHash) return instanceObject.instanceHash
@@ -14,13 +21,19 @@ export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD
     const definition = await Service.compile(src, ipfsClient)
     const service = await Service.create(lcd, definition, mnemonic)
     const runner = await Runner.create(lcdEndpoint, mnemonic, service.hash, env)
+    if (!runners.find(x => x.hash === runner.hash)) runners.push(runner)
     return runner.instanceHash
   }
 
-  return compileProcess(readFileSync(processFilePath), instanceReolver, env.reduce((prev, env) => ({
+
+  const definition = await compileProcess(readFileSync(processFilePath), instanceReolver, env.reduce((prev, env) => ({
     ...prev,
     [env.split('=')[0]]: env.split('=')[1],
   }), {}))
+  return {
+    definition,
+    runners
+  }
 }
 
 export const create = async (lcd: LCD, process: IDefinition, mnemonic: string): Promise<IProcess> => {
@@ -33,4 +46,14 @@ export const create = async (lcd: LCD, process: IDefinition, mnemonic: string): 
   const hashes = findHash(txResult, "Process")
   if (hashes.length != 1) throw new Error('error while getting the hash of the process created')
   return lcd.process.get(hashes[0])
+}
+
+export const remove = async (lcd: LCD, process: IProcess, mnemonic: string): Promise<void> => {
+  const account = await lcd.account.import(mnemonic)
+  const tx = await lcd.createTransaction(
+    [lcd.process.deleteMsg(account.address, process.hash)],
+    account
+  )
+  await lcd.broadcast(tx.signWithMnemonic(mnemonic))
+  return
 }
