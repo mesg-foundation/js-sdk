@@ -12,6 +12,8 @@
 - [#186](https://github.com/mesg-foundation/js-sdk/pull/186) Update type for processes and add new message to create/delete process
 - [#187](https://github.com/mesg-foundation/js-sdk/pull/187) Add transfer message to account
 - [#188](https://github.com/mesg-foundation/js-sdk/pull/188) Add mnemonic generation to account
+- [#199](https://github.com/mesg-foundation/js-sdk/pull/199) Add helper to get a hash of a resource created from a tx result
+- [#199](https://github.com/mesg-foundation/js-sdk/pull/199) Add create/delete/hash messages for runners
 
 #### Bug fixes
 

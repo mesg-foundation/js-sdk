@@ -1,7 +1,7 @@
 import Listr, { ListrTask } from "listr"
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
 import { join } from "path"
-import { hasImage, fetchImageTag, createService, listServices, waitForEvent } from "./docker"
+import { hasImage, fetchImageTag, createContainer, listContainers, findNetwork, engineLabel, engineName } from "./docker"
 import { getOrGenerateAccount, write, clear } from "./config"
 import fetch from "node-fetch"
 
@@ -44,25 +44,19 @@ const waitToBeReady = async (endpoint?: string): Promise<void> => {
 
 export type IStop = { configDir: string }
 export const stop: ListrTask<IStop> = {
-  title: 'Stop environment',
+  title: 'Stopping environment',
   task: () => new Listr([
     {
       title: 'Stopping the Engine',
       skip: ctx => hasOtherInstances(ctx.configDir),
       task: async () => {
-        const services = await listServices({ name: ['engine'] })
-        if (services.length === 0) throw new Error('Cannot find engine')
-        const service = services[0]
-        let image = (service.data as any).Spec.TaskTemplate.ContainerSpec.Image
-        image = [
-          image.split(':')[0],
-          image.split(':')[1] || 'latest'
-        ].join(':')
-        const eventPromise = waitForEvent(({ Action, from, Type }) => {
-          return Type === 'container' && Action === 'destroy' && from === image
-        })
-        await service.remove()
-        await eventPromise
+        const containers = await listContainers({ label: [engineLabel] })
+        if (containers.length === 0) throw new Error('Cannot find engine')
+        const container = containers[0]
+        await container.stop()
+        await container.delete()
+        const network = await findNetwork(engineName)
+        if (network) await network.remove()
       },
     },
     {
@@ -102,14 +96,14 @@ export const start: ListrTask<IStart> = {
     },
     {
       title: 'Starting the Engine',
-      skip: async () => (await listServices({ name: ['engine'] })).length > 0,
+      skip: async () => (await listContainers({ label: [engineLabel] })).length > 0,
       task: ctx => {
         write(ctx.configDir, {
           account: {
             mnemonic: ctx.mnemonic
           }
         })
-        return createService(ctx.image, 'engine', ctx.configDir)
+        return createContainer(ctx.image, ctx.configDir)
       }
     },
     {

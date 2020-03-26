@@ -54,7 +54,7 @@ export default class Dev extends Command {
       {
         title: 'Compiling process',
         task: async ctx => {
-          definition = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.grpc, ctx.mnemonic, flags.env)
+          definition = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.lcdEndpoint, ctx.mnemonic, flags.env)
         }
       },
       {

@@ -4,7 +4,7 @@ import { readFileSync } from "fs"
 import { join } from "path"
 import { service as serviceCompiler } from '@mesg/compiler'
 import API from "@mesg/api/lib/lcd"
-import { findHash } from "./txevent"
+import { findHash } from "@mesg/api/lib/util/txevent"
 
 export const compile = async (path: string, ipfsClient: any): Promise<IService> => {
   const deployedPath = await deployer(path)
@@ -34,7 +34,7 @@ export const create = async (lcd: API, definition: IService, mnemonic: string): 
     account
   )
   const txResult = await lcd.broadcast(tx.signWithMnemonic(mnemonic))
-  const hashes = findHash(txResult, "service", "CreateService")
+  const hashes = findHash(txResult, "Service")
   if (hashes.length != 1) throw new Error('error while getting the hash of the service created')
   return lcd.service.get(hashes[0])
 }
