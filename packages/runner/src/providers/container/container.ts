@@ -13,7 +13,7 @@ export type IContainer = {
     PortBindings?: { [key: string]: { HostPort: string }[] };
     RestartPolicy?: {
       Name: 'on-failure' | 'always' | 'unless-stopped';
-      MaximumRetryCount: number;
+      MaximumRetryCount?: number;
     };
     Mounts?: {
       Source: string;
