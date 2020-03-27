@@ -16,6 +16,7 @@ const debug = require('debug')('runner')
 
 const ENGINE_NETWORK_NAME = 'engine'
 const PREFIX = 'mesg_srv_'
+const MAX_RETRY = 5
 
 type Labels = { [key: string]: string }
 
@@ -69,7 +70,11 @@ export default class DockerContainer implements Provider {
           'mesg.dependency': dep.key,
         },
         HostConfig: {
-          Mounts: this.convertVolumes(service, dep.volumes, dep.volumesFrom, dep)
+          Mounts: this.convertVolumes(service, dep.volumes, dep.volumesFrom, dep),
+          RestartPolicy: {
+            Name: 'on-failure',
+            MaximumRetryCount: MAX_RETRY
+          }
         }
       }, PREFIX + service.hash + '_' + dep.key)
       container.addPorts(dep.ports)
@@ -94,7 +99,11 @@ export default class DockerContainer implements Provider {
         'mesg.dependency': 'service'
       },
       HostConfig: {
-        Mounts: this.convertVolumes(service, service.configuration.volumes, service.configuration.volumesFrom)
+        Mounts: this.convertVolumes(service, service.configuration.volumes, service.configuration.volumesFrom),
+        RestartPolicy: {
+          Name: 'on-failure',
+          MaximumRetryCount: MAX_RETRY
+        }
       }
     }, PREFIX + service.hash)
     container.addPorts(service.configuration.ports)

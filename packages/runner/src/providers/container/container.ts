@@ -12,7 +12,8 @@ export type IContainer = {
   HostConfig?: {
     PortBindings?: { [key: string]: { HostPort: string }[] };
     RestartPolicy?: {
-      Name: 'on-failure' | 'always' | 'unless-stopped'
+      Name: 'on-failure' | 'always' | 'unless-stopped';
+      MaximumRetryCount?: number;
     };
     Mounts?: {
       Source: string;
