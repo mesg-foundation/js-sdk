@@ -2,6 +2,7 @@ import { flags, Command } from '@oclif/command'
 import Listr from 'listr'
 import * as Environment from '../../utils/environment-tasks'
 import * as Process from '../../utils/process'
+import * as Runner from '../../utils/runner'
 import version from '../../version'
 import API from '@mesg/api'
 import LCDClient from '@mesg/api/lib/lcd'
@@ -45,7 +46,7 @@ export default class Dev extends Command {
   async run() {
     const { args, flags } = this.parse(Dev)
 
-    let definition: IDefinition
+    let compilation: Process.CompilationResult
     let deployedProcess: IProcess
 
     const tasks = new Listr<Environment.IStart>([
@@ -53,13 +54,13 @@ export default class Dev extends Command {
       {
         title: 'Compiling process',
         task: async ctx => {
-          definition = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.lcdEndpoint, ctx.mnemonic, flags.env)
+          compilation = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.lcdEndpoint, ctx.mnemonic, flags.env)
         }
       },
       {
         title: 'Creating process',
         task: async ctx => {
-          deployedProcess = await Process.create(this.lcd, definition, ctx.mnemonic)
+          deployedProcess = await Process.create(this.lcd, compilation.definition, ctx.mnemonic)
         }
       },
       {
@@ -76,7 +77,7 @@ export default class Dev extends Command {
         }
       }
     ])
-    await tasks.run({
+    const { mnemonic } = await tasks.run({
       configDir: this.config.dataDir,
       image: flags.image,
       pull: flags.pull,
@@ -107,6 +108,20 @@ export default class Dev extends Command {
           title: 'Stopping logs',
           task: () => {
             if (this.logs) this.logs.cancel()
+          }
+        },
+        {
+          title: 'Deleting process',
+          task: async () => {
+            if (deployedProcess) await Process.remove(this.lcd, deployedProcess, mnemonic)
+          }
+        },
+        {
+          title: 'Stopping services',
+          task: async () => {
+            for (const runner of compilation.runners) {
+              await Runner.stop(this.lcdEndpoint, mnemonic, runner.hash)
+            }
           }
         },
         Environment.stop
