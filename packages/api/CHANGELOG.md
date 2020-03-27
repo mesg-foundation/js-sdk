@@ -14,7 +14,8 @@
 - [#188](https://github.com/mesg-foundation/js-sdk/pull/188) Add mnemonic generation to account
 - [#199](https://github.com/mesg-foundation/js-sdk/pull/199) Add helper to get a hash of a resource created from a tx result
 - [#199](https://github.com/mesg-foundation/js-sdk/pull/199) Add create/delete/hash messages for runners
-- [#](https://github.com/mesg-foundation/js-sdk/pull/) Update messages for the api and add integration tests
+- [#205](https://github.com/mesg-foundation/js-sdk/pull/205) Update LCD types and add process filters value and reference
+- [#207](https://github.com/mesg-foundation/js-sdk/pull/207) Update messages for the api and add integration tests
 
 #### Bug fixes
 

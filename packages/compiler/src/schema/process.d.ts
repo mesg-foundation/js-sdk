@@ -42,13 +42,19 @@ export type Filter = {
   type?: "filter";
   [k: string]: any;
 } & Step & {
-    conditions: {
-      /**
-       * This interface was referenced by `undefined`'s JSON-Schema definition
-       * via the `patternProperty` "^[a-zA-Z0-9_]+$".
-       */
-      [k: string]: string;
-    };
+    conditions:
+      | {
+          /**
+           * This interface was referenced by `undefined`'s JSON-Schema definition
+           * via the `patternProperty` "^[a-zA-Z0-9_]+$".
+           */
+          [k: string]: string | number | boolean | null;
+        }
+      | {
+          key?: string;
+          predicate?: "EQ" | "GT" | "GTE" | "LT" | "LTE" | "CONTAINS";
+          value?: string | number | boolean | null;
+        }[];
     [k: string]: any;
   };
 export type Task = {

@@ -22,6 +22,13 @@ export type IExecution = {
   processHash?: (string | null);
   nodeKey?: (string | null);
   executorHash: string;
+  price?: string;
+  blockHeight?: number;
+  emitters?: {
+    runnerHash: string;
+    blockHeight: number;
+  }[];
+  address?: string
 }
 
 export default class Execution extends LCDClient {

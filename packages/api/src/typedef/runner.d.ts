@@ -16,11 +16,14 @@ declare namespace mesg {
                 /** Runner hash */
                 hash?: (Uint8Array|null);
 
-                /** Runner address */
-                address?: (string|null);
+                /** Runner owner */
+                owner?: (string|null);
 
                 /** Runner instanceHash */
                 instanceHash?: (Uint8Array|null);
+
+                /** Runner address */
+                address?: (Uint8Array|null);
             }
 
             /** Represents a Runner. */
@@ -35,11 +38,14 @@ declare namespace mesg {
                 /** Runner hash. */
                 public hash: Uint8Array;
 
-                /** Runner address. */
-                public address: string;
+                /** Runner owner. */
+                public owner: string;
 
                 /** Runner instanceHash. */
                 public instanceHash: Uint8Array;
+
+                /** Runner address. */
+                public address: Uint8Array;
             }
         }
 
@@ -193,8 +199,8 @@ declare namespace mesg {
                     /** Filter instanceHash */
                     instanceHash?: (Uint8Array|null);
 
-                    /** Filter address */
-                    address?: (string|null);
+                    /** Filter owner */
+                    owner?: (string|null);
                 }
 
                 /** Represents a Filter. */
@@ -209,8 +215,8 @@ declare namespace mesg {
                     /** Filter instanceHash. */
                     public instanceHash: Uint8Array;
 
-                    /** Filter address. */
-                    public address: string;
+                    /** Filter owner. */
+                    public owner: string;
                 }
             }
 

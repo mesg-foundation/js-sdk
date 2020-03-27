@@ -42,6 +42,9 @@ declare namespace mesg {
 
                 /** Service source */
                 source?: (string|null);
+
+                /** Service address */
+                address?: (Uint8Array|null);
             }
 
             /** Represents a Service. */
@@ -82,6 +85,9 @@ declare namespace mesg {
 
                 /** Service source. */
                 public source: string;
+
+                /** Service address. */
+                public address: Uint8Array;
             }
 
             namespace Service {
