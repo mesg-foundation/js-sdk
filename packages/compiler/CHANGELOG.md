@@ -8,6 +8,19 @@
 - [#188](https://github.com/mesg-foundation/js-sdk/pull/188) Compile services in a LCD format
 
 #### Improvements
+
+- [#205](https://github.com/mesg-foundation/js-sdk/pull/205) Add support of any value for filters value (string, boolean or number)
+- [#205](https://github.com/mesg-foundation/js-sdk/pull/205) Add advance filter conditions
+A filter can now be defined as a list of conditions that contains a key, a predicate and a value. Previous definition of conditions with maps still works.
+eg: 
+```yaml
+  - type: filter
+    conditions:
+      - key: data.foo[0].x
+        predicate: EQ
+        value: 2
+```
+
 #### Bug fixes
 
 ## [v0.2.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcompiler%400.2.0)

@@ -1,4 +1,4 @@
-import { IDefinition, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, FilterPredicate, IOutput, IRefPath } from '@mesg/api/lib/process-lcd'
+import { IDefinition, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, Predicate, IOutput, IRefPath, IFilterCondition, IFilterValueNullType, IFilterValueStringType, IFilterValueNumberType, IFilterValueBoolType } from '@mesg/api/lib/process-lcd'
 import decode from './decode'
 import { Process } from './schema/process'
 import validate from './validate'
@@ -54,7 +54,7 @@ const extractPathFromPaths = (paths: string[]): IRefPath => {
     return {
       path: extractPathFromPaths(nextPaths),
       Selector: {
-        type: "mesg.types.Process_Node_Map_Output_Reference_Path_Index",
+        type: "mesg.types.Process_Node_Reference_Path_Index",
         value
       }
     }
@@ -62,7 +62,7 @@ const extractPathFromPaths = (paths: string[]): IRefPath => {
   return {
     path: extractPathFromPaths(nextPaths),
     Selector: {
-      type: 'mesg.types.Process_Node_Map_Output_Reference_Path_Key',
+      type: 'mesg.types.Process_Node_Reference_Path_Key',
       value: {
         key: currentPath
       }
@@ -77,7 +77,7 @@ const compileMapOutput = (def: any, opts: any): IOutput => {
   if (typeof def === 'string') return { Value: { type: 'mesg.types.Process_Node_Map_Output_StringConst', value: { string_const: def } } }
   if (typeof def === 'object' && !!def.key) return {
     Value: {
-      type: 'mesg.types.Process_Node_Map_Output_Ref',
+      type: 'mesg.types.Process_Node_Reference',
       value: {
         ref: {
           path: extractPathFromPaths(extractPathsFromKey(def.key)),
@@ -122,18 +122,41 @@ const compileMap = async (def: any, opts: any): Promise<IMapType> => {
   }
 }
 
-const compileFilter = async (def: any): Promise<IFilterType> => ({
-  type: 'mesg.types.Process_Node_Filter_',
-  value: {
-    filter: {
-      conditions: Object.keys(def.conditions).map(key => ({
-        key,
-        predicate: FilterPredicate.EQ,
-        value: def.conditions[key]
-      })).sort((a, b) => a.key.localeCompare(b.key))
+const compileFilterValue = (def: any): IFilterValueNullType | IFilterValueStringType | IFilterValueNumberType | IFilterValueBoolType => {
+  if (def === null) return { type: "mesg.types.Value_NullValue", value: {} }
+  if (typeof def === 'number') return { type: "mesg.types.Value_NumberValue", value: { number_value: def } }
+  if (typeof def === 'boolean') return { type: 'mesg.types.Value_BoolValue', value: { bool_value: def } }
+  if (typeof def === 'string') return { type: 'mesg.types.Value_StringValue', value: { string_value: def } }
+  throw new Error('unsupported filter value')
+}
+
+const compileFilter = async (def: any, opts: any): Promise<IFilterType> => {
+  const conditions = Array.isArray(def.conditions)
+    ? def.conditions
+    : Object.keys(def.conditions).sort((a, b) => a.localeCompare(b)).map(x => ({
+      key: x,
+      predicate: 'EQ',
+      value: def.conditions[x]
+    }))
+  return {
+    type: 'mesg.types.Process_Node_Filter_',
+    value: {
+      filter: {
+        conditions: conditions
+          .map((condition: { key: string, predicate: 'EQ' | 'GT' | 'GTE' | 'LT' | 'LTE' | 'CONTAINS', value: any }): IFilterCondition => ({
+            ref: {
+              path: extractPathFromPaths(extractPathsFromKey(condition.key)),
+              nodeKey: def.stepKey || opts.defaultNodeKey
+            },
+            predicate: Predicate[condition.predicate],
+            value: {
+              Kind: compileFilterValue(condition.value)
+            }
+          }))
+      }
     }
   }
-})
+}
 
 const nodeCompiler = async (
   type: 'result' | 'event' | 'task' | 'map' | 'filter',
@@ -169,9 +192,10 @@ export default async (content: Buffer, instanceResolver: (object: any) => Promis
   let i = 0
   for (const step of definition.steps) {
     step.key = step.key || `node-${i}`
+    const opts = { defaultNodeKey: previousKey, instanceResolver }
     if (step.type === 'task' && step.inputs) {
       const mapKey = `${step.key}-inputs`
-      const mapNode = await nodeCompiler('map', step.inputs, mapKey, { defaultNodeKey: previousKey })
+      const mapNode = await nodeCompiler('map', step.inputs, mapKey, opts)
       nodes.push(mapNode)
       if (previousKey) {
         edges.push({ src: previousKey, dst: mapKey })
@@ -184,7 +208,7 @@ export default async (content: Buffer, instanceResolver: (object: any) => Promis
       : step.eventKey
         ? 'event'
         : 'result'
-    const stepNode = await nodeCompiler(type, step, step.key, { instanceResolver })
+    const stepNode = await nodeCompiler(type, step, step.key, opts)
     nodes.push(stepNode)
     if (previousKey) {
       edges.push({ src: previousKey, dst: step.key })

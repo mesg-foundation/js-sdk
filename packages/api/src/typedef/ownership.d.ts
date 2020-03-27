@@ -24,6 +24,9 @@ declare namespace mesg {
 
                 /** Ownership resource */
                 resource?: (mesg.types.Ownership.Resource|null);
+
+                /** Ownership resourceAddress */
+                resourceAddress?: (Uint8Array|null);
             }
 
             /** Represents an Ownership. */
@@ -46,6 +49,9 @@ declare namespace mesg {
 
                 /** Ownership resource. */
                 public resource: mesg.types.Ownership.Resource;
+
+                /** Ownership resourceAddress. */
+                public resourceAddress: Uint8Array;
             }
 
             namespace Ownership {
@@ -54,7 +60,8 @@ declare namespace mesg {
                 enum Resource {
                     None = 0,
                     Service = 1,
-                    Process = 2
+                    Process = 2,
+                    Runner = 3
                 }
             }
         }

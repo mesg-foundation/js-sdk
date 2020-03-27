@@ -3,8 +3,9 @@ import { IMsg } from './transaction'
 
 export type IRunner = {
   hash: string;
-  address: string;
-  instanceHash?: string | null;
+  owner: string;
+  instanceHash: string | null;
+  address: string | null;
 }
 
 export type IMsgCreate = {
