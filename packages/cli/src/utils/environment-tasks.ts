@@ -53,7 +53,9 @@ export const stop: ListrTask<IStop> = {
         const containers = await listContainers({ label: [engineLabel] })
         if (containers.length === 0) throw new Error('Cannot find engine')
         const container = containers[0]
-        await container.stop()
+        await container.stop({
+          "t": 60, // tell docker to wait for the container to stop gracefully within 60sec.
+        })
         await container.delete()
         const network = await findNetwork(engineName)
         if (network) await network.remove()
