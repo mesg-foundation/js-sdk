@@ -47,6 +47,7 @@ Commands `service:dev` and `process:dev` are automatically start a local environ
 
 - [#191](https://github.com/mesg-foundation/js-sdk/pull/191) Do not stop the environment if other instances of the CLI rely on it
 - [#211](https://github.com/mesg-foundation/js-sdk/pull/211) Fix issue with network deletion when exiting a process
+- [#213](https://github.com/mesg-foundation/js-sdk/pull/213) Fix unused `tag` flag and replace with `version`
 
 ## [v0.3.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%400.3.0)
 
