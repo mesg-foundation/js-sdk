@@ -8,9 +8,8 @@ import API from '@mesg/api'
 import LCDClient from '@mesg/api/lib/lcd'
 import * as base58 from '@mesg/api/lib/util/base58'
 import chalk from 'chalk'
-import { inspect } from 'util'
 import { decode } from '@mesg/api/lib/util/encoder'
-import { IProcess, IDefinition } from '@mesg/api/lib/process-lcd'
+import { IProcess } from '@mesg/api/lib/process-lcd'
 import { IExecution } from "@mesg/api/lib/execution";
 import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
 import { ExecutionStatus } from '@mesg/api/lib/types'
@@ -97,8 +96,8 @@ export default class Dev extends Command {
         }
         if (!execution.outputs) return
         return this.log(prefix +
-          '\n\tinputs:  ' + chalk.gray(inspect(decode(execution.inputs || {}))) +
-          '\n\toutputs: ' + chalk.gray(inspect(decode(execution.outputs || {}))) +
+          '\n\tinputs:  ' + chalk.gray(JSON.stringify(decode(execution.inputs || {}))) +
+          '\n\toutputs: ' + chalk.gray(JSON.stringify(decode(execution.outputs || {}))) +
           '\n')
       })
 
