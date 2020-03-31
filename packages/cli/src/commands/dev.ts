@@ -26,8 +26,7 @@ export default class Dev extends Command {
   static description = 'Start a dev environment for your project'
 
   static flags = {
-    image: flags.string({ name: 'Engine image', default: 'mesg/engine' }),
-    tag: flags.string({ name: 'Engine version', default: version.engine }),
+    version: flags.string({ name: 'Engine version', default: version.engine }),
     pull: flags.boolean({ name: 'Force to pull the docker image', default: false }),
   }
 
@@ -110,9 +109,8 @@ export default class Dev extends Command {
     const { mnemonic } = await tasks.run({
       configDir: this.config.dataDir,
       endpoint: this.lcdEndpoint,
-      image: flags.image,
       pull: flags.pull,
-      tag: flags.tag
+      version: flags.version
     })
 
     this.logs
