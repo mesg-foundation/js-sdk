@@ -24,8 +24,7 @@ export default class Dev extends Command {
   static description = 'Run a service in a local development environment'
 
   static flags = {
-    image: flags.string({ name: 'Engine image', default: 'mesg/engine' }),
-    tag: flags.string({ name: 'Engine version', default: version.engine }),
+    version: flags.string({ name: 'Engine version', default: version.engine }),
     pull: flags.boolean({ name: 'Force to pull the docker image', default: false }),
     env: flags.string({
       description: 'Environment variables to inject to the service',
@@ -120,9 +119,8 @@ export default class Dev extends Command {
     ])
     const res = await tasks.run({
       configDir: this.config.dataDir,
-      image: flags.image,
       pull: flags.pull,
-      tag: flags.tag,
+      version: flags.version,
       endpoint: this.lcdEndpoint,
     })
 

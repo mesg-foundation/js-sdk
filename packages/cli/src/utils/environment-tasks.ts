@@ -6,6 +6,7 @@ import { getOrGenerateAccount, write, clear } from "./config"
 import fetch from "node-fetch"
 
 const pidFilename = 'pid.json'
+const image = 'mesg/engine'
 
 const pids = (path: string): number[] => existsSync(join(path, pidFilename))
   ? JSON.parse(readFileSync(join(path, pidFilename)).toString()).map((x: any) => parseInt(x, 10))
@@ -71,7 +72,7 @@ export const stop: ListrTask<IStop> = {
   ])
 }
 
-export type IStart = { configDir: string, pull: boolean, image: string, tag: string, endpoint: string, mnemonic?: string }
+export type IStart = { configDir: string, pull: boolean, version: string, endpoint: string, mnemonic?: string }
 export const start: ListrTask<IStart> = {
   title: 'Starting environment',
   task: () => new Listr([
@@ -91,8 +92,8 @@ export const start: ListrTask<IStart> = {
     },
     {
       title: 'Updating the Engine image',
-      skip: async ctx => !ctx.pull && await hasImage(ctx.image),
-      task: ctx => fetchImageTag(ctx.image, ctx.tag)
+      skip: async ctx => !ctx.pull && await hasImage(`${image}:${ctx.version}`),
+      task: ctx => fetchImageTag(image, ctx.version)
     },
     {
       title: 'Starting the Engine',
@@ -103,7 +104,7 @@ export const start: ListrTask<IStart> = {
             mnemonic: ctx.mnemonic
           }
         })
-        return createContainer(ctx.image, ctx.configDir)
+        return createContainer(`${image}:${ctx.version}`, ctx.configDir)
       }
     },
     {
