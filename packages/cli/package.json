@@ -49,6 +49,7 @@
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",
     "download-tarball": "^2.0.0",
+    "firebase": "^7.13.1",
     "git-clone": "^0.1.0",
     "grpc": "^1.24.2",
     "handlebars": "^4.3.0",
