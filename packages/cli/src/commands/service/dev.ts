@@ -18,6 +18,7 @@ import { Stream } from 'stream'
 import { IEvent } from "@mesg/api/lib/event";
 import { IExecution } from "@mesg/api/lib/execution";
 import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
+import { RunnerInfo } from '@mesg/runner'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -54,7 +55,7 @@ export default class Dev extends Command {
 
     let definition: IDefinition
     let service: IService
-    let runner: IRunner
+    let runner: RunnerInfo
 
     const tasks = new Listr<Environment.IStart>([
       Environment.start,

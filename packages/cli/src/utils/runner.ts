@@ -1,8 +1,7 @@
-import { IRunner } from "@mesg/api/lib/runner-lcd";
-import Runner from "@mesg/runner";
+import Runner, { RunnerInfo } from "@mesg/runner";
 import DockerContainer from "@mesg/runner/lib/providers/container";
 
-export const create = async (endpoint: string, mnemonic: string, serviceHash: string, env: string[]): Promise<IRunner> => {
+export const create = async (endpoint: string, mnemonic: string, serviceHash: string, env: string[]): Promise<RunnerInfo> => {
   const provider = new DockerContainer(endpoint, mnemonic)
   const runner = new Runner(provider)
   return runner.start(serviceHash, env)

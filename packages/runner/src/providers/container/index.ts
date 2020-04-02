@@ -4,13 +4,12 @@ import { ReadStream } from 'fs'
 import API from '@mesg/api/lib/lcd'
 import * as ServiceType from '@mesg/api/lib/typedef/service';
 import { IService } from "@mesg/api/lib/service-lcd"
-import { IRunner } from '@mesg/api/lib/runner-lcd'
-import { findHash } from "@mesg/api/lib/util/txevent"
-import { Provider } from '../../index'
+import { Provider, RunnerInfo } from '../../index'
 import { Network } from "node-docker-api/lib/network"
 import Container from './container'
 import { createHash } from 'crypto'
-import { IAccount } from "@mesg/api/lib/account-lcd";
+import Account from "@mesg/api/lib/account-lcd";
+import { ecdsaSign } from "secp256k1";
 
 const debug = require('debug')('runner')
 
@@ -35,8 +34,7 @@ export default class DockerContainer implements Provider {
     this.serviceEndpoint = serviceEndpoint
   }
 
-  async start(serviceHash: string, env: string[]): Promise<IRunner> {
-
+  async start(serviceHash: string, env: string[]): Promise<RunnerInfo> {
     debug('fetch service')
     const service = await this._api.service.get(serviceHash)
     const account = await this._api.account.import(this._mnemonic)
@@ -89,9 +87,8 @@ export default class DockerContainer implements Provider {
           ...service.configuration.env || [],
           ...env || []
         ]),
-        `MESG_INSTANCE_HASH=${instanceHash}`,
-        `MESG_RUNNER_HASH=${runnerHash}`,
-        `MESG_ENDPOINT=${this.serviceEndpoint}:50052`
+        `MESG_ENDPOINT=${this.serviceEndpoint}:50052`,
+        `MESG_REGISTER_PAYLOAD=${this.createRunnerToken(service, envHash)}`
       ],
       Image: image,
       Labels: {
@@ -111,7 +108,10 @@ export default class DockerContainer implements Provider {
     container.connectTo(engineNetwork, ['engine'])
     await container.start()
 
-    return this.createRunnerTx(account, service, envHash)
+    return {
+      hash: runnerHash,
+      instanceHash: instanceHash
+    }
   }
 
   async stop(runnerHash: string): Promise<void> {
@@ -137,25 +137,19 @@ export default class DockerContainer implements Provider {
     if (serviceNetwork) await serviceNetwork.remove()
   }
 
-  private async createRunnerTx(account: IAccount, service: IService, envHash: string): Promise<IRunner> {
-    let runnerHash: string
-    try {
-      const tx = await this._api.createTransaction(
-        [this._api.runner.createMsg(account.address, service.hash, envHash)],
-        account
-      )
-      const res = await this._api.broadcast(tx.signWithMnemonic(this._mnemonic), "block")
-      const hashes = findHash(res, "Runner")
-      if (hashes.length !== 1) throw new Error('cannot find runner hash')
-      runnerHash = hashes[0]
-    } catch (error) {
-      const regexp = new RegExp('\"(.*)\" already exists')
-      if (!regexp.test(error.message)) throw error
-      const res = regexp.exec(error.message)
-      runnerHash = res && res.length >= 1 ? res[1] : ''
+  private createRunnerToken(service: IService, envHash: string): string {
+    const value = {
+      serviceHash: service.hash,
+      envHash: envHash
     }
+    const hash = createHash('sha256')
+      .update(JSON.stringify(value))
+      .digest('hex')
+    const buf = Buffer.from(hash, 'hex')
 
-    return this._api.runner.get(runnerHash)
+    const ecdsa = ecdsaSign(buf, Account.getPrivateKey(this._mnemonic))
+    const signature = Buffer.from(ecdsa.signature).toString('hex')
+    return JSON.stringify({ signature, value })
   }
 
   private async findNetwork(labels: Labels): Promise<Network> {
