@@ -68,12 +68,15 @@ class Service {
     try {
       const outputs = await callback(decode(inputs));
       return this.unaryCall('Result', {
-        hash,
+        executionHash: hash,
         outputs: encode(outputs)
       }, await this.credential)
     } catch (err) {
       const error = err.message;
-      return this.unaryCall('Result', { hash, error }, await this.credential)
+      return this.unaryCall('Result', {
+        executionHash: hash,
+        error
+      }, await this.credential)
     }
   }
 
