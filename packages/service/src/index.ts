@@ -30,7 +30,7 @@ class Service {
   async register(payload: string): Promise<grpc.Metadata> {
     const res = await this.unaryCall('Register', { payload })
     const meta = new grpc.Metadata()
-    meta.add('token', res.token)
+    meta.add('mesg_credential_token', res.token)
     return meta
   }
 
