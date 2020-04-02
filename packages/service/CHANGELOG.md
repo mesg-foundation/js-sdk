@@ -4,6 +4,9 @@
 
 #### Breaking Changes
 #### Improvements
+
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Add authentication to services
+
 #### Bug fixes
 
 ## [v0.1.1](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%service%400.1.1)

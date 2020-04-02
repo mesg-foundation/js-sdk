@@ -1,59 +1,63 @@
 import * as YAML from 'js-yaml'
 import * as fs from 'fs'
-import API from '@mesg/api';
-import { IApi } from '@mesg/api/lib/types';
-import * as bs58 from '@mesg/api/lib/util/base58';
+import * as grpc from 'grpc'
+import * as protoLoader from '@grpc/proto-loader'
+import * as path from 'path'
 import { decode, encode } from '@mesg/api/lib/util/encoder'
-import { ExecutionStreamOutputs, IExecution } from '@mesg/api/lib/execution';
-import { ExecutionStatus, hash } from '@mesg/api/lib/types';
+import { IExecution } from '@mesg/api/lib/execution';
 import { EventCreateOutputs } from '@mesg/api/lib/event';
+import { EventEmitter } from 'events'
 
 type Options = {
-  runnerHash?: hash
-  instanceHash?: hash
+  endpoint?: string
+  payload?: string
   definition?: any
-  API?: IApi
 }
 
 class Service {
-  // api gives access to low level gRPC calls.
-  private API: IApi
-
-  private runnerHash: hash
-  private instanceHash: hash
   private definition: any
   private tasks: Tasks
+  private _client: any
+  private credential: Promise<grpc.Metadata>
 
   constructor(options: Options = {}) {
     this.definition = options.definition || YAML.safeLoad(fs.readFileSync('./mesg.yml').toString());
-    this.API = options.API || new API(process.env.MESG_ENDPOINT);
-    this.runnerHash = options.runnerHash || bs58.decode(process.env.MESG_RUNNER_HASH);
-    this.instanceHash = options.instanceHash || bs58.decode(process.env.MESG_INSTANCE_HASH);
+    const protoDefinition = grpc.loadPackageDefinition(protoLoader.loadSync(path.join(__dirname, 'runner.proto'))) as any
+    this._client = new protoDefinition.mesg.grpc.runner.Runner(options.endpoint || process.env.MESG_ENDPOINT, grpc.credentials.createInsecure())
+    this.credential = this.register(options.payload || process.env.MESG_REGISTER_PAYLOAD)
   }
 
-  listenTask({ ...tasks }: Tasks): ExecutionStreamOutputs {
+  async register(payload: string): Promise<grpc.Metadata> {
+    const res = await this.unaryCall('Register', { payload })
+    const meta = new grpc.Metadata()
+    meta.add('token', res.token)
+    return meta
+  }
+
+  listenTask({ ...tasks }: Tasks): EventEmitter {
+    const res = new EventEmitter()
     if (this.tasks) {
       throw new Error(`listenTask should be called only once`);
     }
     this.tasks = tasks;
     this.validateTaskNames();
-    const stream = this.API.execution.stream({
-      filter: {
-        executorHash: this.runnerHash,
-        statuses: [ExecutionStatus.IN_PROGRESS],
-      }
-    });
-    stream.on('data', this.handleTaskData.bind(this));
-    return stream;
+    this.credential.then(token => {
+      const stream = this._client.Execution({}, token) as grpc.ClientWritableStream<any>
+      stream.on('data', x => res.emit('data', x))
+      stream.on('error', x => res.emit('error', x))
+      stream.on('close', () => res.emit('close'))
+      stream.on('finish', () => res.emit('finish'))
+    })
+    res.on('data', this.handleTaskData.bind(this))
+    return res
   }
 
-  emitEvent(event: string, data: EventData): EventCreateOutputs {
+  async emitEvent(event: string, data: EventData): EventCreateOutputs {
     if (!data) throw new Error('data object must be send while emitting event')
-    return this.API.event.create({
-      instanceHash: this.instanceHash,
+    return this.unaryCall('Event', {
       key: event,
       data: encode(data)
-    })
+    }, await this.credential)
   }
 
   private async handleTaskData({ hash, taskKey, inputs }: IExecution) {
@@ -63,13 +67,13 @@ class Service {
     }
     try {
       const outputs = await callback(decode(inputs));
-      return this.API.execution.update({
+      return this.unaryCall('Result', {
         hash,
         outputs: encode(outputs)
-      });
+      }, await this.credential)
     } catch (err) {
       const error = err.message;
-      return this.API.execution.update({ hash, error });
+      return this.unaryCall('Result', { hash, error }, await this.credential)
     }
   }
 
@@ -82,6 +86,16 @@ class Service {
     if (nonHandledTasks.length > 0) {
       console.warn(`WARNING: The following tasks described in the mesg.yml haven't been implemented: ${nonHandledTasks.join(', ')}`);
     }
+  }
+
+  private async unaryCall(method: string, arg: any, credentials?: grpc.Metadata): Promise<any> {
+    return new Promise((resolve, reject) => {
+      if (credentials) {
+        this._client[method](arg, credentials, (err: Error, res: any) => err ? reject(err) : resolve(res))
+      } else {
+        this._client[method](arg, (err: Error, res: any) => err ? reject(err) : resolve(res))
+      }
+    })
   }
 }
 
