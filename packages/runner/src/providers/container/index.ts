@@ -4,14 +4,10 @@ import { ReadStream } from 'fs'
 import API from '@mesg/api/lib/lcd'
 import * as ServiceType from '@mesg/api/lib/typedef/service';
 import { IService } from "@mesg/api/lib/service-lcd"
-import { Provider, RunnerInfo } from '../../index'
+import { Provider } from '../../index'
 import { Network } from "node-docker-api/lib/network"
 import Container from './container'
 import { createHash } from 'crypto'
-import Account from "@mesg/api/lib/account-lcd";
-import { ecdsaSign } from "secp256k1";
-
-const debug = require('debug')('runner')
 
 const ENGINE_NETWORK_NAME = 'engine'
 const PREFIX = 'mesg_srv_'
@@ -23,24 +19,15 @@ export default class DockerContainer implements Provider {
 
   private _api: API
   private _client: Docker
-  private _mnemonic: string
   private ipfsGateway = "http://ipfs.app.mesg.com:8080/ipfs"
   private serviceEndpoint: string
 
-  constructor(endpoint: string, mnemonic: string, serviceEndpoint: string = ENGINE_NETWORK_NAME) {
-    this._api = new API(endpoint)
+  constructor(serviceEndpoint: string = ENGINE_NETWORK_NAME) {
     this._client = new Docker(null)
-    this._mnemonic = mnemonic
     this.serviceEndpoint = serviceEndpoint
   }
 
-  async start(serviceHash: string, env: string[]): Promise<RunnerInfo> {
-    debug('fetch service')
-    const service = await this._api.service.get(serviceHash)
-    const account = await this._api.account.import(this._mnemonic)
-    const { runnerHash, instanceHash, envHash } = await this._api.runner.hash(account.address, service.hash, env)
-    debug('broadcast tx')
-
+  async start(service: IService, env: string[], runnerHash: string, instanceHash: string, token: string): Promise<boolean> {
     const labels = {
       'mesg.service': service.hash,
       'mesg.runner': runnerHash,
@@ -88,7 +75,7 @@ export default class DockerContainer implements Provider {
           ...env || []
         ]),
         `MESG_ENDPOINT=${this.serviceEndpoint}:50052`,
-        `MESG_REGISTER_PAYLOAD=${this.createRunnerToken(service, envHash)}`
+        `MESG_REGISTER_PAYLOAD=${token}`
       ],
       Image: image,
       Labels: {
@@ -108,22 +95,12 @@ export default class DockerContainer implements Provider {
     container.connectTo(engineNetwork, ['engine'])
     await container.start()
 
-    return {
-      hash: runnerHash,
-      instanceHash: instanceHash
-    }
+    return true
   }
 
   async stop(runnerHash: string): Promise<void> {
     const runner = await this._api.runner.get(runnerHash)
     const instance = await this._api.instance.get(runner.instanceHash)
-    const account = await this._api.account.import(this._mnemonic)
-    const tx = await this._api.createTransaction(
-      [this._api.runner.deleteMsg(account.address, runnerHash)],
-      account
-    )
-    await this._api.broadcast(tx.signWithMnemonic(this._mnemonic), "block")
-
     const labels = {
       'mesg.service': instance.serviceHash,
       'mesg.runner': runner.hash,
@@ -135,21 +112,6 @@ export default class DockerContainer implements Provider {
     }
     const serviceNetwork = await this.findNetwork(labels)
     if (serviceNetwork) await serviceNetwork.remove()
-  }
-
-  private createRunnerToken(service: IService, envHash: string): string {
-    const value = {
-      serviceHash: service.hash,
-      envHash: envHash
-    }
-    const hash = createHash('sha256')
-      .update(JSON.stringify(value))
-      .digest('hex')
-    const buf = Buffer.from(hash, 'hex')
-
-    const ecdsa = ecdsaSign(buf, Account.getPrivateKey(this._mnemonic))
-    const signature = Buffer.from(ecdsa.signature).toString('hex')
-    return JSON.stringify({ signature, value })
   }
 
   private async findNetwork(labels: Labels): Promise<Network> {
