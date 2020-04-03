@@ -6,6 +6,7 @@ import * as Service from './service'
 import * as Runner from './runner'
 import { findHash } from "@mesg/api/lib/util/txevent"
 import { IRunner } from "@mesg/api/lib/runner-lcd"
+import { IsAlreadyExistsError } from "./error"
 
 export type CompilationResult = {
   definition: IDefinition,
@@ -37,15 +38,21 @@ export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD
 }
 
 export const create = async (lcd: LCD, process: IDefinition, mnemonic: string): Promise<IProcess> => {
-  const account = await lcd.account.import(mnemonic)
-  const tx = await lcd.createTransaction(
-    [lcd.process.createMsg(account.address, process)],
-    account
-  )
-  const txResult = await lcd.broadcast(tx.signWithMnemonic(mnemonic))
-  const hashes = findHash(txResult, "Process")
-  if (hashes.length != 1) throw new Error('error while getting the hash of the process created')
-  return lcd.process.get(hashes[0])
+  try {
+    const account = await lcd.account.import(mnemonic)
+    const tx = await lcd.createTransaction(
+      [lcd.process.createMsg(account.address, process)],
+      account
+    )
+    const txResult = await lcd.broadcast(tx.signWithMnemonic(mnemonic))
+    const hashes = findHash(txResult, "Process")
+    if (hashes.length != 1) throw new Error('error while getting the hash of the process created')
+    return lcd.process.get(hashes[0])
+  } catch (e) {
+    if (!IsAlreadyExistsError.match(e)) throw e
+    const hash = new IsAlreadyExistsError(e).hash
+    return lcd.process.get(hash)
+  }
 }
 
 export const remove = async (lcd: LCD, process: IProcess, mnemonic: string): Promise<void> => {

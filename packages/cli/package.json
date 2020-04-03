@@ -46,6 +46,7 @@
     "chalk": "^2.4.2",
     "cli-ux": "^5.3.2",
     "debug": "^4.1.1",
+    "dotenv": "^8.2.0",
     "download-tarball": "^2.0.0",
     "git-clone": "^0.1.0",
     "handlebars": "^4.3.0",
