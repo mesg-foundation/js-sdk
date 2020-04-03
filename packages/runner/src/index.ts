@@ -30,7 +30,7 @@ export default class Runner {
     const account = await this._api.account.import(this._mnemonic)
     const service = await this._api.service.get(serviceHash)
     const { runnerHash, instanceHash, envHash } = await this._api.runner.hash(account.address, serviceHash, env)
-    const token = this.createRunnerToken(serviceHash, envHash)
+    const token = this.createRegisterRunner(serviceHash, envHash)
     await this._provider.start(service, env, runnerHash, instanceHash, token)
     return {
       instanceHash,
@@ -48,7 +48,7 @@ export default class Runner {
     await this._provider.stop(runnerHash)
   }
 
-  private createRunnerToken(serviceHash: string, envHash: string): string {
+  private createRegisterRunner(serviceHash: string, envHash: string): string {
     const value = {
       serviceHash: serviceHash,
       envHash: envHash
