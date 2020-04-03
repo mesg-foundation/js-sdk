@@ -16,9 +16,9 @@ import { IExecution } from "@mesg/api/lib/execution";
 import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
 import { ExecutionStatus } from '@mesg/api/lib/types'
 import { IProcess } from '@mesg/api/lib/process-lcd'
-import { IRunner } from '@mesg/api/lib/runner-lcd'
 import chalk from 'chalk'
 import { decode } from '@mesg/api/lib/util/encoder'
+import { RunnerInfo } from '@mesg/runner'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -43,7 +43,7 @@ export default class Dev extends Command {
   private logs: GRPCStream<IExecution>
   private services: IService[] = []
   private processes: IProcess[] = []
-  private runners: IRunner[] = []
+  private runners: RunnerInfo[] = []
 
   async run() {
     const { args, flags } = this.parse(Dev)
