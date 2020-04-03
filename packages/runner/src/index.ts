@@ -31,7 +31,6 @@ export default class Runner {
     const service = await this._api.service.get(serviceHash)
     const { runnerHash, instanceHash, envHash } = await this._api.runner.hash(account.address, serviceHash, env)
     const token = this.createRunnerToken(serviceHash, envHash)
-    console.log(token)
     await this._provider.start(service, env, runnerHash, instanceHash, token)
     return {
       instanceHash,
