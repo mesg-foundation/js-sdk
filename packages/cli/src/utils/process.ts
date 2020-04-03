@@ -5,16 +5,16 @@ import { readFileSync } from "fs"
 import * as Service from './service'
 import * as Runner from './runner'
 import { findHash } from "@mesg/api/lib/util/txevent"
-import { IRunner } from "@mesg/api/lib/runner-lcd"
+import { RunnerInfo } from "@mesg/runner"
 import { IsAlreadyExistsError } from "./error"
 
 export type CompilationResult = {
   definition: IDefinition,
-  runners: IRunner[]
+  runners: RunnerInfo[]
 }
 
 export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD, lcdEndpoint: string, mnemonic: string, env: string[] = []): Promise<CompilationResult> => {
-  const runners: IRunner[] = []
+  const runners: RunnerInfo[] = []
   const instanceReolver = async (instanceObject: any): Promise<string> => {
     if (!instanceObject.instanceHash && !instanceObject.instance) throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
     if (instanceObject.instanceHash) return instanceObject.instanceHash

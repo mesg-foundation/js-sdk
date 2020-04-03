@@ -14,8 +14,10 @@
   "scripts": {
     "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
     "build": "npm run clean && npm run compile",
-    "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo",
-    "compile": "tsc -b tsconfig.json"
+    "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo && rm -rf src/protobuf src/runner.proto src/runner.js src/runner.d.ts",
+    "precompile": "./copy-proto",
+    "compile": "tsc -b tsconfig.json",
+    "postcompile": "cp src/runner.proto lib/runner.proto && cp -r src/protobuf lib/protobuf && cp -r src/gogo lib/gogo"
   },
   "repository": {
     "type": "git",
@@ -28,7 +30,9 @@
   },
   "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
   "dependencies": {
+    "@grpc/proto-loader": "^0.5.4",
     "@mesg/api": "^0.2.0",
+    "grpc": "^1.24.2",
     "js-yaml": "^3.13.1"
   },
   "devDependencies": {
