@@ -4,15 +4,10 @@ import { ReadStream } from 'fs'
 import API from '@mesg/api/lib/lcd'
 import * as ServiceType from '@mesg/api/lib/typedef/service';
 import { IService } from "@mesg/api/lib/service-lcd"
-import { IRunner } from '@mesg/api/lib/runner-lcd'
-import { findHash } from "@mesg/api/lib/util/txevent"
 import { Provider } from '../../index'
 import { Network } from "node-docker-api/lib/network"
 import Container from './container'
 import { createHash } from 'crypto'
-import { IAccount } from "@mesg/api/lib/account-lcd";
-
-const debug = require('debug')('runner')
 
 const ENGINE_NETWORK_NAME = 'engine'
 const PREFIX = 'mesg_srv_'
@@ -24,25 +19,15 @@ export default class DockerContainer implements Provider {
 
   private _api: API
   private _client: Docker
-  private _mnemonic: string
   private ipfsGateway = "http://ipfs.app.mesg.com:8080/ipfs"
   private serviceEndpoint: string
 
-  constructor(endpoint: string, mnemonic: string, serviceEndpoint: string = ENGINE_NETWORK_NAME) {
-    this._api = new API(endpoint)
+  constructor(serviceEndpoint: string = ENGINE_NETWORK_NAME) {
     this._client = new Docker(null)
-    this._mnemonic = mnemonic
     this.serviceEndpoint = serviceEndpoint
   }
 
-  async start(serviceHash: string, env: string[]): Promise<IRunner> {
-
-    debug('fetch service')
-    const service = await this._api.service.get(serviceHash)
-    const account = await this._api.account.import(this._mnemonic)
-    const { runnerHash, instanceHash, envHash } = await this._api.runner.hash(account.address, service.hash, env)
-    debug('broadcast tx')
-
+  async start(service: IService, env: string[], runnerHash: string, instanceHash: string, token: string): Promise<boolean> {
     const labels = {
       'mesg.service': service.hash,
       'mesg.runner': runnerHash,
@@ -89,9 +74,8 @@ export default class DockerContainer implements Provider {
           ...service.configuration.env || [],
           ...env || []
         ]),
-        `MESG_INSTANCE_HASH=${instanceHash}`,
-        `MESG_RUNNER_HASH=${runnerHash}`,
-        `MESG_ENDPOINT=${this.serviceEndpoint}:50052`
+        `MESG_ENDPOINT=${this.serviceEndpoint}:50052`,
+        `MESG_REGISTER_PAYLOAD=${token}`
       ],
       Image: image,
       Labels: {
@@ -111,19 +95,12 @@ export default class DockerContainer implements Provider {
     container.connectTo(engineNetwork, ['engine'])
     await container.start()
 
-    return this.createRunnerTx(account, service, envHash)
+    return true
   }
 
   async stop(runnerHash: string): Promise<void> {
     const runner = await this._api.runner.get(runnerHash)
     const instance = await this._api.instance.get(runner.instanceHash)
-    const account = await this._api.account.import(this._mnemonic)
-    const tx = await this._api.createTransaction(
-      [this._api.runner.deleteMsg(account.address, runnerHash)],
-      account
-    )
-    await this._api.broadcast(tx.signWithMnemonic(this._mnemonic), "block")
-
     const labels = {
       'mesg.service': instance.serviceHash,
       'mesg.runner': runner.hash,
@@ -135,27 +112,6 @@ export default class DockerContainer implements Provider {
     }
     const serviceNetwork = await this.findNetwork(labels)
     if (serviceNetwork) await serviceNetwork.remove()
-  }
-
-  private async createRunnerTx(account: IAccount, service: IService, envHash: string): Promise<IRunner> {
-    let runnerHash: string
-    try {
-      const tx = await this._api.createTransaction(
-        [this._api.runner.createMsg(account.address, service.hash, envHash)],
-        account
-      )
-      const res = await this._api.broadcast(tx.signWithMnemonic(this._mnemonic), "block")
-      const hashes = findHash(res, "Runner")
-      if (hashes.length !== 1) throw new Error('cannot find runner hash')
-      runnerHash = hashes[0]
-    } catch (error) {
-      const regexp = new RegExp('\"(.*)\" already exists')
-      if (!regexp.test(error.message)) throw error
-      const res = regexp.exec(error.message)
-      runnerHash = res && res.length >= 1 ? res[1] : ''
-    }
-
-    return this._api.runner.get(runnerHash)
   }
 
   private async findNetwork(labels: Labels): Promise<Network> {
