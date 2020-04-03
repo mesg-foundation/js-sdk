@@ -1,7 +1,3 @@
-import {hash} from '@mesg/api/lib/types'
-import * as base58 from '@mesg/api/lib/util/base58'
-
-// TODO: all the following should be replaced by grpc error code
 export class IsAlreadyExistsError extends Error {
   static ID = 'ALREADY_EXISTS'
   static regexp = new RegExp('\"(.*)\" already exists')
@@ -9,13 +5,12 @@ export class IsAlreadyExistsError extends Error {
     return IsAlreadyExistsError.regexp.test(err.message)
   }
 
-  hash: hash
+  hash: string
 
   constructor(error: Error) {
     super(error.message)
     const res = IsAlreadyExistsError.regexp.exec(error.message)
-    const hash = res && res.length >= 1 ? res[1] : ''
-    this.hash = base58.decode(hash)
+    this.hash = res && res.length >= 1 ? res[1] : ''
     this.name = IsAlreadyExistsError.ID
   }
 }

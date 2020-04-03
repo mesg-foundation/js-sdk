@@ -124,10 +124,25 @@ export default class DockerContainer implements Provider {
   }
 
   private async build(service: IService) {
-    const streamToPromise = (stream: any) => new Promise((resolve, reject) => stream
-      .on('data', (x: any) => x.toString()) // For some reason we need to listen to the data to have the end event
-      .on('error', reject)
-      .on('end', resolve))
+    const streamToPromise = (stream: any) => {
+      let res: string = ''
+      return new Promise((resolve, reject) => stream
+        .on('error', reject)
+        .on('data', (x: any) => res += x.toString())
+        .on('end', () => {
+          const logs = res.split('\n').map(x => {
+            try {
+              return JSON.parse(x)
+            } catch (e) {
+              return null
+            }
+          }).filter(x => x)
+          const error = logs.find((x: any) => x.error)
+          if (error) return reject(error.error)
+          return resolve
+        })
+      )
+    }
     const resp = await fetch(`${this.ipfsGateway}/${service.source}`)
     const tag = `mesg:${service.hash}`
     const image: any = await this._client.image.build(resp.body as ReadStream, {
