@@ -2,7 +2,7 @@ import Listr, { ListrTask } from "listr"
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { hasImage, fetchImageTag, createContainer, listContainers, findNetwork, engineLabel, engineName } from "./docker"
-import { getOrGenerateAccount, write, clear } from "./config"
+import { generateConfig, clear, Config, hasTestAccount } from "./config"
 import fetch from "node-fetch"
 
 const pidFilename = 'pid.json'
@@ -72,7 +72,7 @@ export const stop: ListrTask<IStop> = {
   ])
 }
 
-export type IStart = { configDir: string, pull: boolean, version: string, endpoint: string, mnemonic?: string }
+export type IStart = { configDir: string, pull: boolean, version: string, endpoint: string, config?: Config }
 export const start: ListrTask<IStart> = {
   title: 'Starting environment',
   task: () => new Listr([
@@ -87,8 +87,8 @@ export const start: ListrTask<IStart> = {
     },
     {
       title: 'Generating test account',
-      skip: ctx => ctx.mnemonic,
-      task: ctx => ctx.mnemonic = getOrGenerateAccount(ctx.configDir)
+      skip: ctx => hasTestAccount(ctx.configDir),
+      task: ctx => ctx.config = generateConfig(ctx.configDir)
     },
     {
       title: 'Updating the Engine image',
@@ -98,14 +98,7 @@ export const start: ListrTask<IStart> = {
     {
       title: 'Starting the Engine',
       skip: async ctx => await isRunning(ctx.endpoint) || (await listContainers({ label: [engineLabel] })).length > 0,
-      task: ctx => {
-        write(ctx.configDir, {
-          account: {
-            mnemonic: ctx.mnemonic
-          }
-        })
-        return createContainer(`${image}:${ctx.version}`, ctx.configDir)
-      }
+      task: ctx => createContainer(`${image}:${ctx.version}`, ctx.configDir)
     },
     {
       title: 'Waiting for the Engine to be ready',

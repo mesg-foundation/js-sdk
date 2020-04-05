@@ -67,13 +67,13 @@ export default class Dev extends Command {
       {
         title: 'Creating service',
         task: async ctx => {
-          service = await Service.create(this.lcd, definition, ctx.mnemonic)
+          service = await Service.create(this.lcd, definition, ctx.config.mnemonic)
         }
       },
       {
         title: 'Starting service',
         task: async ctx => {
-          runner = await Runner.create(this.lcdEndpoint, ctx.mnemonic, service.hash, flags.env)
+          runner = await Runner.create(this.lcdEndpoint, ctx.config.mnemonic, service.hash, flags.env)
         }
       },
       {
@@ -118,7 +118,7 @@ export default class Dev extends Command {
         ])
       }
     ])
-    const res = await tasks.run({
+    const { config } = await tasks.run({
       configDir: this.config.dataDir,
       pull: flags.pull,
       version: flags.version,
@@ -156,7 +156,7 @@ export default class Dev extends Command {
           title: 'Stopping service',
           skip: () => !service && !runner,
           task: async () => {
-            return Runner.stop(this.lcdEndpoint, res.mnemonic, runner.hash)
+            return Runner.stop(this.lcdEndpoint, config.mnemonic, runner.hash)
           }
         },
         Environment.stop,

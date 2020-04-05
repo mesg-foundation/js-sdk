@@ -52,13 +52,13 @@ export default class Dev extends Command {
       {
         title: 'Compiling process',
         task: async ctx => {
-          compilation = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.lcdEndpoint, ctx.mnemonic, flags.env)
+          compilation = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.lcdEndpoint, ctx.config.mnemonic, flags.env)
         }
       },
       {
         title: 'Creating process',
         task: async ctx => {
-          deployedProcess = await Process.create(this.lcd, compilation.definition, ctx.mnemonic)
+          deployedProcess = await Process.create(this.lcd, compilation.definition, ctx.config.mnemonic)
         }
       },
       {
@@ -75,7 +75,7 @@ export default class Dev extends Command {
         }
       }
     ])
-    const { mnemonic } = await tasks.run({
+    const { config } = await tasks.run({
       configDir: this.config.dataDir,
       pull: flags.pull,
       version: flags.version,
@@ -110,14 +110,14 @@ export default class Dev extends Command {
         {
           title: 'Deleting process',
           task: async () => {
-            if (deployedProcess) await Process.remove(this.lcd, deployedProcess, mnemonic)
+            if (deployedProcess) await Process.remove(this.lcd, deployedProcess, config.mnemonic)
           }
         },
         {
           title: 'Stopping services',
           task: async () => {
             for (const runner of compilation.runners) {
-              await Runner.stop(this.lcdEndpoint, mnemonic, runner.hash)
+              await Runner.stop(this.lcdEndpoint, config.mnemonic, runner.hash)
             }
           }
         },

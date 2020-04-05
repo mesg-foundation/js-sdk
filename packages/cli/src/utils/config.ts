@@ -1,29 +1,54 @@
-import { existsSync, readFileSync, rmdirSync, writeFileSync } from "fs"
+import { existsSync, readFileSync, rmdirSync, writeFileSync, unlinkSync } from "fs"
 import { safeLoad, safeDump } from "js-yaml"
 import { join } from "path"
 import Account from "@mesg/api/lib/account-lcd"
-import merge from "lodash.merge"
 
-const FILE = 'config.yml'
-
-export const clear = (path: string): void => {
-  (rmdirSync as any)(path, { recursive: true })
+export type Config = {
+  engine: {
+    account: {
+      mnemonic: string
+    }
+  }
+  mnemonic: string
 }
 
-export const read = (path: string): any => {
-  return existsSync(join(path, FILE))
-    ? safeLoad(readFileSync(join(path, FILE)).toString())
+const ENGINE_FILE = 'config.yml'
+const CLI_FILE = '.mesgrc'
+
+export const clear = (path: string): void => {
+  const rm = rmdirSync as any
+  rm(join(path, 'cosmos'), { recursive: true })
+  rm(join(path, 'tendermint'), { recursive: true })
+  unlinkSync(join(path, ENGINE_FILE))
+  unlinkSync(join(path, CLI_FILE))
+}
+
+const read = (filepath: string): Config => {
+  return existsSync(filepath)
+    ? safeLoad(readFileSync(filepath).toString())
     : {}
 }
 
-export const write = (path: string, config: any) => {
-  const newConfigs = merge({}, read(path), config)
-  writeFileSync(join(path, FILE), safeDump(newConfigs))
+const write = (path: string, config: Config): Config => {
+  writeFileSync(join(path, CLI_FILE), safeDump(config))
+  writeFileSync(join(path, ENGINE_FILE), safeDump(config.engine))
+  return config
 }
 
-export const getOrGenerateAccount = (path: string): string => {
-  const configAccount = read(path).account || {}
-  return configAccount.mnemonic
-    ? configAccount.mnemonic
-    : Account.generateMnemonic()
+export const hasTestAccount = (path: string): boolean => {
+  const config = read(join(path, CLI_FILE))
+  return !!config.mnemonic && !!config.engine.account.mnemonic
+}
+
+export const generateConfig = (path: string): Config => {
+  const mnemonic = Account.generateMnemonic()
+  const config = {
+    engine: {
+      account: {
+        mnemonic: Account.generateMnemonic()
+      }
+    },
+    mnemonic
+  }
+  return write(path, config)
 }
