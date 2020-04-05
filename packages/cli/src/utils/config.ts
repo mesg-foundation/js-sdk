@@ -1,10 +1,12 @@
 import { existsSync, readFileSync, rmdirSync, writeFileSync, unlinkSync } from "fs"
 import { safeLoad, safeDump } from "js-yaml"
 import { join } from "path"
-import Account from "@mesg/api/lib/account-lcd"
+import { toWords, encode } from 'bech32'
+import Account, { bech32Prefix } from "@mesg/api/lib/account-lcd"
 
 export type Config = {
   engine: {
+    authorized_pubkeys: string[],
     account: {
       mnemonic: string
     }
@@ -36,6 +38,8 @@ const write = (path: string, config: Config): Config => {
 }
 
 export const hasTestAccount = (path: string): boolean => {
+  if (!existsSync(join(path, ENGINE_FILE))) return false
+  if (!existsSync(join(path, CLI_FILE))) return false
   const config = read(join(path, CLI_FILE))
   return !!config.mnemonic && !!config.engine.account.mnemonic
 }
@@ -44,6 +48,9 @@ export const generateConfig = (path: string): Config => {
   const mnemonic = Account.generateMnemonic()
   const config = {
     engine: {
+      authorized_pubkeys: [
+        encode(bech32Prefix + 'pub', toWords(Account.deriveMnemonic(mnemonic).identifier))
+      ],
       account: {
         mnemonic: Account.generateMnemonic()
       }
