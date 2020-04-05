@@ -44,6 +44,14 @@ export default class Transaction {
   private _stdTx: IStdTx
   public raw: ITx
 
+  static sign(message: string, ecpairPriv: Buffer): any {
+    const hash = createHash('sha256')
+      .update(message)
+      .digest('hex')
+    const buf = Buffer.from(hash, 'hex')
+    return ecdsaSign(buf, ecpairPriv)
+  }
+
   constructor(stdTx: IStdTx) {
     if (!stdTx.msgs.length) throw new Error('you need at least one msg in your transaction')
     this._stdTx = sortObject(stdTx)
@@ -61,11 +69,7 @@ export default class Transaction {
 
   sign(ecpairPriv: Buffer): Transaction {
     const data = JSON.stringify(sortObject(this._stdTx))
-    const hash = createHash('sha256')
-      .update(data)
-      .digest('hex')
-    const buf = Buffer.from(hash, 'hex')
-    const { signature } = ecdsaSign(buf, ecpairPriv)
+    const { signature } = Transaction.sign(data, ecpairPriv)
     const pubKeyByte = publicKeyCreate(ecpairPriv)
 
     this.raw.signatures.push({

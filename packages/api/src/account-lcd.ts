@@ -22,17 +22,17 @@ export type IMsgTransfer = {
   amount: ICoin[];
 }
 
-const deriveMnemonic = (mnemonic: string, path: string = defaultHDPath): BIP32Interface => {
-  if (!validateMnemonic(mnemonic)) throw new Error('invalid mnemonic')
-  const seed = mnemonicToSeedSync(mnemonic)
-  const masterKey = fromSeed(seed)
-  return masterKey.derivePath(path)
-}
-
 export default class Account extends LCDClient {
+  
+  static deriveMnemonic(mnemonic: string, path: string = defaultHDPath): BIP32Interface {
+    if (!validateMnemonic(mnemonic)) throw new Error('invalid mnemonic')
+    const seed = mnemonicToSeedSync(mnemonic)
+    const masterKey = fromSeed(seed)
+    return masterKey.derivePath(path)
+  }
 
   static getPrivateKey(mnemonic: string, path?: string): Buffer {
-    return deriveMnemonic(mnemonic, path).privateKey
+    return Account.deriveMnemonic(mnemonic, path).privateKey
   }
 
   static generateMnemonic(): string {
@@ -53,7 +53,7 @@ export default class Account extends LCDClient {
   }
 
   async import(mnemonic: string, path?: string, prefix: string = bech32Prefix): Promise<IAccount> {
-    const child = await deriveMnemonic(mnemonic, path)
+    const child = await Account.deriveMnemonic(mnemonic, path)
     const address = encode(prefix, toWords(child.identifier))
     return this.get(address)
   }
