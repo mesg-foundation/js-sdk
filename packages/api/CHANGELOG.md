@@ -17,6 +17,7 @@
 - [#205](https://github.com/mesg-foundation/js-sdk/pull/205) Update LCD types and add process filters value and reference
 - [#207](https://github.com/mesg-foundation/js-sdk/pull/207) Update messages for the api and add integration tests
 - [#218](https://github.com/mesg-foundation/js-sdk/pull/218) Update filtering of transaction logs based on the new engine's events
+- [#220](https://github.com/mesg-foundation/js-sdk/pull/220) Expose crypto functions `Transaction.sign` and `Account.deriveMnemonic`
 
 #### Bug fixes
 

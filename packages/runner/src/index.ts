@@ -1,8 +1,7 @@
 import API from '@mesg/api/lib/lcd'
 import Account from "@mesg/api/lib/account-lcd"
-import { createHash } from 'crypto'
-import { ecdsaSign } from "secp256k1"
 import { IService } from '@mesg/api/lib/service-lcd'
+import Transaction from '@mesg/api/lib/transaction'
 
 export type RunnerInfo = {
   hash: string
@@ -53,12 +52,7 @@ export default class Runner {
       serviceHash: serviceHash,
       envHash: envHash
     }
-    const hash = createHash('sha256')
-      .update(JSON.stringify(value))
-      .digest('hex')
-    const buf = Buffer.from(hash, 'hex')
-
-    const ecdsa = ecdsaSign(buf, Account.getPrivateKey(this._mnemonic))
+    const ecdsa = Transaction.sign(JSON.stringify(value), Account.getPrivateKey(this._mnemonic))
     const signature = Buffer.from(ecdsa.signature).toString('base64')
     return JSON.stringify({ signature, value })
   }
