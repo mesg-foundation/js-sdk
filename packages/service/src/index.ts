@@ -5,7 +5,6 @@ import * as protoLoader from '@grpc/proto-loader'
 import * as path from 'path'
 import { decode, encode } from '@mesg/api/lib/util/encoder'
 import { IExecution } from '@mesg/api/lib/execution';
-import { EventCreateOutputs } from '@mesg/api/lib/event';
 import { EventEmitter } from 'events'
 
 type Options = {
@@ -52,7 +51,7 @@ class Service {
     return res
   }
 
-  async emitEvent(event: string, data: EventData): EventCreateOutputs {
+  async emitEvent(event: string, data: EventData): Promise<any> {
     if (!data) throw new Error('data object must be send while emitting event')
     return this.unaryCall('Event', {
       key: event,
