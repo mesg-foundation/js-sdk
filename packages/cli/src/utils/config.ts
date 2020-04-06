@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, rmdirSync, writeFileSync } from "fs"
 import { safeLoad, safeDump } from "js-yaml"
 import { join } from "path"
-import Account from "@mesg/api/lib/account-lcd"
+import Account from "@mesg/api/lib/account"
 import merge from "lodash.merge"
 
 const FILE = 'config.yml'

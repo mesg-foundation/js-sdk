@@ -1,5 +1,5 @@
-import { IProcess, IDefinition } from "@mesg/api/lib/process-lcd"
-import LCD from '@mesg/api/lib/lcd'
+import { IProcess, IDefinition } from "@mesg/api/lib/process"
+import LCD from '@mesg/api'
 import { process as compileProcess } from '@mesg/compiler'
 import { readFileSync } from "fs"
 import * as Service from './service'
