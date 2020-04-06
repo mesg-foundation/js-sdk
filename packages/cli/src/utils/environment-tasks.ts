@@ -97,7 +97,7 @@ export const start: ListrTask<IStart> = {
     },
     {
       title: 'Starting the Engine',
-      skip: async () => (await listContainers({ label: [engineLabel] })).length > 0,
+      skip: async ctx => await isRunning(ctx.endpoint) || (await listContainers({ label: [engineLabel] })).length > 0,
       task: ctx => {
         write(ctx.configDir, {
           account: {

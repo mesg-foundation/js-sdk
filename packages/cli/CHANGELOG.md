@@ -44,6 +44,7 @@ Commands `service:dev` and `process:dev` are automatically start a local environ
 - [#199](https://github.com/mesg-foundation/js-sdk/pull/199) Run engine and service with the `@mesg/runner` library
 - [#198](https://github.com/mesg-foundation/js-sdk/198) Add command `dev` for support of MESG project created with the MESG Framework. This creates all the services/processes needed for your application.
 - [#216](https://github.com/mesg-foundation/js-sdk/pull/216) Add authentication to services
+- [#219](https://github.com/mesg-foundation/js-sdk/pull/219) Improve engine start up detection
 
 #### Bug fixes
 
