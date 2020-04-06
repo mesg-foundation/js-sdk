@@ -1,6 +1,6 @@
-import API from '@mesg/api/lib/lcd'
-import Account from "@mesg/api/lib/account-lcd"
-import { IService } from '@mesg/api/lib/service-lcd'
+import API from '@mesg/api'
+import Account from "@mesg/api/lib/account"
+import { IService } from '@mesg/api/lib/service'
 import Transaction from '@mesg/api/lib/transaction'
 
 export type RunnerInfo = {
