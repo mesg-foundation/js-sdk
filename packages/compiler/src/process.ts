@@ -1,4 +1,4 @@
-import { IDefinition, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, Predicate, IOutput, IRefPath, IFilterCondition, IFilterValueNullType, IFilterValueStringType, IFilterValueNumberType, IFilterValueBoolType } from '@mesg/api/lib/process-lcd'
+import { IDefinition, IMapType, IFilterType, INode, IResultType, IEventType, ITaskType, Predicate, IOutput, IRefPath, IFilterCondition, IFilterValueNullType, IFilterValueStringType, IFilterValueNumberType, IFilterValueBoolType } from '@mesg/api/lib/process'
 import decode from './decode'
 import { Process } from './schema/process'
 import validate from './validate'
