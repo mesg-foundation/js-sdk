@@ -8,8 +8,10 @@ export type RunnerInfo = {
   instanceHash: string
 }
 
+export type Env = { [key: string]: string }
+
 export interface Provider {
-  start(service: IService, env: string[], runnerHash: string, instanceHash: string, token: string): Promise<boolean>
+  start(service: IService, env: Env, runnerHash: string): Promise<boolean>
   stop(runnerHash: string): Promise<void>
 }
 
@@ -29,8 +31,15 @@ export default class Runner {
     const account = await this._api.account.import(this._mnemonic)
     const service = await this._api.service.get(serviceHash)
     const { runnerHash, instanceHash, envHash } = await this._api.runner.hash(account.address, serviceHash, env)
-    const token = this.createRegisterRunner(serviceHash, envHash)
-    await this._provider.start(service, env, runnerHash, instanceHash, token)
+    const signature = this.sign(serviceHash, envHash)
+    const envObj = (env || []).reduce((prev, x) => ({ ...prev, [x.split('=')[0]]: x.split('=')[1] }), {})
+    await this._provider.start(service, {
+      ...envObj,
+      MESG_ENDPOINT: `engine:50052`,
+      MESG_SERVICE_HASH: service.hash,
+      MESG_ENV_HASH: envHash,
+      MESG_REGISTER_SIGNATURE: signature
+    }, runnerHash)
     return {
       instanceHash,
       hash: runnerHash
@@ -47,13 +56,12 @@ export default class Runner {
     await this._provider.stop(runnerHash)
   }
 
-  private createRegisterRunner(serviceHash: string, envHash: string): string {
+  private sign(serviceHash: string, envHash: string): string {
     const value = {
       serviceHash: serviceHash,
       envHash: envHash
     }
     const ecdsa = Transaction.sign(JSON.stringify(value), Account.getPrivateKey(this._mnemonic))
-    const signature = Buffer.from(ecdsa.signature).toString('base64')
-    return JSON.stringify({ signature, value })
+    return Buffer.from(ecdsa.signature).toString('base64')
   }
 }

@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import * as grpc from 'grpc'
 import * as protoLoader from '@grpc/proto-loader'
 import * as path from 'path'
+import * as base58 from '@mesg/api/lib/util/base58'
 import { decode, encode } from '@mesg/api/lib/util/encoder'
 import { IExecution } from '@mesg/api/lib/execution';
 import { EventCreateOutputs } from '@mesg/api/lib/event';
@@ -10,28 +11,45 @@ import { EventEmitter } from 'events'
 
 type Options = {
   endpoint?: string
-  payload?: string
+  signature?: string
   definition?: any
 }
 
 class Service {
   private definition: any
   private tasks: Tasks
-  private _client: any
-  private credential: Promise<grpc.Metadata>
+  private _client: Promise<any>
+  private _token: grpc.Metadata
 
   constructor(options: Options = {}) {
     this.definition = options.definition || YAML.safeLoad(fs.readFileSync('./mesg.yml').toString());
-    const protoDefinition = grpc.loadPackageDefinition(protoLoader.loadSync(path.join(__dirname, 'runner.proto'))) as any
-    this._client = new protoDefinition.mesg.grpc.runner.Runner(options.endpoint || process.env.MESG_ENDPOINT, grpc.credentials.createInsecure())
-    this.credential = this.register(options.payload || process.env.MESG_REGISTER_PAYLOAD)
+    this._client = this.register(
+      options.signature || process.env.MESG_REGISTER_SIGNATURE,
+      options.endpoint || process.env.MESG_ENDPOINT,
+      process.env.MESG_SERVICE_HASH,
+      process.env.MESG_ENV_HASH
+    )
   }
 
-  async register(payload: string): Promise<grpc.Metadata> {
-    const res = await this.unaryCall('Register', { payload })
-    const meta = new grpc.Metadata()
-    meta.add('mesg_credential_token', res.token)
-    return meta
+  async register(signature: string, endpoint: string, serviceHash: string, envHash: string): Promise<grpc.GrpcObject> {
+    const protoOpts = { includeDirs: [__dirname] }
+    const orchestrator = grpc.loadPackageDefinition(protoLoader.loadSync(path.join(__dirname, 'orchestrator', 'runner.proto'), protoOpts)) as any
+    const client = new orchestrator.mesg.grpc.orchestrator.Runner(endpoint, grpc.credentials.createInsecure())
+    const registerMetadata = new grpc.Metadata()
+    registerMetadata.add('mesg_request_signature', signature)
+    return new Promise((resolve, reject) => {
+      client.Register({
+        serviceHash: base58.decode(serviceHash),
+        envHash: base58.decode(envHash)
+      }, registerMetadata, (err: Error, res: any) => {
+        if (err) return reject(err)
+        this._token = new grpc.Metadata()
+        this._token.add('mesg_credential_token', res.token)
+        const runner = grpc.loadPackageDefinition(protoLoader.loadSync(path.join(__dirname, 'runner', 'runner.proto'), protoOpts)) as any
+        const credentials = grpc.credentials.createInsecure() // .compose(grpc.credentials.createFromMetadataGenerator((params, callback) => callback(null, meta)))
+        return resolve(new runner.mesg.grpc.runner.Runner(endpoint, credentials))
+      })
+    })
   }
 
   listenTask({ ...tasks }: Tasks): EventEmitter {
@@ -41,8 +59,8 @@ class Service {
     }
     this.tasks = tasks;
     this.validateTaskNames();
-    this.credential.then(token => {
-      const stream = this._client.Execution({}, token) as grpc.ClientWritableStream<any>
+    this._client.then(client => {
+      const stream = client.Execution({}, this._token) as grpc.ClientWritableStream<any>
       stream.on('data', x => res.emit('data', x))
       stream.on('error', x => res.emit('error', x))
       stream.on('close', () => res.emit('close'))
@@ -57,7 +75,7 @@ class Service {
     return this.unaryCall('Event', {
       key: event,
       data: encode(data)
-    }, await this.credential)
+    }, this._token)
   }
 
   private async handleTaskData({ hash, taskKey, inputs }: IExecution) {
@@ -70,13 +88,13 @@ class Service {
       return this.unaryCall('Result', {
         executionHash: hash,
         outputs: encode(outputs)
-      }, await this.credential)
+      }, this._token)
     } catch (err) {
       const error = err.message;
       return this.unaryCall('Result', {
         executionHash: hash,
         error
-      }, await this.credential)
+      }, this._token)
     }
   }
 
@@ -91,13 +109,10 @@ class Service {
     }
   }
 
-  private async unaryCall(method: string, arg: any, credentials?: grpc.Metadata): Promise<any> {
+  private async unaryCall(method: string, arg: any, metadata: grpc.Metadata): Promise<any> {
+    const client = await this._client
     return new Promise((resolve, reject) => {
-      if (credentials) {
-        this._client[method](arg, credentials, (err: Error, res: any) => err ? reject(err) : resolve(res))
-      } else {
-        this._client[method](arg, (err: Error, res: any) => err ? reject(err) : resolve(res))
-      }
+      client[method](arg, metadata, (err: Error, res: any) => err ? reject(err) : resolve(res))
     })
   }
 }
