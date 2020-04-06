@@ -15,5 +15,14 @@
   "exclude": [
     "node_modules",
     "lib"
-  ]
+  ],
+  "typedocOptions": {
+    "mode": "file",
+    "out": "docs",
+    "excludeExternals": true,
+    "excludeNotExported": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "plugin": "typedoc-plugin-markdown"
+  }
 }

@@ -70,7 +70,7 @@ export type IMsgCreate = IDefinition & {
   owner: string;
 }
 
-export default class ServiceLCD extends LCDClient {
+export default class Service extends LCDClient {
 
   createMsg(owner: string, definition: IDefinition): IMsg<IMsgCreate> {
     const {
