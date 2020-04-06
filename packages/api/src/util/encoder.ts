@@ -1,5 +1,3 @@
-import { mesg } from "../typedef/execution";
-
 export const encodeField = (value: any) => {
   switch (Object.prototype.toString.call(value)) {
     case '[object Null]':
@@ -28,18 +26,18 @@ export const encodeField = (value: any) => {
   }
 }
 
-const encodeFields = (data: any): { [k: string]: mesg.protobuf.IValue } => Object.keys(data || {}).reduce((prev, next) => ({
+const encodeFields = (data: any): { [k: string]: any } => Object.keys(data || {}).reduce((prev, next) => ({
   ...prev,
   [next]: encodeField(data[next])
 }), {})
 
-export const encode = (data: { [key: string]: any }): mesg.protobuf.IStruct => {
+export const encode = (data: { [key: string]: any }): any => {
   return {
     fields: encodeFields(data)
   }
 }
 
-export const decodeField = (field: mesg.protobuf.IValue) => {
+export const decodeField = (field: any) => {
   const kind = ['list', 'struct', 'string', 'number', 'bool']
     .find((x) => (field as any)[`${x}Value`] !== undefined) || 'null'
   const value = (field as any)[`${kind}Value`]
@@ -58,7 +56,7 @@ export const decodeField = (field: mesg.protobuf.IValue) => {
   }
 }
 
-export const decode = (data: mesg.protobuf.IStruct): { [key: string]: any } => {
+export const decode = (data: any): { [key: string]: any } => {
   return Object.keys(data.fields || {}).reduce((prev, next) => ({
     ...prev,
     [next]: decodeField(data.fields[next])

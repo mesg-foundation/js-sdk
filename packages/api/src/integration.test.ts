@@ -1,12 +1,13 @@
 import { Test } from 'tape'
 import test from 'tape'
-import API from './lcd';
-import { Resource } from './ownership-lcd';
+import API from '.';
+import { Resource } from './ownership';
+import { IDefinition } from './service';
 
 const api = new API('http://localhost:1317')
 const address = "mesgtest19k9xsdy42f4a7f7777wj4rs5eh9622h2z7mzdh"
 const mnemonic = "afford problem shove post clump space govern reward fringe input owner knock toddler orange castle course pepper fox youth field ritual wife weapon desert"
-const service = {
+const service: IDefinition = {
   sid: "js-function",
   name: "js-function",
   configuration: {},

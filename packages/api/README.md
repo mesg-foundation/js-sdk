@@ -20,19 +20,7 @@ npm install @mesg/api
 ```javascript
 const API = require('@mesg/api')
 
-const api = new API('localhost:50052')
+const api = new API('http://localhost:1317')
 ```
 
-You can now access all the different resources of the MESG engine with the following pattern:
-
-```
-api.resource.action(parameters)
-```
-
-Here are few examples:
-
-- list all the services: `api.service.list({})`
-- create a service: `api.service.create({ tasks: ... })`
-- get a stream of executions: `api.execution.stream({})`
-
-More details about the different API available [here](https://docs.mesg.com/api/service.html)
+# TODO

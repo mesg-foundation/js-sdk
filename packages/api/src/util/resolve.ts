@@ -1,4 +1,4 @@
-import API from '../lcd'
+import API from '..'
 
 const _resolutionTable: Map<string, string> = new Map()
 
