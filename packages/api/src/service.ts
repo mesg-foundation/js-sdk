@@ -1,7 +1,7 @@
 import LCDClient from './util/lcd'
 import { IMsg } from './transaction'
 
-type IConfiguration = {
+export type IConfiguration = {
   volumes?: string[] | null;
   volumesFrom?: string[] | null;
   ports?: string[] | null;
@@ -10,12 +10,12 @@ type IConfiguration = {
   env?: string[] | null;
 }
 
-type IDependency = IConfiguration & {
+export type IDependency = IConfiguration & {
   key: string;
   image: string;
 }
 
-type IParameter = {
+export type IParameter = {
   key: string;
   name?: string | null;
   description?: string | null;
@@ -25,7 +25,7 @@ type IParameter = {
   object?: IParameter[] | null;
 }
 
-type ITask = {
+export type ITask = {
   key: string;
   name?: string | null;
   description?: string | null;
@@ -33,7 +33,7 @@ type ITask = {
   outputs?: IParameter[] | null;
 }
 
-type IEvent = {
+export type IEvent = {
   key: string;
   name?: string | null;
   description?: string | null;
