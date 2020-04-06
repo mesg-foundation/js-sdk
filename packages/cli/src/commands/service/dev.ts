@@ -1,22 +1,14 @@
 import { Command, flags } from '@oclif/command'
 import Listr from 'listr'
-import LCD from '@mesg/api/lib/lcd'
-import API from '@mesg/api'
+import LCD from '@mesg/api'
 import chalk from 'chalk'
-import { decode } from '@mesg/api/lib/util/encoder'
 import { parseLog, listContainers } from '../../utils/docker'
 import * as Environment from '../../utils/environment-tasks'
 import * as Service from '../../utils/service'
 import * as Runner from '../../utils/runner'
-import * as base58 from "@mesg/api/lib/util/base58";
-import { ExecutionStatus } from "@mesg/api/lib/types";
 import version from '../../version'
-import { IService, IDefinition } from '@mesg/api/lib/service-lcd'
-import { IRunner } from '@mesg/api/lib/runner-lcd'
+import { IService, IDefinition } from '@mesg/api/lib/service'
 import { Stream } from 'stream'
-import { IEvent } from "@mesg/api/lib/event";
-import { IExecution } from "@mesg/api/lib/execution";
-import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
 import { RunnerInfo } from '@mesg/runner'
 
 const ipfsClient = require('ipfs-http-client')
@@ -42,13 +34,10 @@ export default class Dev extends Command {
 
   private lcdEndpoint = 'http://localhost:1317'
   private lcd = new LCD(this.lcdEndpoint)
-  private grpc = new API('localhost:50052')
   private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
 
   private logs: Stream[]
-  private events: GRPCStream<IEvent>
-  private results: GRPCStream<IExecution>
-
+  
   async run() {
     const { args, flags } = this.parse(Dev)
 
@@ -91,30 +80,30 @@ export default class Dev extends Command {
               }) as unknown as Promise<Stream>))
             }
           },
-          {
-            title: 'Fetching events\' logs',
-            task: () => {
-              this.events = this.grpc.event.stream({
-                filter: {
-                  instanceHash: base58.decode(runner.instanceHash)
-                }
-              })
-            }
-          },
-          {
-            title: 'Fetching executions\' logs',
-            task: async () => {
-              this.results = this.grpc.execution.stream({
-                filter: {
-                  executorHash: base58.decode(runner.hash),
-                  statuses: [
-                    ExecutionStatus.COMPLETED,
-                    ExecutionStatus.FAILED,
-                  ]
-                }
-              })
-            }
-          }
+          // {
+          //   title: 'Fetching events\' logs',
+          //   task: () => {
+          //     this.events = this.grpc.event.stream({
+          //       filter: {
+          //         instanceHash: base58.decode(runner.instanceHash)
+          //       }
+          //     })
+          //   }
+          // },
+          // {
+          //   title: 'Fetching executions\' logs',
+          //   task: async () => {
+          //     this.results = this.grpc.execution.stream({
+          //       filter: {
+          //         executorHash: base58.decode(runner.hash),
+          //         statuses: [
+          //           ExecutionStatus.COMPLETED,
+          //           ExecutionStatus.FAILED,
+          //         ]
+          //       }
+          //     })
+          //   }
+          // }
         ])
       }
     ])
@@ -131,15 +120,15 @@ export default class Dev extends Command {
         .on('error', error => { this.warn('Docker log stream error: ' + error.message) })
     }
 
-    this.events
-      .on('data', event => this.log(`EVENT[${event.key}]: ` + chalk.gray(JSON.stringify(decode(event.data)))))
-      .on('error', error => { this.warn('Event stream error: ' + error.message) })
+    // this.events
+    //   .on('data', event => this.log(`EVENT[${event.key}]: ` + chalk.gray(JSON.stringify(decode(event.data)))))
+    //   .on('error', error => { this.warn('Event stream error: ' + error.message) })
 
-    this.results
-      .on('data', execution => execution.error
-        ? this.log(`RESULT[${execution.taskKey}]: ` + chalk.red('ERROR:', execution.error))
-        : this.log(`RESULT[${execution.taskKey}]: ` + chalk.gray(JSON.stringify(decode(execution.outputs)))))
-      .on('error', error => { this.warn('Result stream error: ' + error.message) })
+    // this.results
+    //   .on('data', execution => execution.error
+    //     ? this.log(`RESULT[${execution.taskKey}]: ` + chalk.red('ERROR:', execution.error))
+    //     : this.log(`RESULT[${execution.taskKey}]: ` + chalk.gray(JSON.stringify(decode(execution.outputs)))))
+    //   .on('error', error => { this.warn('Result stream error: ' + error.message) })
 
     process.once('SIGINT', async () => {
       await new Listr<Environment.IStop>([
@@ -147,8 +136,8 @@ export default class Dev extends Command {
           title: 'Stopping logs',
           task: async () => {
             if (this.logs) this.logs.forEach((x: any) => x.destroy())
-            if (this.events) this.events.cancel()
-            if (this.results) this.results.cancel()
+            // if (this.events) this.events.cancel()
+            // if (this.results) this.results.cancel()
             return Promise.resolve()
           }
         },

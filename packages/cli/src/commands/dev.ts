@@ -1,23 +1,16 @@
 import { Command, flags } from '@oclif/command'
 import { readdirSync, existsSync, readFileSync } from 'fs'
 import { join } from 'path'
-import LCD from '@mesg/api/lib/lcd'
-import API from '@mesg/api'
+import LCD from '@mesg/api'
 import Listr from 'listr'
 import dotenv from 'dotenv'
 import * as Environment from '../utils/environment-tasks'
 import * as Service from '../utils/service'
 import * as Runner from '../utils/runner'
 import * as Process from '../utils/process'
-import * as base58 from '@mesg/api/lib/util/base58'
 import version from '../version'
-import { IService } from '@mesg/api/lib/service-lcd'
-import { IExecution } from "@mesg/api/lib/execution";
-import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
-import { ExecutionStatus } from '@mesg/api/lib/types'
-import { IProcess } from '@mesg/api/lib/process-lcd'
-import chalk from 'chalk'
-import { decode } from '@mesg/api/lib/util/encoder'
+import { IService } from '@mesg/api/lib/service'
+import { IProcess } from '@mesg/api/lib/process'
 import { RunnerInfo } from '@mesg/runner'
 
 const ipfsClient = require('ipfs-http-client')
@@ -39,8 +32,6 @@ export default class Dev extends Command {
   private lcdEndpoint = 'http://localhost:1317'
   private lcd = new LCD(this.lcdEndpoint)
   private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
-  private grpc = new API('localhost:50052')
-  private logs: GRPCStream<IExecution>
   private services: IService[] = []
   private processes: IProcess[] = []
   private runners: RunnerInfo[] = []
@@ -92,19 +83,19 @@ export default class Dev extends Command {
       })
     }
 
-    tasks.add({
-      title: 'Fetching logs',
-      task: () => {
-        this.logs = this.grpc.execution.stream({
-          filter: {
-            statuses: [
-              ExecutionStatus.COMPLETED,
-              ExecutionStatus.FAILED
-            ]
-          }
-        })
-      }
-    })
+    // tasks.add({
+    //   title: 'Fetching logs',
+    //   task: () => {
+    //     this.logs = this.grpc.execution.stream({
+    //       filter: {
+    //         statuses: [
+    //           ExecutionStatus.COMPLETED,
+    //           ExecutionStatus.FAILED
+    //         ]
+    //       }
+    //     })
+    //   }
+    // })
 
     const { mnemonic } = await tasks.run({
       configDir: this.config.dataDir,
@@ -113,32 +104,32 @@ export default class Dev extends Command {
       version: flags.version
     })
 
-    this.logs
-      .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
-      .on('data', (execution) => {
-        if (!execution.processHash) return
-        const process = this.processes.find(x => x.hash === base58.encode(execution.processHash))
-        if (!process) return
+    // this.logs
+    //   .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
+    //   .on('data', (execution) => {
+    //     if (!execution.processHash) return
+    //     const process = this.processes.find(x => x.hash === base58.encode(execution.processHash))
+    //     if (!process) return
 
-        const prefix = `[${process.name}][${execution.nodeKey}] - ${base58.encode(execution.instanceHash)} - ${execution.taskKey}`
-        if (execution.error) {
-          this.log(`${prefix}: ` + chalk.red('ERROR:', execution.error))
-        }
-        if (!execution.outputs) return
-        return this.log(prefix +
-          '\n\tinputs:  ' + chalk.gray(JSON.stringify(decode(execution.inputs || {}))) +
-          '\n\toutputs: ' + chalk.gray(JSON.stringify(decode(execution.outputs || {}))) +
-          '\n')
-      })
+    //     const prefix = `[${process.name}][${execution.nodeKey}] - ${base58.encode(execution.instanceHash)} - ${execution.taskKey}`
+    //     if (execution.error) {
+    //       this.log(`${prefix}: ` + chalk.red('ERROR:', execution.error))
+    //     }
+    //     if (!execution.outputs) return
+    //     return this.log(prefix +
+    //       '\n\tinputs:  ' + chalk.gray(JSON.stringify(decode(execution.inputs || {}))) +
+    //       '\n\toutputs: ' + chalk.gray(JSON.stringify(decode(execution.outputs || {}))) +
+    //       '\n')
+    //   })
 
     process.once('SIGINT', async () => {
       await new Listr<Environment.IStop>([
-        {
-          title: 'Stopping logs',
-          task: () => {
-            if (this.logs) this.logs.cancel()
-          }
-        },
+        // {
+        //   title: 'Stopping logs',
+        //   task: () => {
+        //     if (this.logs) this.logs.cancel()
+        //   }
+        // },
         {
           title: 'Stopping running services',
           task: async () => {

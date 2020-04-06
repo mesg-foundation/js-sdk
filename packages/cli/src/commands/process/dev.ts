@@ -4,15 +4,8 @@ import * as Environment from '../../utils/environment-tasks'
 import * as Process from '../../utils/process'
 import * as Runner from '../../utils/runner'
 import version from '../../version'
-import API from '@mesg/api'
-import LCDClient from '@mesg/api/lib/lcd'
-import * as base58 from '@mesg/api/lib/util/base58'
-import chalk from 'chalk'
-import { decode } from '@mesg/api/lib/util/encoder'
-import { IProcess } from '@mesg/api/lib/process-lcd'
-import { IExecution } from "@mesg/api/lib/execution";
-import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
-import { ExecutionStatus } from '@mesg/api/lib/types'
+import LCDClient from '@mesg/api'
+import { IProcess } from '@mesg/api/lib/process'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -36,10 +29,7 @@ export default class Dev extends Command {
 
   private lcdEndpoint = 'http://localhost:1317'
   private lcd = new LCDClient(this.lcdEndpoint)
-  private grpc = new API('localhost:50052')
   private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
-
-  private logs: GRPCStream<IExecution>
 
   async run() {
     const { args, flags } = this.parse(Dev)
@@ -61,19 +51,19 @@ export default class Dev extends Command {
           deployedProcess = await Process.create(this.lcd, compilation.definition, ctx.mnemonic)
         }
       },
-      {
-        title: 'Fetching process\'s logs',
-        task: () => {
-          this.logs = this.grpc.execution.stream({
-            filter: {
-              statuses: [
-                ExecutionStatus.COMPLETED,
-                ExecutionStatus.FAILED
-              ]
-            }
-          })
-        }
-      }
+      // {
+      //   title: 'Fetching process\'s logs',
+      //   task: () => {
+      //     this.logs = this.grpc.execution.stream({
+      //       filter: {
+      //         statuses: [
+      //           ExecutionStatus.COMPLETED,
+      //           ExecutionStatus.FAILED
+      //         ]
+      //       }
+      //     })
+      //   }
+      // }
     ])
     const { mnemonic } = await tasks.run({
       configDir: this.config.dataDir,
@@ -82,31 +72,31 @@ export default class Dev extends Command {
       endpoint: this.lcdEndpoint,
     })
 
-    this.logs
-      .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
-      .on('data', (execution) => {
-        if (!execution.processHash) return
-        if (!execution.instanceHash) return
-        if (base58.encode(execution.processHash) !== deployedProcess.hash) return
-        const prefix = `[${execution.nodeKey}] - ${base58.encode(execution.instanceHash)} - ${execution.taskKey}`
-        if (execution.error) {
-          this.log(`${prefix}: ` + chalk.red('ERROR:', execution.error))
-        }
-        if (!execution.outputs) return
-        return this.log(prefix +
-          '\n\tinputs:  ' + chalk.gray(JSON.stringify(decode(execution.inputs || {}))) +
-          '\n\toutputs: ' + chalk.gray(JSON.stringify(decode(execution.outputs || {}))) +
-          '\n')
-      })
+    // this.logs
+    //   .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
+    //   .on('data', (execution) => {
+    //     if (!execution.processHash) return
+    //     if (!execution.instanceHash) return
+    //     if (base58.encode(execution.processHash) !== deployedProcess.hash) return
+    //     const prefix = `[${execution.nodeKey}] - ${base58.encode(execution.instanceHash)} - ${execution.taskKey}`
+    //     if (execution.error) {
+    //       this.log(`${prefix}: ` + chalk.red('ERROR:', execution.error))
+    //     }
+    //     if (!execution.outputs) return
+    //     return this.log(prefix +
+    //       '\n\tinputs:  ' + chalk.gray(JSON.stringify(decode(execution.inputs || {}))) +
+    //       '\n\toutputs: ' + chalk.gray(JSON.stringify(decode(execution.outputs || {}))) +
+    //       '\n')
+    //   })
 
     process.once('SIGINT', async () => {
       await new Listr<Environment.IStop>([
-        {
-          title: 'Stopping logs',
-          task: () => {
-            if (this.logs) this.logs.cancel()
-          }
-        },
+        // {
+        //   title: 'Stopping logs',
+        //   task: () => {
+        //     if (this.logs) this.logs.cancel()
+        //   }
+        // },
         {
           title: 'Deleting process',
           task: async () => {

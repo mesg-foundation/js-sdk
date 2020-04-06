@@ -1,16 +1,12 @@
 import { flags, Command } from '@oclif/command'
 import { readFileSync } from 'fs'
 import { cli } from 'cli-ux'
-import LCD from '@mesg/api/lib/lcd'
-import Application from '@mesg/application'
-import API from '@mesg/api'
+import LCD from '@mesg/api'
 import { decode } from '@mesg/api/lib/util/encoder'
 import Listr from 'listr'
-import * as base58 from "@mesg/api/lib/util/base58";
-import ServiceType from "@mesg/api/lib/typedef/service";
-import ExecutionType from "@mesg/api/lib/typedef/execution";
 import { resolveSIDRunner } from "@mesg/api/lib/util/resolve";
-import { IRunner } from '@mesg/api/lib/runner-lcd'
+import { ITask } from '@mesg/api/lib/service'
+import { IRunner } from '@mesg/api/lib/runner'
 import { IExecution } from '@mesg/api/lib/execution'
 import { convert } from '../../utils/input'
 
@@ -41,14 +37,13 @@ export default class Execute extends Command {
   }]
 
   private lcd = new LCD(`http://localhost:1317`)
-  private app = new Application(new API(`localhost:50052`))
 
   async run() {
     const { args, flags } = this.parse(Execute)
 
     let runner: IRunner
-    let task: ServiceType.mesg.types.Service.ITask
-    let inputs: ExecutionType.mesg.protobuf.IStruct
+    let task: ITask
+    let inputs: any
     let execution: IExecution
 
     const tasks = new Listr([
@@ -81,13 +76,13 @@ export default class Execute extends Command {
       {
         title: 'Executing task',
         task: async () => {
-          execution = await this.app.executeTaskAndWaitResult({
-            eventHash: base58.decode(flags.eventHash || '6aUPZhmnFKiSsHXRaddbnqsKKi9KogbQNiKUcpivaohb'),
-            executorHash: base58.decode(runner.hash),
-            inputs,
-            tags: ['CLI'],
-            taskKey: args.TASK
-          })
+          // execution = await this.app.executeTaskAndWaitResult({
+          //   eventHash: base58.decode(flags.eventHash || '6aUPZhmnFKiSsHXRaddbnqsKKi9KogbQNiKUcpivaohb'),
+          //   executorHash: base58.decode(runner.hash),
+          //   inputs,
+          //   tags: ['CLI'],
+          //   taskKey: args.TASK
+          // })
         }
       }
     ])
