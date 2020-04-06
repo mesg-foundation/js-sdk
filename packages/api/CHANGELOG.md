@@ -16,6 +16,7 @@
 - [#199](https://github.com/mesg-foundation/js-sdk/pull/199) Add create/delete/hash messages for runners
 - [#205](https://github.com/mesg-foundation/js-sdk/pull/205) Update LCD types and add process filters value and reference
 - [#207](https://github.com/mesg-foundation/js-sdk/pull/207) Update messages for the api and add integration tests
+- [#218](https://github.com/mesg-foundation/js-sdk/pull/218) Update filtering of transaction logs based on the new engine's events
 
 #### Bug fixes
 
