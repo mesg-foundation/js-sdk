@@ -1,0 +1,25 @@
+#!/bin/bash
+
+mkdir -p testdata
+echo 'account:
+  mnemonic: "afford problem shove post clump space govern reward fringe input owner knock toddler orange castle course pepper fox youth field ritual wife weapon desert"
+' > testdata/config.yml
+docker pull mesg/engine:dev
+docker run \
+  --rm \
+  --name=engine-test \
+  --mount type=bind,source=$(pwd)/testdata,destination=/root/.mesg \
+  --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
+  -p 1317:1317 \
+  -d \
+  mesg/engine:dev
+
+while true; do
+  printf '.'
+  block=$(curl --silent http://localhost:1317/node_info | jq .node_info.protocol_version.block)
+  if [[ -n $block ]]; then
+    break
+  fi
+  sleep 1
+done
+sleep 5 # wait for the first block to be validated
