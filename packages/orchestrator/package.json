@@ -1,0 +1,43 @@
+{
+  "name": "@mesg/orchestrator",
+  "version": "0.0.0",
+  "description": "",
+  "main": "lib/index",
+  "types": "lib/index",
+  "files": [
+    "/lib",
+    "/npm-shrinkwrap.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
+    "build": "npm run clean && npm run compile",
+    "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo && rm -rf **/*.proto",
+    "precompile": "./copy-proto feature/admin-grpc-api",
+    "compile": "tsc -b tsconfig.json",
+    "postcompile": "cp -r src/gogo src/orchestrator src/protobuf src/google lib/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mesg-foundation/js-sdk.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mesg-foundation/js-sdk/issues"
+  },
+  "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
+  "dependencies": {
+    "@grpc/proto-loader": "^0.5.4",
+    "@mesg/api": "^0.2.0",
+    "grpc": "^1.24.2"
+  },
+  "devDependencies": {
+    "@types/long": "^4.0.0",
+    "@types/node": "^12.12.6",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.7.2"
+  }
+}
