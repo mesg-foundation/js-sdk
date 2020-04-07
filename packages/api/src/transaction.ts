@@ -44,7 +44,7 @@ export default class Transaction {
   private _stdTx: IStdTx
   public raw: ITx
 
-  static sign(message: string, ecpairPriv: Buffer): any {
+  static sign(message: string, ecpairPriv: Buffer) {
     const hash = createHash('sha256')
       .update(message)
       .digest('hex')
