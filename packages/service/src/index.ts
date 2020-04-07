@@ -5,6 +5,7 @@ import * as protoLoader from '@grpc/proto-loader'
 import * as path from 'path'
 import Runner from '@mesg/orchestrator/lib/runner'
 import { decode, encode } from '@mesg/api/lib/util/encoder'
+import * as base58 from '@mesg/api/lib/util/base58'
 import { IExecution } from '@mesg/api/lib/execution';
 import { EventCreateOutputs } from '@mesg/api/lib/event';
 import { EventEmitter } from 'events'
@@ -33,7 +34,10 @@ class Service {
 
   async register(signature: string, endpoint: string, serviceHash: string, envHash: string): Promise<grpc.GrpcObject> {
     const runner = new Runner(endpoint)
-    const { token } = await runner.register(serviceHash, envHash, signature)
+    const { token } = await runner.register({
+      serviceHash: base58.decode(serviceHash),
+      envHash: base58.decode(envHash)
+    }, signature)
     this._token = new grpc.Metadata()
     this._token.add('mesg_credential_token', token)
     const { mesg } = grpc.loadPackageDefinition(protoLoader.loadSync(path.join(__dirname, 'runner', 'runner.proto'), {
