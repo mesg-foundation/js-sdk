@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import * as grpc from 'grpc'
 import * as protoLoader from '@grpc/proto-loader'
 import * as path from 'path'
-import * as base58 from '@mesg/api/lib/util/base58'
+import Runner from '@mesg/orchestrator/lib/runner'
 import { decode, encode } from '@mesg/api/lib/util/encoder'
 import { IExecution } from '@mesg/api/lib/execution';
 import { EventCreateOutputs } from '@mesg/api/lib/event';
@@ -32,24 +32,14 @@ class Service {
   }
 
   async register(signature: string, endpoint: string, serviceHash: string, envHash: string): Promise<grpc.GrpcObject> {
-    const protoOpts = { includeDirs: [__dirname] }
-    const orchestrator = grpc.loadPackageDefinition(protoLoader.loadSync(path.join(__dirname, 'orchestrator', 'runner.proto'), protoOpts)) as any
-    const client = new orchestrator.mesg.grpc.orchestrator.Runner(endpoint, grpc.credentials.createInsecure())
-    const registerMetadata = new grpc.Metadata()
-    registerMetadata.add('mesg_request_signature', signature)
-    return new Promise((resolve, reject) => {
-      client.Register({
-        serviceHash: base58.decode(serviceHash),
-        envHash: base58.decode(envHash)
-      }, registerMetadata, (err: Error, res: any) => {
-        if (err) return reject(err)
-        this._token = new grpc.Metadata()
-        this._token.add('mesg_credential_token', res.token)
-        const runner = grpc.loadPackageDefinition(protoLoader.loadSync(path.join(__dirname, 'runner', 'runner.proto'), protoOpts)) as any
-        const credentials = grpc.credentials.createInsecure() // .compose(grpc.credentials.createFromMetadataGenerator((params, callback) => callback(null, meta)))
-        return resolve(new runner.mesg.grpc.runner.Runner(endpoint, credentials))
-      })
-    })
+    const runner = new Runner(endpoint)
+    const { token } = await runner.register(serviceHash, envHash, signature)
+    this._token = new grpc.Metadata()
+    this._token.add('mesg_credential_token', token)
+    const { mesg } = grpc.loadPackageDefinition(protoLoader.loadSync(path.join(__dirname, 'runner', 'runner.proto'), {
+      includeDirs: [__dirname]
+    })) as any
+    return new mesg.grpc.runner.Runner(endpoint, grpc.credentials.createInsecure())
   }
 
   listenTask({ ...tasks }: Tasks): EventEmitter {

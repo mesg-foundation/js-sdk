@@ -3,9 +3,8 @@
 DEF_BRANCH="${1:-dev}"
 PROTO_PATH="https://raw.githubusercontent.com/mesg-foundation/engine/$DEF_BRANCH"
 
-mkdir -p ./src/protobuf/types ./src/orchestrator ./src/runner
+mkdir -p ./src/protobuf/types ./src/runner
 
 curl -so "./src/protobuf/types/execution.proto" "$PROTO_PATH/protobuf/types/execution.proto"
 curl -so "./src/protobuf/types/struct.proto" "$PROTO_PATH/protobuf/types/struct.proto"
 curl -so "./src/runner/runner.proto" "$PROTO_PATH/server/grpc/runner/runner.proto"
-curl -so "./src/orchestrator/runner.proto" "$PROTO_PATH/server/grpc/orchestrator/runner.proto"

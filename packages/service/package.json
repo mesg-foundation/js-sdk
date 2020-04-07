@@ -15,8 +15,9 @@
     "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
     "build": "npm run clean && npm run compile",
     "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo && rm -rf **/*.proto",
+    "precompile": "./copy-proto feature/admin-grpc-api",
     "compile": "tsc -b tsconfig.json",
-    "postcompile": "cp -r src/gogo src/orchestrator src/protobuf src/runner lib/"
+    "postcompile": "cp -r src/gogo src/protobuf src/runner lib/"
   },
   "repository": {
     "type": "git",
@@ -31,6 +32,7 @@
   "dependencies": {
     "@grpc/proto-loader": "^0.5.4",
     "@mesg/api": "^0.2.0",
+    "@mesg/orchestrator": "^0.0.0",
     "grpc": "^1.24.2",
     "js-yaml": "^3.13.1"
   },
