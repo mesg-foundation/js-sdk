@@ -17,7 +17,7 @@
     "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo && rm -rf **/*.proto",
     "precompile": "./copy-proto feature/admin-grpc-api",
     "compile": "tsc -b tsconfig.json",
-    "postcompile": "cp -r src/gogo src/orchestrator src/protobuf src/google lib/"
+    "postcompile": "cp -r src/gogo src/orchestrator src/protobuf src/google src/typedef src/api lib/"
   },
   "repository": {
     "type": "git",
@@ -31,7 +31,6 @@
   "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
   "dependencies": {
     "@grpc/proto-loader": "^0.5.4",
-    "@mesg/api": "^0.2.0",
     "grpc": "^1.24.2"
   },
   "devDependencies": {

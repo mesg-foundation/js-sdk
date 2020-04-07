@@ -1,7 +1,10 @@
 import { Command, flags } from '@oclif/command'
 import Listr from 'listr'
 import LCD from '@mesg/api/lib/lcd'
-import API from '@mesg/api'
+import Orchestrator from '@mesg/orchestrator'
+import Event from '@mesg/orchestrator/lib/typedef/event'
+import Execution from '@mesg/orchestrator/lib/typedef/execution'
+import * as grpc from 'grpc'
 import chalk from 'chalk'
 import { decode } from '@mesg/api/lib/util/encoder'
 import { parseLog, listContainers } from '../../utils/docker'
@@ -42,12 +45,12 @@ export default class Dev extends Command {
 
   private lcdEndpoint = 'http://localhost:1317'
   private lcd = new LCD(this.lcdEndpoint)
-  private grpc = new API('localhost:50052')
+  private orchestrator = new Orchestrator('localhost:50052')
   private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
 
   private logs: Stream[]
-  private events: GRPCStream<IEvent>
-  private results: GRPCStream<IExecution>
+  private events: grpc.ClientWritableStream<Event.mesg.types.IEvent>
+  private results: grpc.ClientWritableStream<Execution.mesg.types.IExecution>
 
   async run() {
     const { args, flags } = this.parse(Dev)
@@ -94,7 +97,7 @@ export default class Dev extends Command {
           {
             title: 'Fetching events\' logs',
             task: () => {
-              this.events = this.grpc.event.stream({
+              this.events = this.orchestrator.event.stream({
                 filter: {
                   instanceHash: base58.decode(runner.instanceHash)
                 }

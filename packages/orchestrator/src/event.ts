@@ -1,26 +1,14 @@
-import * as base58 from '@mesg/api/lib/util/base58'
 import * as grpc from 'grpc'
 import { Client } from './client'
-import { mesg } from './typedef/event'
-
-type Filter = {
-  hash?: string
-  instanceHash?: string
-  key?: string
-}
+import * as Type from './typedef/event'
+import * as API from './api/event'
 
 export default class Event extends Client {
   constructor(endpoint: string) {
     super(endpoint, 'Event')
   }
 
-  public stream(filter: Filter = {}, signature: string): grpc.ClientReadableStream<mesg.types.Event> {
-    return this.streamCall('Stream', {
-      filter: {
-        hash: filter.hash ? base58.decode(filter.hash) : null,
-        instanceHash: filter.instanceHash ? base58.decode(filter.instanceHash) : null,
-        key: filter.key
-      }
-    }, signature)
+  public stream(request: API.mesg.grpc.orchestrator.IEventStreamRequest, signature: string): grpc.ClientReadableStream<Type.mesg.types.Event> {
+    return this.streamCall('Stream', request, signature)
   }
 }
