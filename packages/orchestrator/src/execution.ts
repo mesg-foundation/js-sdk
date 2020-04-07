@@ -17,20 +17,20 @@ export default class Execution extends Client {
     super(endpoint, 'Execution')
   }
 
-  public async create(executorHash: string, taskKey: string, inputs: Object, privateKey: Buffer, options: { tags?: string[], price: string } = { price: "10000atto" }): Promise<{ hash: string }> {
+  public async create(executorHash: string, taskKey: string, inputs: Object, signature: string, options: { tags?: string[], price: string } = { price: "10000atto" }): Promise<{ hash: string }> {
     const res = await this.unaryCall("Create", {
       taskKey,
       inputs: encode(inputs),
       executorHash: base58.decode(executorHash),
       price: options.price,
       tags: options.tags || []
-    }, privateKey)
+    }, signature)
     return {
       hash: base58.encode(res.hash)
     }
   }
 
-  public stream(filter: Filter = {}, privateKey: Buffer): grpc.ClientReadableStream<mesg.types.IExecution> {
+  public stream(filter: Filter = {}, signature: string): grpc.ClientReadableStream<mesg.types.IExecution> {
     return this.streamCall('Stream', {
       filter: {
         statuses: filter.statuses || [],
@@ -39,6 +39,6 @@ export default class Execution extends Client {
         tags: filter.tags || [],
         executorHash: filter.executorHash ? base58.decode(filter.executorHash) : null,
       }
-    }, privateKey)
+    }, signature)
   }
 }

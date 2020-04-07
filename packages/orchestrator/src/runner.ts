@@ -6,19 +6,19 @@ export default class Runner extends Client {
     super(endpoint, 'Runner')
   }
 
-  public async register(serviceHash: string, envHash: string, privateKey: Buffer): Promise<{ token: string }> {
+  public async register(serviceHash: string, envHash: string, signature: string): Promise<{ token: string }> {
     const res = await this.unaryCall("Register", {
       serviceHash: base58.decode(serviceHash),
       envHash: base58.decode(envHash),
-    }, privateKey)
+    }, signature)
     return {
       token: res.token
     }
   }
 
-  public async delete(runnerHash: string, privateKey: Buffer): Promise<void> {
+  public async delete(runnerHash: string, signature: string): Promise<void> {
     await this.unaryCall("Delete", {
       runnerHash: base58.decode(runnerHash),
-    }, privateKey)
+    }, signature)
   }
 }

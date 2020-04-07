@@ -1,8 +1,6 @@
 import * as grpc from 'grpc'
 import * as protoLoader from '@grpc/proto-loader'
 import * as path from 'path'
-import Transaction from '@mesg/api/lib/transaction'
-import sortObject from '@mesg/api/lib/util/sort-object'
 
 export class Client {
 
@@ -14,20 +12,19 @@ export class Client {
     this.client = new mesg.grpc.orchestrator[service](endpoint, grpc.credentials.createInsecure())
   }
 
-  protected streamCall(method: string, arg: any, privKey: Buffer): grpc.ClientReadableStream<any> {
-    return this.client[method](arg, this.signArg(arg, privKey))
+  protected streamCall(method: string, arg: any, signature: string): grpc.ClientReadableStream<any> {
+    return this.client[method](arg, this.meta(signature))
   }
 
-  protected async unaryCall(method: string, arg: any, privKey: Buffer): Promise<any> {
+  protected async unaryCall(method: string, arg: any, signature: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.client[method](arg, this.signArg(arg, privKey), (err: Error, res: any) => err ? reject(err) : resolve(res))
+      this.client[method](arg, this.meta(signature), (err: Error, res: any) => err ? reject(err) : resolve(res))
     })
   }
 
-  private signArg(arg: any, privKey: Buffer): grpc.Metadata {
-    const { signature } = Transaction.sign(JSON.stringify(sortObject(arg)), privKey)
+  private meta(signature: string): grpc.Metadata {
     const meta = new grpc.Metadata()
-    meta.add('mesg_request_signature', Buffer.from(signature).toString('base64'))
+    meta.add('mesg_request_signature', signature)
     return meta
   }
 }

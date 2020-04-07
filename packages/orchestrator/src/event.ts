@@ -14,13 +14,13 @@ export default class Event extends Client {
     super(endpoint, 'Event')
   }
 
-  public stream(filter: Filter = {}, privateKey: Buffer): grpc.ClientReadableStream<mesg.types.Event> {
+  public stream(filter: Filter = {}, signature: string): grpc.ClientReadableStream<mesg.types.Event> {
     return this.streamCall('Stream', {
       filter: {
         hash: filter.hash ? base58.decode(filter.hash) : null,
         instanceHash: filter.instanceHash ? base58.decode(filter.instanceHash) : null,
         key: filter.key
       }
-    }, privateKey)
+    }, signature)
   }
 }
