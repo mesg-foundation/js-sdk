@@ -32,7 +32,9 @@
   "dependencies": {
     "@grpc/proto-loader": "^0.5.4",
     "@mesg/api": "^0.2.0",
-    "grpc": "^1.24.2"
+    "@types/tape": "^4.2.34",
+    "grpc": "^1.24.2",
+    "tape": "^4.13.2"
   },
   "devDependencies": {
     "@types/long": "^4.0.0",
