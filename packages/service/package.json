@@ -15,7 +15,7 @@
     "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
     "build": "npm run clean && npm run compile",
     "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo && rm -rf **/*.proto",
-    "precompile": "./copy-proto feature/admin-grpc-api",
+    "precompile": "./copy-proto",
     "compile": "tsc -b tsconfig.json",
     "postcompile": "cp -r src/gogo src/protobuf src/google src/runner lib/"
   },
