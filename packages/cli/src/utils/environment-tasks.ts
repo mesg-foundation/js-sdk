@@ -73,7 +73,7 @@ export const stop: ListrTask<IStop> = {
   ])
 }
 
-export type IStart = { configDir: string, pull: boolean, version: string, endpoint: string, config?: Config }
+export type IStart = { configDir: string, pull: boolean, version: string, endpoint: string, config?: Config, engineAddress?: string }
 export const start: ListrTask<IStart> = {
   title: 'Starting environment',
   task: () => new Listr([
@@ -110,6 +110,7 @@ export const start: ListrTask<IStart> = {
       task: async ctx => {
         const api = new API(ctx.endpoint)
         const engineAccount = await api.account.import(ctx.config.engine.account.mnemonic)
+        ctx.engineAddress = engineAccount.address
         const userAccount = await api.account.import(ctx.config.mnemonic)
         const userBalance = userAccount.coins.find(x => x.denom === 'atto')
         if (userBalance && parseInt(userBalance.amount, 10) > 1000) return

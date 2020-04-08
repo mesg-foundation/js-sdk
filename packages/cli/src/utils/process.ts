@@ -13,7 +13,7 @@ export type CompilationResult = {
   runners: RunnerInfo[]
 }
 
-export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD, lcdEndpoint: string, mnemonic: string, env: string[] = []): Promise<CompilationResult> => {
+export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD, lcdEndpoint: string, mnemonic: string, engineAddress: string, env: string[] = []): Promise<CompilationResult> => {
   const runners: RunnerInfo[] = []
   const instanceReolver = async (instanceObject: any): Promise<string> => {
     if (!instanceObject.instanceHash && !instanceObject.instance) throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
@@ -21,7 +21,7 @@ export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD
     const { src, env } = instanceObject.instance
     const definition = await Service.compile(src, ipfsClient)
     const service = await Service.create(lcd, definition, mnemonic)
-    const runner = await Runner.create(lcdEndpoint, mnemonic, service.hash, env)
+    const runner = await Runner.create(lcdEndpoint, mnemonic, engineAddress, service.hash, env)
     if (!runners.find(x => x.hash === runner.hash)) runners.push(runner)
     return runner.instanceHash
   }

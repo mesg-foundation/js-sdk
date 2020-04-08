@@ -1,5 +1,6 @@
 import API from '@mesg/api/lib/lcd'
 import Account from "@mesg/api/lib/account-lcd"
+import sortObject from '@mesg/api/lib/util/sort-object'
 import { IService } from '@mesg/api/lib/service-lcd'
 import Transaction from '@mesg/api/lib/transaction'
 
@@ -20,17 +21,18 @@ export default class Runner {
   private _provider: Provider
   private _api: API
   private _mnemonic: string
+  private _engineAddress: string
 
-  constructor(provider: Provider, endpoint: string, mnemonic: string) {
+  constructor(provider: Provider, endpoint: string, mnemonic: string, engineAddress: string) {
     this._api = new API(endpoint)
     this._provider = provider
     this._mnemonic = mnemonic
+    this._engineAddress = engineAddress
   }
 
   async start(serviceHash: string, env: string[]): Promise<RunnerInfo> {
-    const account = await this._api.account.import(this._mnemonic)
     const service = await this._api.service.get(serviceHash)
-    const { runnerHash, instanceHash, envHash } = await this._api.runner.hash(account.address, serviceHash, env)
+    const { runnerHash, instanceHash, envHash } = await this._api.runner.hash(this._engineAddress, serviceHash, env)
     const signature = this.sign(serviceHash, envHash)
     const envObj = (env || []).reduce((prev, x) => ({ ...prev, [x.split('=')[0]]: x.split('=')[1] }), {})
     await this._provider.start(service, {
@@ -61,7 +63,7 @@ export default class Runner {
       serviceHash: serviceHash,
       envHash: envHash
     }
-    const ecdsa = Transaction.sign(JSON.stringify(value), Account.getPrivateKey(this._mnemonic))
+    const ecdsa = Transaction.sign(JSON.stringify(sortObject(value)), Account.getPrivateKey(this._mnemonic))
     return Buffer.from(ecdsa.signature).toString('base64')
   }
 }

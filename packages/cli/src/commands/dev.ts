@@ -82,7 +82,7 @@ export default class Dev extends Command {
       tasks.add({
         title: `Creating process "${file.name}"`,
         task: async (ctx) => {
-          const compilation = await Process.compile(join(args.PATH, file.name), this.ipfsClient, this.lcd, this.lcdEndpoint, ctx.config.mnemonic, env)
+          const compilation = await Process.compile(join(args.PATH, file.name), this.ipfsClient, this.lcd, this.lcdEndpoint, ctx.config.mnemonic, ctx.engineAddress, env)
           const deployedProcess = await Process.create(this.lcd, compilation.definition, ctx.config.mnemonic)
           this.processes.push(deployedProcess)
           this.runners = [
@@ -108,7 +108,7 @@ export default class Dev extends Command {
       }
     })
 
-    const { config } = await tasks.run({
+    const { config, engineAddress } = await tasks.run({
       configDir: this.config.dataDir,
       endpoint: this.lcdEndpoint,
       pull: flags.pull,
@@ -146,7 +146,7 @@ export default class Dev extends Command {
           task: async () => {
             const uniqueRunners = this.runners.filter((item, i, self) => i === self.indexOf(item))
             for (const runner of uniqueRunners) {
-              await Runner.stop(this.lcdEndpoint, config.mnemonic, runner.hash)
+              await Runner.stop(this.lcdEndpoint, config.mnemonic, engineAddress, runner.hash)
             }
           }
         },
