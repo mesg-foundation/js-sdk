@@ -44,13 +44,23 @@ const hasTestAccount = (path: string): boolean => {
   return !!config.mnemonic && !!config.engine.account.mnemonic
 }
 
+// https://github.com/forbole/big-dipper/blob/master/imports/startup/server/util.js
+const pubKey = (mnemonic: string): string => {
+  const publicKey = Account.deriveMnemonic(mnemonic).publicKey
+  const pubkeyAminoPrefix = Buffer.from('EB5AE98721', 'hex')
+  const buffer = Buffer.alloc(38)
+  pubkeyAminoPrefix.copy(buffer, 0)
+  Buffer.from(publicKey).copy(buffer, pubkeyAminoPrefix.length)
+  return encode(`${bech32Prefix}pub`, toWords(buffer))
+}
+
 export const generateConfig = (path: string): Config => {
   if (hasTestAccount(path)) return read(join(path, CLI_FILE))
   const mnemonic = Account.generateMnemonic()
   const config = {
     engine: {
       authorized_pubkeys: [
-        encode(bech32Prefix + 'pub', toWords(Account.deriveMnemonic(mnemonic).identifier))
+        pubKey(mnemonic)
       ],
       account: {
         mnemonic: Account.generateMnemonic()
