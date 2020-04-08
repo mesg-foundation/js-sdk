@@ -34,10 +34,7 @@ class Service {
 
   async register(signature: string, endpoint: string, serviceHash: string, envHash: string): Promise<grpc.GrpcObject> {
     const runner = new Runner(endpoint)
-    const { token } = await runner.register({
-      serviceHash: base58.decode(serviceHash),
-      envHash: base58.decode(envHash)
-    }, signature)
+    const { token } = await runner.register({ serviceHash, envHash }, signature)
     this._token = new grpc.Metadata()
     this._token.add('mesg_credential_token', token)
     const { mesg } = grpc.loadPackageDefinition(protoLoader.loadSync(path.join(__dirname, 'runner', 'runner.proto'), {
