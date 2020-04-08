@@ -8,11 +8,11 @@ export default class Execution extends Client {
     super(endpoint, 'Execution')
   }
 
-  public async create(request: API.mesg.grpc.orchestrator.ExecutionCreateRequest, signature: string): Promise<API.mesg.grpc.orchestrator.ExecutionCreateResponse> {
+  public async create(request: API.mesg.grpc.orchestrator.IExecutionCreateRequest, signature: string): Promise<API.mesg.grpc.orchestrator.IExecutionCreateResponse> {
     return this.unaryCall("Create", request, signature)
   }
 
-  public stream(request: API.mesg.grpc.orchestrator.ExecutionStreamRequest, signature: string): grpc.ClientReadableStream<Type.mesg.types.IExecution> {
+  public stream(request: API.mesg.grpc.orchestrator.IExecutionStreamRequest, signature: string): grpc.ClientReadableStream<Type.mesg.types.IExecution> {
     return this.streamCall('Stream', request, signature)
   }
 }

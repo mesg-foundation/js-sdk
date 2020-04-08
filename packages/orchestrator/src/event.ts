@@ -8,7 +8,7 @@ export default class Event extends Client {
     super(endpoint, 'Event')
   }
 
-  public stream(request: API.mesg.grpc.orchestrator.IEventStreamRequest, signature: string): grpc.ClientReadableStream<Type.mesg.types.Event> {
+  public stream(request: API.mesg.grpc.orchestrator.IEventStreamRequest, signature: string): grpc.ClientReadableStream<Type.mesg.types.IEvent> {
     return this.streamCall('Stream', request, signature)
   }
 }
