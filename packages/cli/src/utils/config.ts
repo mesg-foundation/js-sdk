@@ -37,7 +37,7 @@ const write = (path: string, config: Config): Config => {
   return config
 }
 
-export const hasTestAccount = (path: string): boolean => {
+const hasTestAccount = (path: string): boolean => {
   if (!existsSync(join(path, ENGINE_FILE))) return false
   if (!existsSync(join(path, CLI_FILE))) return false
   const config = read(join(path, CLI_FILE))
@@ -45,6 +45,7 @@ export const hasTestAccount = (path: string): boolean => {
 }
 
 export const generateConfig = (path: string): Config => {
+  if (hasTestAccount(path)) return read(join(path, CLI_FILE))
   const mnemonic = Account.generateMnemonic()
   const config = {
     engine: {

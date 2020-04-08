@@ -2,8 +2,9 @@ import Listr, { ListrTask } from "listr"
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { hasImage, fetchImageTag, createContainer, listContainers, findNetwork, engineLabel, engineName } from "./docker"
-import { generateConfig, clear, Config, hasTestAccount } from "./config"
+import { generateConfig, clear, Config } from "./config"
 import fetch from "node-fetch"
+import API from "@mesg/api/lib/lcd"
 
 const pidFilename = 'pid.json'
 const image = 'mesg/engine'
@@ -87,7 +88,6 @@ export const start: ListrTask<IStart> = {
     },
     {
       title: 'Generating test account',
-      skip: ctx => hasTestAccount(ctx.configDir),
       task: ctx => ctx.config = generateConfig(ctx.configDir)
     },
     {
@@ -104,6 +104,22 @@ export const start: ListrTask<IStart> = {
       title: 'Waiting for the Engine to be ready',
       skip: ctx => isRunning(ctx.endpoint),
       task: async ctx => waitToBeReady(ctx.endpoint)
+    },
+    {
+      title: 'Ensure balance',
+      task: async ctx => {
+        const api = new API(ctx.endpoint)
+        const engineAccount = await api.account.import(ctx.config.engine.account.mnemonic)
+        const userAccount = await api.account.import(ctx.config.mnemonic)
+        const userBalance = userAccount.coins.find(x => x.denom === 'atto')
+        if (userBalance && parseInt(userBalance.amount, 10) > 1000) return
+        const transferMsg = api.account.transferMsg(engineAccount.address, userAccount.address, [{
+          amount: 1e18.toString(),
+          denom: 'atto'
+        }])
+        const tx = await api.createTransaction([transferMsg], engineAccount)
+        await api.broadcast(tx.signWithMnemonic(ctx.config.engine.account.mnemonic), "block")
+      }
     }
   ])
 }
