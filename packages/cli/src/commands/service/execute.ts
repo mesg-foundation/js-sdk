@@ -4,7 +4,6 @@ import LCD from '@mesg/api/lib/lcd'
 import * as grpc from 'grpc'
 import { decode } from '@mesg/api/lib/util/encoder'
 import Listr from 'listr'
-import * as base58 from "@mesg/api/lib/util/base58";
 import ServiceType from "@mesg/api/lib/typedef/service";
 import ExecutionType from "@mesg/api/lib/typedef/execution";
 import { resolveSIDRunner } from "@mesg/api/lib/util/resolve";
