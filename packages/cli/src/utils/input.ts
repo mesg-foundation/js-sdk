@@ -1,6 +1,5 @@
 import ServiceType from "@mesg/api/lib/typedef/service";
 import ExecutionType from "@mesg/api/lib/typedef/execution";
-import { encode } from '@mesg/api/lib/util/encoder';
 
 export const convert = (task: ServiceType.mesg.types.Service.ITask, data: { [key: string]: any }): ExecutionType.mesg.protobuf.IStruct => {
   const convert = (type: 'Object' | 'String' | 'Boolean' | 'Number' | 'Any', value: string | any): any => {
@@ -18,5 +17,5 @@ export const convert = (task: ServiceType.mesg.types.Service.ITask, data: { [key
       ...prev,
       [value.key]: convert(value.type, data[value.key])
     }), {})
-  return encode(result || {})
+  return result || {}
 }
