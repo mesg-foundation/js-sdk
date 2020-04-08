@@ -31,6 +31,7 @@
   "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
   "dependencies": {
     "@grpc/proto-loader": "^0.5.4",
+    "@mesg/api": "^0.2.0",
     "grpc": "^1.24.2"
   },
   "devDependencies": {
