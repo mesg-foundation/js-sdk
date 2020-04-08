@@ -1,4 +1,5 @@
 import LCDClient from './util/lcd'
+import { IStruct } from './struct'
 
 export enum Status {
   Unknown = 0,
@@ -15,8 +16,8 @@ export type IExecution = {
   status: Status;
   instanceHash: string;
   taskKey: string;
-  inputs?: any;
-  outputs?: any;
+  inputs?: IStruct[];
+  outputs?: IStruct[];
   error?: (string | null);
   tags?: (string[] | null);
   processHash?: (string | null);
@@ -33,7 +34,7 @@ export type IExecution = {
 
 export default class Execution extends LCDClient {
 
-  async get(hash: string): Promise<IExecution> { 
+  async get(hash: string): Promise<IExecution> {
     return (await this.query(`/execution/get/${hash}`)).result
   }
 
