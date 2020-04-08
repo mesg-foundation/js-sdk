@@ -38,9 +38,10 @@ export default class Dev extends Command {
   }]
 
   private lcdEndpoint = 'http://localhost:1317'
+  private orchestratorEndpoint = 'localhost:50052'
   private lcd = new LCD(this.lcdEndpoint)
   private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
-  private orchestrator = new Orchestrator('localhost:50052')
+  private orchestrator = new Orchestrator(this.orchestratorEndpoint)
   private logs: grpc.ClientReadableStream<Execution.mesg.types.IExecution>
   private services: IService[] = []
   private processes: IProcess[] = []
@@ -82,7 +83,7 @@ export default class Dev extends Command {
       tasks.add({
         title: `Creating process "${file.name}"`,
         task: async (ctx) => {
-          const compilation = await Process.compile(join(args.PATH, file.name), this.ipfsClient, this.lcd, this.lcdEndpoint, ctx.config.mnemonic, ctx.engineAddress, env)
+          const compilation = await Process.compile(join(args.PATH, file.name), this.ipfsClient, this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, env)
           const deployedProcess = await Process.create(this.lcd, compilation.definition, ctx.config.mnemonic)
           this.processes.push(deployedProcess)
           this.runners = [
@@ -146,7 +147,7 @@ export default class Dev extends Command {
           task: async () => {
             const uniqueRunners = this.runners.filter((item, i, self) => i === self.indexOf(item))
             for (const runner of uniqueRunners) {
-              await Runner.stop(this.lcdEndpoint, config.mnemonic, engineAddress, runner.hash)
+              await Runner.stop(this.lcdEndpoint, this.orchestratorEndpoint, config.mnemonic, engineAddress, runner.hash)
             }
           }
         },

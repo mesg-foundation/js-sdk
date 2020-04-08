@@ -36,8 +36,9 @@ export default class Dev extends Command {
   }]
 
   private lcdEndpoint = 'http://localhost:1317'
+  private orchestratorEndpoint = 'localhost:50052'
   private lcd = new LCDClient(this.lcdEndpoint)
-  private orchestrator = new Orchestrator('localhost:50052')
+  private orchestrator = new Orchestrator(this.orchestratorEndpoint)
   private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
 
   private logs: grpc.ClientReadableStream<Execution.mesg.types.IExecution>
@@ -53,7 +54,7 @@ export default class Dev extends Command {
       {
         title: 'Compiling process',
         task: async ctx => {
-          compilation = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.lcdEndpoint, ctx.config.mnemonic, ctx.engineAddress, flags.env)
+          compilation = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, flags.env)
         }
       },
       {
@@ -119,7 +120,7 @@ export default class Dev extends Command {
           title: 'Stopping services',
           task: async () => {
             for (const runner of compilation.runners) {
-              await Runner.stop(this.lcdEndpoint, config.mnemonic, engineAddress, runner.hash)
+              await Runner.stop(this.lcdEndpoint, this.orchestratorEndpoint, config.mnemonic, engineAddress, runner.hash)
             }
           }
         },

@@ -40,8 +40,9 @@ export default class Dev extends Command {
   }]
 
   private lcdEndpoint = 'http://localhost:1317'
+  private orchestratorEndpoint = 'localhost:50052'
   private lcd = new LCD(this.lcdEndpoint)
-  private orchestrator = new Orchestrator('localhost:50052')
+  private orchestrator = new Orchestrator(this.orchestratorEndpoint)
   private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
 
   private logs: Stream[]
@@ -72,7 +73,7 @@ export default class Dev extends Command {
       {
         title: 'Starting service',
         task: async ctx => {
-          runner = await Runner.create(this.lcdEndpoint, ctx.config.mnemonic, ctx.engineAddress, service.hash, flags.env)
+          runner = await Runner.create(this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, service.hash, flags.env)
         }
       },
       {
@@ -157,7 +158,7 @@ export default class Dev extends Command {
           title: 'Stopping service',
           skip: () => !service && !runner,
           task: async () => {
-            return Runner.stop(this.lcdEndpoint, config.mnemonic, engineAddress, runner.hash)
+            return Runner.stop(this.lcdEndpoint, this.orchestratorEndpoint, config.mnemonic, engineAddress, runner.hash)
           }
         },
         Environment.stop,
