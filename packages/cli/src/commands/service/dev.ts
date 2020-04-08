@@ -11,16 +11,12 @@ import { parseLog, listContainers } from '../../utils/docker'
 import * as Environment from '../../utils/environment-tasks'
 import * as Service from '../../utils/service'
 import * as Runner from '../../utils/runner'
-import * as base58 from "@mesg/api/lib/util/base58";
-import { ExecutionStatus } from "@mesg/api/lib/types";
+import { Status } from "@mesg/orchestrator/lib/execution";
 import version from '../../version'
 import { IService, IDefinition } from '@mesg/api/lib/service-lcd'
-import { IRunner } from '@mesg/api/lib/runner-lcd'
 import { Stream } from 'stream'
-import { IEvent } from "@mesg/api/lib/event";
-import { IExecution } from "@mesg/api/lib/execution";
-import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
 import { RunnerInfo } from '@mesg/runner'
+import sign from '../../utils/sign'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -49,8 +45,8 @@ export default class Dev extends Command {
   private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
 
   private logs: Stream[]
-  private events: grpc.ClientWritableStream<Event.mesg.types.IEvent>
-  private results: grpc.ClientWritableStream<Execution.mesg.types.IExecution>
+  private events: grpc.ClientReadableStream<Event.mesg.types.IEvent>
+  private results: grpc.ClientReadableStream<Execution.mesg.types.IExecution>
 
   async run() {
     const { args, flags } = this.parse(Dev)
@@ -96,26 +92,28 @@ export default class Dev extends Command {
           },
           {
             title: 'Fetching events\' logs',
-            task: () => {
-              this.events = this.orchestrator.event.stream({
+            task: ctx => {
+              const payload = {
                 filter: {
-                  instanceHash: base58.decode(runner.instanceHash)
+                  instanceHash: runner.instanceHash
                 }
-              })
+              }
+              this.events = this.orchestrator.event.stream(payload, sign(payload, ctx.config.mnemonic))
             }
           },
           {
             title: 'Fetching executions\' logs',
-            task: async () => {
-              this.results = this.grpc.execution.stream({
+            task: async ctx => {
+              const payload = {
                 filter: {
-                  executorHash: base58.decode(runner.hash),
+                  executorHash: runner.hash,
                   statuses: [
-                    ExecutionStatus.COMPLETED,
-                    ExecutionStatus.FAILED,
+                    Status.Completed,
+                    Status.Failed,
                   ]
                 }
-              })
+              }
+              this.results = this.orchestrator.execution.stream(payload, sign(payload, ctx.config.mnemonic))
             }
           }
         ])
