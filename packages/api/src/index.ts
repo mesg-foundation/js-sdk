@@ -84,3 +84,14 @@ class API extends LCDClient {
 
 export default API;
 (module).exports = API;
+
+export {
+  Service,
+  Instance,
+  Runner,
+  Process,
+  Execution,
+  Ownership,
+  Account,
+  Transaction
+}

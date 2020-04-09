@@ -2,9 +2,9 @@ import { Test } from 'tape'
 import test from 'tape'
 import * as sinon from 'sinon'
 import { resolveSID } from './resolve'
-import Api from '../lcd'
-import { IService } from '../service-lcd'
-import { IInstance } from '../instance-lcd'
+import Api from '..'
+import { IService } from '../service'
+import { IInstance } from '../instance'
 
 const instances: IInstance[] = [{ hash: 'instancehash', serviceHash: 'servicehash', envHash: '' }]
 const services: IService[] = [{ hash: 'servicehash', sid: 'servicesid', configuration: {} }]

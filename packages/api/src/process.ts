@@ -1,4 +1,3 @@
-import * as ProcessType from './typedef/process'
 import LCDClient from './util/lcd'
 import { IMsg } from './transaction'
 import { IValueNullType, IValueStringType, IValueNumberType, IValueBoolType } from './struct'
@@ -179,10 +178,15 @@ export type INode = {
   Type: IEventType | IResultType | ITaskType | IMapType | IFilterType;
 }
 
+export type IEdge = {
+  src: string;
+  dst: string;
+}
+
 export type IDefinition = {
   name: string;
   nodes: INode[];
-  edges: ProcessType.mesg.types.Process.IEdge[];
+  edges: IEdge[];
 }
 
 export type IProcess = IDefinition & {
@@ -194,7 +198,7 @@ export type IMsgCreate = {
   owner: string;
   name: string;
   nodes: INode[];
-  edges: ProcessType.mesg.types.Process.IEdge[];
+  edges: IEdge[];
 }
 
 export type IMsgDelete = {

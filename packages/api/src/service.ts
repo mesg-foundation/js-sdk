@@ -1,16 +1,54 @@
-import * as ServiceType from './typedef/service'
 import LCDClient from './util/lcd'
 import { IMsg } from './transaction'
+
+export type IConfiguration = {
+  volumes?: string[] | null;
+  volumesFrom?: string[] | null;
+  ports?: string[] | null;
+  args?: string[] | null;
+  command?: string | null;
+  env?: string[] | null;
+}
+
+export type IDependency = IConfiguration & {
+  key: string;
+  image: string;
+}
+
+export type IParameter = {
+  key: string;
+  name?: string | null;
+  description?: string | null;
+  type: 'String' | 'Number' | 'Boolean' | 'Object' | 'Any';
+  optional?: boolean | null;
+  repeated?: boolean | null;
+  object?: IParameter[] | null;
+}
+
+export type ITask = {
+  key: string;
+  name?: string | null;
+  description?: string | null;
+  inputs?: IParameter[] | null;
+  outputs?: IParameter[] | null;
+}
+
+export type IEvent = {
+  key: string;
+  name?: string | null;
+  description?: string | null;
+  data?: IParameter[] | null;
+}
 
 export type IService = {
   hash?: string;
   sid?: string | null;
   name?: string | null;
   description?: string | null;
-  configuration: ServiceType.mesg.types.Service.IConfiguration;
-  tasks?: ServiceType.mesg.types.Service.ITask[] | null;
-  events?: ServiceType.mesg.types.Service.IEvent[] | null;
-  dependencies?: ServiceType.mesg.types.Service.IDependency[] | null;
+  configuration: IConfiguration;
+  tasks?: ITask[] | null;
+  events?: IEvent[] | null;
+  dependencies?: IDependency[];
   repository?: string | null;
   source?: string | null;
   address?: string | null;
@@ -20,10 +58,10 @@ export type IDefinition = {
   sid?: string | null;
   name?: string | null;
   description?: string | null;
-  configuration?: ServiceType.mesg.types.Service.IConfiguration;
-  tasks?: ServiceType.mesg.types.Service.ITask[] | null;
-  events?: ServiceType.mesg.types.Service.IEvent[] | null;
-  dependencies?: ServiceType.mesg.types.Service.IDependency[] | null;
+  configuration?: IConfiguration;
+  tasks?: ITask[] | null;
+  events?: IEvent[] | null;
+  dependencies?: IDependency[] | null;
   repository?: string | null;
   source?: string | null;
 }
@@ -32,7 +70,7 @@ export type IMsgCreate = IDefinition & {
   owner: string;
 }
 
-export default class ServiceLCD extends LCDClient {
+export default class Service extends LCDClient {
 
   createMsg(owner: string, definition: IDefinition): IMsg<IMsgCreate> {
     const {
