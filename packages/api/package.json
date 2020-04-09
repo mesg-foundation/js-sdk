@@ -17,7 +17,7 @@
     "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo",
     "compile": "tsc -b tsconfig.json",
     "pretest": "./setup-test-environment",
-    "posttest": "docker stop engine-test && rm -rf testdata"
+    "posttest": "docker stop engine-test"
   },
   "repository": {
     "type": "git",
