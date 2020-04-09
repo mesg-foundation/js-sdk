@@ -14,7 +14,7 @@ export type Env = { [key: string]: string }
 
 export interface Provider {
   start(service: IService, env: Env, runnerHash: string): Promise<boolean>
-  stop(runnerHash: string): Promise<void>
+  stop(runnerHash: string, serviceHash: string): Promise<void>
 }
 
 export default class Runner {
@@ -54,9 +54,11 @@ export default class Runner {
   }
 
   async stop(runnerHash: string): Promise<void> {
+    const runner = await this._api.runner.get(runnerHash)
+    const instance = await this._api.instance.get(runner.instanceHash)
     const payload = { runnerHash }
     await this._orchestrator.runner.delete(payload, this.sign(payload))
-    await this._provider.stop(runnerHash)
+    await this._provider.stop(runnerHash, instance.serviceHash)
   }
 
   private sign(data: Object): string {

@@ -1,7 +1,6 @@
 import { Docker } from "node-docker-api"
 import fetch from 'node-fetch'
 import { ReadStream } from 'fs'
-import API from '@mesg/api/lib/lcd'
 import * as ServiceType from '@mesg/api/lib/typedef/service';
 import { IService } from "@mesg/api/lib/service-lcd"
 import { Provider, Env } from '../../index'
@@ -17,7 +16,6 @@ type Labels = { [key: string]: string }
 
 export default class DockerContainer implements Provider {
 
-  private _api: API
   private _client: Docker
   private ipfsGateway = "http://ipfs.app.mesg.com:8080/ipfs"
   private serviceEndpoint: string
@@ -96,12 +94,10 @@ export default class DockerContainer implements Provider {
     return true
   }
 
-  async stop(runnerHash: string): Promise<void> {
-    const runner = await this._api.runner.get(runnerHash)
-    const instance = await this._api.instance.get(runner.instanceHash)
+  async stop(runnerHash: string, serviceHash: string): Promise<void> {
     const labels = {
-      'mesg.service': instance.serviceHash,
-      'mesg.runner': runner.hash,
+      'mesg.service': serviceHash,
+      'mesg.runner': runnerHash,
     }
     const containers = await Container.findAll(this._client, labels)
     for (const container of containers) {
