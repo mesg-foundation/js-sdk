@@ -1,6 +1,6 @@
 import Transaction from "@mesg/api/lib/transaction"
 import sortObject from '@mesg/api/lib/util/sort-object'
-import Account from "@mesg/api/lib/account-lcd"
+import Account from "@mesg/api/lib/account"
 
 export default (data: Object, mnemonic: string): string => {
   const message = JSON.stringify(sortObject(data))

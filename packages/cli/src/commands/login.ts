@@ -3,7 +3,7 @@ import Vault from '@mesg/vault'
 import FileStore from '@mesg/vault/lib/store/file'
 import { join } from 'path'
 import { prompt } from 'inquirer'
-import API from '@mesg/api/lib/lcd'
+import API from '@mesg/api'
 import { parse } from 'url'
 
 export type Credential = {

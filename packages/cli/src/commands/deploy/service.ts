@@ -1,13 +1,13 @@
 import { Command, flags } from '@oclif/command'
 import Listr from 'listr'
-import LCD from '@mesg/api/lib/lcd'
+import LCD from '@mesg/api'
 import Vault from '@mesg/vault'
 import FileStore from '@mesg/vault/lib/store/file'
 import { join } from 'path'
 import { parse } from 'url'
 import { prompt } from 'inquirer'
 import { Credential } from '../login'
-import { IService, IDefinition } from '@mesg/api/lib/service-lcd'
+import { IService, IDefinition } from '@mesg/api/lib/service'
 import { compile, create } from '../../utils/service'
 
 const ipfsClient = require('ipfs-http-client')

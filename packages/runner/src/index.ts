@@ -1,7 +1,9 @@
-import API, { Account, Transaction } from '@mesg/api'
+import API from '@mesg/api'
 import Orchestrator from '@mesg/orchestrator'
 import sortObject from '@mesg/api/lib/util/sort-object'
 import { IService } from '@mesg/api/lib/service'
+import Transaction from '@mesg/api/lib/transaction'
+import Account from '@mesg/api/lib/account'
 
 export type RunnerInfo = {
   hash: string
