@@ -137,7 +137,7 @@ export default class DockerContainer implements Provider {
           }).filter(x => x)
           const error = logs.find((x: any) => x.error)
           if (error) return reject(error.error)
-          return resolve
+          return resolve()
         })
       )
     }
