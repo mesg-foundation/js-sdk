@@ -59,7 +59,7 @@ export const decodeField = (field: mesg.protobuf.IValue) => {
 }
 
 export const decode = (data: mesg.protobuf.IStruct): { [key: string]: any } => {
-  return Object.keys(data.fields || {}).reduce((prev, next) => ({
+  return Object.keys(data && data.fields ? data.fields : {}).reduce((prev, next) => ({
     ...prev,
     [next]: decodeField(data.fields[next])
   }), {})
