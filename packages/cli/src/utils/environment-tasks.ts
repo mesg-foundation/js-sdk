@@ -2,8 +2,9 @@ import Listr, { ListrTask } from "listr"
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { hasImage, fetchImageTag, createContainer, listContainers, findNetwork, engineLabel, engineName } from "./docker"
-import { getOrGenerateAccount, write, clear } from "./config"
+import { generateConfig, clear, Config } from "./config"
 import fetch from "node-fetch"
+import API from "@mesg/api/lib/lcd"
 
 const pidFilename = 'pid.json'
 const image = 'mesg/engine'
@@ -72,7 +73,7 @@ export const stop: ListrTask<IStop> = {
   ])
 }
 
-export type IStart = { configDir: string, pull: boolean, version: string, endpoint: string, mnemonic?: string }
+export type IStart = { configDir: string, pull: boolean, version: string, endpoint: string, config?: Config, engineAddress?: string }
 export const start: ListrTask<IStart> = {
   title: 'Starting environment',
   task: () => new Listr([
@@ -87,8 +88,7 @@ export const start: ListrTask<IStart> = {
     },
     {
       title: 'Generating test account',
-      skip: ctx => ctx.mnemonic,
-      task: ctx => ctx.mnemonic = getOrGenerateAccount(ctx.configDir)
+      task: ctx => ctx.config = generateConfig(ctx.configDir)
     },
     {
       title: 'Updating the Engine image',
@@ -98,19 +98,29 @@ export const start: ListrTask<IStart> = {
     {
       title: 'Starting the Engine',
       skip: async ctx => await isRunning(ctx.endpoint) || (await listContainers({ label: [engineLabel] })).length > 0,
-      task: ctx => {
-        write(ctx.configDir, {
-          account: {
-            mnemonic: ctx.mnemonic
-          }
-        })
-        return createContainer(`${image}:${ctx.version}`, ctx.configDir)
-      }
+      task: ctx => createContainer(`${image}:${ctx.version}`, ctx.configDir)
     },
     {
       title: 'Waiting for the Engine to be ready',
       skip: ctx => isRunning(ctx.endpoint),
       task: async ctx => waitToBeReady(ctx.endpoint)
+    },
+    {
+      title: 'Ensuring balance',
+      task: async ctx => {
+        const api = new API(ctx.endpoint)
+        const engineAccount = await api.account.import(ctx.config.engine.account.mnemonic)
+        ctx.engineAddress = engineAccount.address
+        const userAccount = await api.account.import(ctx.config.mnemonic)
+        const userBalance = userAccount.coins.find(x => x.denom === 'atto')
+        if (userBalance && parseInt(userBalance.amount, 10) > 1000) return
+        const transferMsg = api.account.transferMsg(engineAccount.address, userAccount.address, [{
+          amount: 1e18.toString(),
+          denom: 'atto'
+        }])
+        const tx = await api.createTransaction([transferMsg], engineAccount)
+        await api.broadcast(tx.signWithMnemonic(ctx.config.engine.account.mnemonic), "block")
+      }
     }
   ])
 }

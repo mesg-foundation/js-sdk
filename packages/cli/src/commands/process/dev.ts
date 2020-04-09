@@ -1,18 +1,19 @@
 import { flags, Command } from '@oclif/command'
 import Listr from 'listr'
+import * as grpc from 'grpc'
 import * as Environment from '../../utils/environment-tasks'
 import * as Process from '../../utils/process'
 import * as Runner from '../../utils/runner'
 import version from '../../version'
-import API from '@mesg/api'
+import Orchestrator from '@mesg/orchestrator'
+import * as Execution from '@mesg/orchestrator/lib/typedef/execution'
+import { Status } from '@mesg/orchestrator/lib/execution'
 import LCDClient from '@mesg/api/lib/lcd'
 import * as base58 from '@mesg/api/lib/util/base58'
 import chalk from 'chalk'
 import { decode } from '@mesg/api/lib/util/encoder'
 import { IProcess } from '@mesg/api/lib/process-lcd'
-import { IExecution } from "@mesg/api/lib/execution";
-import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
-import { ExecutionStatus } from '@mesg/api/lib/types'
+import sign from '../../utils/sign'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -35,11 +36,12 @@ export default class Dev extends Command {
   }]
 
   private lcdEndpoint = 'http://localhost:1317'
+  private orchestratorEndpoint = 'localhost:50052'
   private lcd = new LCDClient(this.lcdEndpoint)
-  private grpc = new API('localhost:50052')
+  private orchestrator = new Orchestrator(this.orchestratorEndpoint)
   private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
 
-  private logs: GRPCStream<IExecution>
+  private logs: grpc.ClientReadableStream<Execution.mesg.types.IExecution>
 
   async run() {
     const { args, flags } = this.parse(Dev)
@@ -52,30 +54,31 @@ export default class Dev extends Command {
       {
         title: 'Compiling process',
         task: async ctx => {
-          compilation = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.lcdEndpoint, ctx.mnemonic, flags.env)
+          compilation = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, flags.env)
         }
       },
       {
         title: 'Creating process',
         task: async ctx => {
-          deployedProcess = await Process.create(this.lcd, compilation.definition, ctx.mnemonic)
+          deployedProcess = await Process.create(this.lcd, compilation.definition, ctx.config.mnemonic)
         }
       },
       {
         title: 'Fetching process\'s logs',
-        task: () => {
-          this.logs = this.grpc.execution.stream({
+        task: ctx => {
+          const payload = {
             filter: {
               statuses: [
-                ExecutionStatus.COMPLETED,
-                ExecutionStatus.FAILED
+                Status.Completed,
+                Status.Failed
               ]
             }
-          })
+          }
+          this.logs = this.orchestrator.execution.stream(payload, sign(payload, ctx.config.mnemonic))
         }
       }
     ])
-    const { mnemonic } = await tasks.run({
+    const { config, engineAddress } = await tasks.run({
       configDir: this.config.dataDir,
       pull: flags.pull,
       version: flags.version,
@@ -110,14 +113,14 @@ export default class Dev extends Command {
         {
           title: 'Deleting process',
           task: async () => {
-            if (deployedProcess) await Process.remove(this.lcd, deployedProcess, mnemonic)
+            if (deployedProcess) await Process.remove(this.lcd, deployedProcess, config.mnemonic)
           }
         },
         {
           title: 'Stopping services',
           task: async () => {
             for (const runner of compilation.runners) {
-              await Runner.stop(this.lcdEndpoint, mnemonic, runner.hash)
+              await Runner.stop(this.lcdEndpoint, this.orchestratorEndpoint, config.mnemonic, engineAddress, runner.hash)
             }
           }
         },

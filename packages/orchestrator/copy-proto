@@ -1,0 +1,38 @@
+#!/bin/bash -e
+
+DEF_BRANCH="${1:-dev}"
+PROTO_PATH="https://raw.githubusercontent.com/mesg-foundation/engine/$DEF_BRANCH"
+
+mkdir -p ./src/protobuf/types ./src/orchestrator ./src/typedef ./src/api
+
+curl -so "./src/protobuf/types/event.proto" "$PROTO_PATH/protobuf/types/event.proto"
+curl -so "./src/protobuf/types/execution.proto" "$PROTO_PATH/protobuf/types/execution.proto"
+curl -so "./src/protobuf/types/struct.proto" "$PROTO_PATH/protobuf/types/struct.proto"
+
+curl -so "./src/orchestrator/event.proto" "$PROTO_PATH/server/grpc/orchestrator/event.proto"
+curl -so "./src/orchestrator/execution.proto" "$PROTO_PATH/server/grpc/orchestrator/execution.proto"
+curl -so "./src/orchestrator/runner.proto" "$PROTO_PATH/server/grpc/orchestrator/runner.proto"
+
+for ressource in event execution
+do
+  npx pbjs \
+    -t static-module \
+    --path ./src \
+    -o "./src/typedef/$ressource.js" \
+    "./src/protobuf/types/${ressource}.proto"
+
+  npx pbts --path ./src -o "./src/typedef/$ressource.d.ts" "./src/typedef/$ressource.js"
+  rm "./src/typedef/$ressource.js"
+done
+
+for ressource in event execution runner
+do
+  npx pbjs \
+    -t static-module \
+    --path ./src \
+    -o "./src/api/$ressource.js" \
+    "./src/orchestrator/${ressource}.proto"
+
+  npx pbts --path ./src -o "./src/api/$ressource.d.ts" "./src/api/$ressource.js"
+  rm "./src/api/$ressource.js"
+done

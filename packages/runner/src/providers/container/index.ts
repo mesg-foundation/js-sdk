@@ -1,10 +1,9 @@
 import { Docker } from "node-docker-api"
 import fetch from 'node-fetch'
 import { ReadStream } from 'fs'
-import API from '@mesg/api/lib/lcd'
 import * as ServiceType from '@mesg/api/lib/typedef/service';
 import { IService } from "@mesg/api/lib/service-lcd"
-import { Provider } from '../../index'
+import { Provider, Env } from '../../index'
 import { Network } from "node-docker-api/lib/network"
 import Container from './container'
 import { createHash } from 'crypto'
@@ -17,7 +16,6 @@ type Labels = { [key: string]: string }
 
 export default class DockerContainer implements Provider {
 
-  private _api: API
   private _client: Docker
   private ipfsGateway = "http://ipfs.app.mesg.com:8080/ipfs"
   private serviceEndpoint: string
@@ -27,7 +25,7 @@ export default class DockerContainer implements Provider {
     this.serviceEndpoint = serviceEndpoint
   }
 
-  async start(service: IService, env: string[], runnerHash: string, instanceHash: string, token: string): Promise<boolean> {
+  async start(service: IService, env: Env, runnerHash: string): Promise<boolean> {
     const labels = {
       'mesg.service': service.hash,
       'mesg.runner': runnerHash,
@@ -66,17 +64,15 @@ export default class DockerContainer implements Provider {
       container.connectTo(serviceNetwork, [dep.key])
       await container.start()
     }
+    const envObj: Env = {
+      ...service.configuration.env.reduce((prev, x) => ({ ...prev, [x.split('=')[0]]: x.split('=')[1] }), {}),
+      ...env,
+      MESG_ENDPOINT: `${this.serviceEndpoint}:50052`
+    }
     const container = new Container({
       Args: service.configuration.args,
       Command: service.configuration.command,
-      Env: [
-        ...this.mergeEnv([
-          ...service.configuration.env || [],
-          ...env || []
-        ]),
-        `MESG_ENDPOINT=${this.serviceEndpoint}:50052`,
-        `MESG_REGISTER_PAYLOAD=${token}`
-      ],
+      Env: Object.keys(envObj).reduce((prev, x) => [...prev, `${x}=${envObj[x]}`], []),
       Image: image,
       Labels: {
         ...labels,
@@ -98,12 +94,10 @@ export default class DockerContainer implements Provider {
     return true
   }
 
-  async stop(runnerHash: string): Promise<void> {
-    const runner = await this._api.runner.get(runnerHash)
-    const instance = await this._api.instance.get(runner.instanceHash)
+  async stop(runnerHash: string, serviceHash: string): Promise<void> {
     const labels = {
-      'mesg.service': instance.serviceHash,
-      'mesg.runner': runner.hash,
+      'mesg.service': serviceHash,
+      'mesg.runner': runnerHash,
     }
     const containers = await Container.findAll(this._client, labels)
     for (const container of containers) {
@@ -139,7 +133,7 @@ export default class DockerContainer implements Provider {
           }).filter(x => x)
           const error = logs.find((x: any) => x.error)
           if (error) return reject(error.error)
-          return resolve
+          return resolve()
         })
       )
     }
@@ -151,15 +145,6 @@ export default class DockerContainer implements Provider {
     })
     await streamToPromise(image)
     return tag
-  }
-
-  private mergeEnv(envs: string[]): string[] {
-    const res: { [key: string]: string } = {}
-    for (const e of envs) {
-      const [key, value] = e.split('=')
-      res[key] = value
-    }
-    return Object.keys(res).map(x => `${x}=${res[x]}`)
   }
 
   private convertVolumes(service: IService, volumes: string[], volumesFrom: string[], dependency?: ServiceType.mesg.types.Service.IDependency): any[] {

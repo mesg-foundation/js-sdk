@@ -1,6 +1,7 @@
 import * as ProcessType from './typedef/process'
 import LCDClient from './util/lcd'
 import { IMsg } from './transaction'
+import { IValueNullType, IValueStringType, IValueNumberType, IValueBoolType } from './struct'
 
 export type IResult = {
   instanceHash: string;
@@ -118,34 +119,10 @@ export const Predicate = {
   CONTAINS: FilterPredicate.CONTAINS
 }
 
-export type IFilterValueNullType = {
-  type: 'mesg.types.Value_NullValue';
-  value: {
-    null?: 0
-  }
-}
-
-export type IFilterValueStringType = {
-  type: 'mesg.types.Value_StringValue';
-  value: {
-    string_value: string;
-  }
-}
-
-export type IFilterValueNumberType = {
-  type: 'mesg.types.Value_NumberValue';
-  value: {
-    number_value: number;
-  }
-}
-
-export type IFilterValueBoolType = {
-  type: 'mesg.types.Value_BoolValue';
-  value: {
-    bool_value: boolean;
-  }
-}
-
+export type IFilterValueNullType = IValueNullType
+export type IFilterValueStringType = IValueStringType
+export type IFilterValueNumberType = IValueNumberType
+export type IFilterValueBoolType = IValueBoolType
 
 export type IFilterCondition = {
   ref: {

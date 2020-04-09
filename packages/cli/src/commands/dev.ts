@@ -2,7 +2,10 @@ import { Command, flags } from '@oclif/command'
 import { readdirSync, existsSync, readFileSync } from 'fs'
 import { join } from 'path'
 import LCD from '@mesg/api/lib/lcd'
-import API from '@mesg/api'
+import Orchestrator from '@mesg/orchestrator'
+import Execution from '@mesg/orchestrator/lib/typedef/execution'
+import { Status } from '@mesg/orchestrator/lib/execution'
+import * as grpc from 'grpc'
 import Listr from 'listr'
 import dotenv from 'dotenv'
 import * as Environment from '../utils/environment-tasks'
@@ -12,13 +15,11 @@ import * as Process from '../utils/process'
 import * as base58 from '@mesg/api/lib/util/base58'
 import version from '../version'
 import { IService } from '@mesg/api/lib/service-lcd'
-import { IExecution } from "@mesg/api/lib/execution";
-import { Stream as GRPCStream } from "@mesg/api/lib/util/grpc";
-import { ExecutionStatus } from '@mesg/api/lib/types'
 import { IProcess } from '@mesg/api/lib/process-lcd'
 import chalk from 'chalk'
 import { decode } from '@mesg/api/lib/util/encoder'
 import { RunnerInfo } from '@mesg/runner'
+import sign from '../utils/sign'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -37,10 +38,11 @@ export default class Dev extends Command {
   }]
 
   private lcdEndpoint = 'http://localhost:1317'
+  private orchestratorEndpoint = 'localhost:50052'
   private lcd = new LCD(this.lcdEndpoint)
   private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
-  private grpc = new API('localhost:50052')
-  private logs: GRPCStream<IExecution>
+  private orchestrator = new Orchestrator(this.orchestratorEndpoint)
+  private logs: grpc.ClientReadableStream<Execution.mesg.types.IExecution>
   private services: IService[] = []
   private processes: IProcess[] = []
   private runners: RunnerInfo[] = []
@@ -67,7 +69,7 @@ export default class Dev extends Command {
           title: `Creating service "${dir.name}"`,
           task: async (ctx) => {
             const definition = await Service.compile(join(args.PATH, 'services', dir.name), this.ipfsClient)
-            const service = await Service.create(this.lcd, definition, ctx.mnemonic)
+            const service = await Service.create(this.lcd, definition, ctx.config.mnemonic)
             this.services.push(service)
           }
         }
@@ -81,8 +83,8 @@ export default class Dev extends Command {
       tasks.add({
         title: `Creating process "${file.name}"`,
         task: async (ctx) => {
-          const compilation = await Process.compile(join(args.PATH, file.name), this.ipfsClient, this.lcd, this.lcdEndpoint, ctx.mnemonic, env)
-          const deployedProcess = await Process.create(this.lcd, compilation.definition, ctx.mnemonic)
+          const compilation = await Process.compile(join(args.PATH, file.name), this.ipfsClient, this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, env)
+          const deployedProcess = await Process.create(this.lcd, compilation.definition, ctx.config.mnemonic)
           this.processes.push(deployedProcess)
           this.runners = [
             ...this.runners,
@@ -94,19 +96,20 @@ export default class Dev extends Command {
 
     tasks.add({
       title: 'Fetching logs',
-      task: () => {
-        this.logs = this.grpc.execution.stream({
+      task: ctx => {
+        const payload = {
           filter: {
             statuses: [
-              ExecutionStatus.COMPLETED,
-              ExecutionStatus.FAILED
+              Status.Completed,
+              Status.Failed
             ]
           }
-        })
+        }
+        this.logs = this.orchestrator.execution.stream(payload, sign(payload, ctx.config.mnemonic))
       }
     })
 
-    const { mnemonic } = await tasks.run({
+    const { config, engineAddress } = await tasks.run({
       configDir: this.config.dataDir,
       endpoint: this.lcdEndpoint,
       pull: flags.pull,
@@ -144,7 +147,7 @@ export default class Dev extends Command {
           task: async () => {
             const uniqueRunners = this.runners.filter((item, i, self) => i === self.indexOf(item))
             for (const runner of uniqueRunners) {
-              await Runner.stop(this.lcdEndpoint, mnemonic, runner.hash)
+              await Runner.stop(this.lcdEndpoint, this.orchestratorEndpoint, config.mnemonic, engineAddress, runner.hash)
             }
           }
         },
@@ -152,7 +155,7 @@ export default class Dev extends Command {
           title: 'Deleting processes',
           task: async () => {
             for (const process of this.processes) {
-              await Process.remove(this.lcd, process, mnemonic)
+              await Process.remove(this.lcd, process, config.mnemonic)
             }
           }
         },
