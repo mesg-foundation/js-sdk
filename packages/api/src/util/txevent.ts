@@ -1,4 +1,4 @@
-import { TxResult } from "../lcd";
+import { TxResult } from "..";
 
 const isAction = (action: string) => (x: any) => x.key === 'action' && x.value === action
 const isModule = (module: string) => (x: any) => x.type === module.toLowerCase()

@@ -1,7 +1,7 @@
 import { createHash } from 'crypto'
 import { publicKeyCreate, ecdsaSign } from 'secp256k1'
 import sortObject from './util/sort-object'
-import Account from './account-lcd'
+import Account from './account'
 
 export type ITx = {
   msg: any[]
