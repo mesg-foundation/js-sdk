@@ -43,15 +43,15 @@ export default class Service extends Command {
       },
       {
         title: 'Creating service',
+        skip: () => 'not yet implemented',
         task: async () => {
-          this.log('coming soon')
           // service = await create(lcd, definition, credential.mnemonic)
         }
       },
     ])
     await tasks.run()
 
-    this.log(`Service deployed with the hash ${service.hash}`)
-    this.log(`https://explorer.testnet.mesg.com/services/${service.hash}`)
+    // this.log(`Service deployed with the hash ${service.hash}`)
+    // this.log(`https://explorer.testnet.mesg.com/services/${service.hash}`)
   }
 }
