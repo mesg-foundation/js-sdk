@@ -4,10 +4,8 @@ import * as grpc from 'grpc'
 import * as protoLoader from '@grpc/proto-loader'
 import * as path from 'path'
 import Runner from '@mesg/orchestrator/lib/runner'
-import { decode, encode } from '@mesg/api/lib/util/encoder'
-import * as base58 from '@mesg/api/lib/util/base58'
-import { IExecution } from '@mesg/api/lib/execution';
-import { EventCreateOutputs } from '@mesg/api/lib/event';
+import { decode, encode } from '@mesg/orchestrator/lib/encoder'
+import { mesg } from './typedef/execution';
 import { EventEmitter } from 'events'
 
 type Options = {
@@ -61,7 +59,7 @@ class Service {
     return res
   }
 
-  async emitEvent(event: string, data: EventData): EventCreateOutputs {
+  async emitEvent(event: string, data: EventData): Promise<{}> {
     if (!data) throw new Error('data object must be send while emitting event')
     return this.unaryCall('Event', {
       key: event,
@@ -69,21 +67,21 @@ class Service {
     }, this._token)
   }
 
-  private async handleTaskData({ hash, taskKey, inputs }: IExecution) {
-    const callback = this.tasks[taskKey];
+  private async handleTaskData(execution: mesg.types.IExecution) {
+    const callback = this.tasks[execution.taskKey];
     if (!callback) {
-      throw new Error(`Task ${taskKey} is not defined in your services`);
+      throw new Error(`Task ${execution.taskKey} is not defined in your services`);
     }
     try {
-      const outputs = await callback(decode(inputs));
+      const outputs = await callback(decode(execution.inputs));
       return this.unaryCall('Result', {
-        executionHash: hash,
+        executionHash: execution.hash,
         outputs: encode(outputs)
       }, this._token)
     } catch (err) {
       const error = err.message;
       return this.unaryCall('Result', {
-        executionHash: hash,
+        executionHash: execution.hash,
         error
       }, this._token)
     }
