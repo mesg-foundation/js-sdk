@@ -1,6 +1,6 @@
 import * as grpc from 'grpc'
 import * as base58 from '@mesg/api/lib/util/base58'
-import * as encoder from '@mesg/api/lib/util/encoder'
+import * as encoder from './encoder'
 import { Client } from './client'
 import * as Type from './typedef/execution'
 import * as API from './api/execution'
