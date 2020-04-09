@@ -106,7 +106,7 @@ export const start: ListrTask<IStart> = {
       task: async ctx => waitToBeReady(ctx.endpoint)
     },
     {
-      title: 'Ensure balance',
+      title: 'Ensuring balance',
       task: async ctx => {
         const api = new API(ctx.endpoint)
         const engineAccount = await api.account.import(ctx.config.engine.account.mnemonic)
