@@ -12,10 +12,12 @@
     "access": "public"
   },
   "scripts": {
-    "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
+    "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts src/integration.test.ts",
     "build": "npm run clean && npm run compile",
     "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo",
-    "compile": "tsc -b tsconfig.json"
+    "compile": "tsc -b tsconfig.json",
+    "pretest": "./setup-test-environment",
+    "posttest": "docker stop engine-test && rm -rf testdata"
   },
   "repository": {
     "type": "git",
