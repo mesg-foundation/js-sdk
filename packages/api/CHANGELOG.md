@@ -4,7 +4,7 @@
 
 #### Breaking Changes
 
-- [#](https://github.com/mesg-foundation/js-sdk/pull/) Replace default client with new LCD client, see Readme for more details
+- [#224](https://github.com/mesg-foundation/js-sdk/pull/224) Replace default client with new LCD client, see Readme for more details
 
 #### Improvements
 
