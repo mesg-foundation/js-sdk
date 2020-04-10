@@ -1,9 +1,11 @@
 import { Command, flags } from '@oclif/command'
 import Listr from 'listr'
 import { prompt } from 'inquirer'
-import { IService, IDefinition } from '@mesg/api/lib/service'
+import { IDefinition } from '@mesg/api/lib/service'
 import { compile } from '../../utils/service'
 import { loginFromCredential } from '../../utils/login'
+import firebase from '../../utils/firebase'
+import styledJSON from 'cli-ux/lib/styled/json'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -31,9 +33,9 @@ export default class Service extends Command {
 
 
     let definition: IDefinition
-    let service: IService
+    let res: any
 
-    await loginFromCredential(this.config.configDir, password)
+    const { user } = await loginFromCredential(this.config.configDir, password)
     const tasks = new Listr([
       {
         title: 'Compiling service',
@@ -43,14 +45,17 @@ export default class Service extends Command {
       },
       {
         title: 'Creating service',
-        skip: () => 'not yet implemented',
-        task: async () => {
-          // service = await create(lcd, definition, credential.mnemonic)
+        task: async (ctx, task) => {
+          res = await firebase.firestore().collection('services').add({
+            uid: user.uid,
+            definition
+          })
         }
       },
     ])
     await tasks.run()
 
+    styledJSON(res)
     // this.log(`Service deployed with the hash ${service.hash}`)
     // this.log(`https://explorer.testnet.mesg.com/services/${service.hash}`)
   }
