@@ -1,9 +1,9 @@
-import { IService, IDefinition } from "@mesg/api/lib/service-lcd"
+import { IService, IDefinition } from "@mesg/api/lib/service"
 import deployer, { createTar } from "./deployer"
 import { readFileSync } from "fs"
 import { join } from "path"
 import { service as serviceCompiler } from '@mesg/compiler'
-import API from "@mesg/api/lib/lcd"
+import API from "@mesg/api"
 import { findHash } from "@mesg/api/lib/util/txevent"
 
 export const compile = async (path: string, ipfsClient: any): Promise<IDefinition> => {

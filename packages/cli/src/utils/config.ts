@@ -2,7 +2,7 @@ import { existsSync, readFileSync, rmdirSync, writeFileSync, unlinkSync } from "
 import { safeLoad, safeDump } from "js-yaml"
 import { join } from "path"
 import { toWords, encode } from 'bech32'
-import Account, { bech32Prefix } from "@mesg/api/lib/account-lcd"
+import Account, { bech32Prefix } from "@mesg/api/lib/account"
 
 export type Config = {
   engine: {

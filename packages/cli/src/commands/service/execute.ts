@@ -1,14 +1,11 @@
 import { flags, Command } from '@oclif/command'
 import { readFileSync } from 'fs'
-import LCD from '@mesg/api/lib/lcd'
+import LCD from '@mesg/api'
 import * as grpc from 'grpc'
-import { decode } from '@mesg/api/lib/util/encoder'
+import { decode } from '@mesg/orchestrator/lib/encoder'
 import Listr from 'listr'
-import ServiceType from "@mesg/api/lib/typedef/service";
-import ExecutionType from "@mesg/api/lib/typedef/execution";
 import { resolveSIDRunner } from "@mesg/api/lib/util/resolve";
-import { IRunner } from '@mesg/api/lib/runner-lcd'
-import { IExecution } from '@mesg/api/lib/execution'
+import { IRunner } from '@mesg/api/lib/runner'
 import { convert } from '../../utils/input'
 import Orchestrator from '@mesg/orchestrator'
 import * as Type from '@mesg/orchestrator/lib/typedef/execution'
@@ -18,6 +15,7 @@ import uuid from 'uuid'
 import { generateConfig } from '../../utils/config'
 import { toStruct } from '@mesg/api/lib/struct'
 import styledJSON from 'cli-ux/lib/styled/json'
+import { ITask } from '@mesg/api/lib/service'
 
 export default class Execute extends Command {
   static description = 'Execute a task on a running service'
@@ -54,10 +52,10 @@ export default class Execute extends Command {
     const id = uuid()
 
     let runner: IRunner
-    let task: ServiceType.mesg.types.Service.ITask
-    let inputs: ExecutionType.mesg.protobuf.IStruct
+    let task: ITask
+    let inputs: { [key: string]: any }
     let logs: grpc.ClientReadableStream<Type.mesg.types.IExecution>
-    let execution: IExecution
+    let execution: Type.mesg.types.IExecution
 
     const config = generateConfig(this.config.dataDir)
 
@@ -118,7 +116,7 @@ export default class Execute extends Command {
             sign({ ...payload, inputs: toStruct(payload.inputs) }, config.mnemonic)
           )
           return new Promise((resolve, reject) => {
-            logs.once('data', (exec: IExecution) => {
+            logs.once('data', (exec: Type.mesg.types.IExecution) => {
               execution = exec
               execution.status === Status.Completed ? resolve(execution) : reject(new Error(execution.error))
             })

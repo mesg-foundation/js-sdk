@@ -12,10 +12,13 @@
     "access": "public"
   },
   "scripts": {
-    "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts",
+    "test": "ts-node ./node_modules/tape/bin/tape src/**/*_test.ts src/integration.test.ts",
     "build": "npm run clean && npm run compile",
     "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo",
-    "compile": "tsc -b tsconfig.json && ncp ./src/protobuf/ ./lib/protobuf/ && ncp ./src/gogo/ ./lib/gogo/ && ncp src/typedef lib/typedef"
+    "compile": "tsc -b tsconfig.json",
+    "pretest": "./setup-test-environment",
+    "posttest": "docker stop engine-test",
+    "doc": "typedoc"
   },
   "repository": {
     "type": "git",
@@ -35,21 +38,19 @@
     "@types/secp256k1": "^3.5.3",
     "@types/sinon": "^7.5.0",
     "@types/tape": "^4.2.33",
-    "ncp": "^2.0.0",
     "sinon": "^7.5.0",
     "tape": "^4.11.0",
     "ts-node": "^8.4.1",
-    "typescript": "^3.7.2"
+    "typedoc": "^0.17.4",
+    "typedoc-plugin-markdown": "^2.2.17",
+    "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@grpc/proto-loader": "^0.5.3",
     "base-x": "^3.0.7",
     "bech32": "^1.1.3",
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
-    "grpc": "^1.24.2",
     "node-fetch": "^2.6.0",
-    "protobufjs": "^6.8.8",
     "secp256k1": "^4.0.0"
   }
 }

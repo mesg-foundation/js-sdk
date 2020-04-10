@@ -3,6 +3,9 @@
 ## [Unreleased](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fapi%40X.X.X)
 
 #### Breaking Changes
+
+- [#224](https://github.com/mesg-foundation/js-sdk/pull/224) Replace default client with new LCD client, see Readme for more details
+
 #### Improvements
 
 - [#179](https://github.com/mesg-foundation/js-sdk/pull/179) Add LCD API for all reading (execution, instance, ownership, process, runner, service)

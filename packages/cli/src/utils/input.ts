@@ -1,7 +1,6 @@
-import ServiceType from "@mesg/api/lib/typedef/service";
-import ExecutionType from "@mesg/api/lib/typedef/execution";
+import { ITask } from "@mesg/api/lib/service";
 
-export const convert = (task: ServiceType.mesg.types.Service.ITask, data: { [key: string]: any }): ExecutionType.mesg.protobuf.IStruct => {
+export const convert = (task: ITask, data: { [key: string]: any }): { [key: string]: any } => {
   const convert = (type: 'Object' | 'String' | 'Boolean' | 'Number' | 'Any', value: string | any): any => {
     return {
       Object: (x: string | any) => typeof x === 'string' ? JSON.parse(x) : x,

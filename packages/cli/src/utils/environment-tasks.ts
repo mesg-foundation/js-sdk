@@ -4,7 +4,7 @@ import { join } from "path"
 import { hasImage, fetchImageTag, createContainer, listContainers, findNetwork, engineLabel, engineName } from "./docker"
 import { generateConfig, clear, Config } from "./config"
 import fetch from "node-fetch"
-import API from "@mesg/api/lib/lcd"
+import API from "@mesg/api"
 
 const pidFilename = 'pid.json'
 const image = 'mesg/engine'
