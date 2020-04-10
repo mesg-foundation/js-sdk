@@ -2,7 +2,7 @@ import { Test } from 'tape'
 import test from 'tape'
 import { readFileSync } from 'fs';
 import compile from './process'
-import { IOutputStringType, IOutputNullType, IOutputDoubleType, IOutputBoolType, IOutputListType, IOutputMapType, IReference, IRefSelectorKey, IRefSelectorIndex, IFilterValueStringType } from '@mesg/api/lib/process-lcd';
+import { IOutputStringType, IOutputNullType, IOutputDoubleType, IOutputBoolType, IOutputListType, IOutputMapType, IReference, IRefSelectorKey, IRefSelectorIndex, IFilterValueStringType } from '@mesg/api/lib/process';
 
 test('valid compilation', async (t: Test) => {
   t.plan(101)

@@ -1,8 +1,7 @@
 import { Docker } from "node-docker-api"
 import fetch from 'node-fetch'
 import { ReadStream } from 'fs'
-import * as ServiceType from '@mesg/api/lib/typedef/service';
-import { IService } from "@mesg/api/lib/service-lcd"
+import { IService, IDependency } from "@mesg/api/lib/service"
 import { Provider, Env } from '../../index'
 import { Network } from "node-docker-api/lib/network"
 import Container from './container'
@@ -147,7 +146,7 @@ export default class DockerContainer implements Provider {
     return tag
   }
 
-  private convertVolumes(service: IService, volumes: string[], volumesFrom: string[], dependency?: ServiceType.mesg.types.Service.IDependency): any[] {
+  private convertVolumes(service: IService, volumes: string[], volumesFrom: string[], dependency?: IDependency): any[] {
     const res = []
     for (const volume of volumes || []) {
       res.push({
@@ -172,7 +171,7 @@ export default class DockerContainer implements Provider {
     return res
   }
 
-  private volumeName(service: IService, vol: string, dependency?: ServiceType.mesg.types.Service.IDependency): string {
+  private volumeName(service: IService, vol: string, dependency?: IDependency): string {
     return createHash('sha256')
       .update(JSON.stringify([
         service.hash,

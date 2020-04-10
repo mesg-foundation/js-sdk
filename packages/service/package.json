@@ -17,7 +17,7 @@
     "clean": "rm -rf ./lib && rm -rf tsconfig.tsbuildinfo && rm -rf **/*.proto",
     "precompile": "./copy-proto",
     "compile": "tsc -b tsconfig.json",
-    "postcompile": "cp -r src/gogo src/protobuf src/google src/runner lib/"
+    "postcompile": "cp -r src/gogo src/protobuf src/google src/runner src/typedef lib/"
   },
   "repository": {
     "type": "git",

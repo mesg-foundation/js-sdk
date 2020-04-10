@@ -1,20 +1,23 @@
-import { createClient, promisify } from './util/grpc'
-import * as OwnershipType from './typedef/ownership'
+import LCDClient from './util/lcd'
 
-export type IOwnership = OwnershipType.mesg.types.IOwnership
+export enum Resource {
+  None = 0,
+  Service = 1,
+  Process = 2,
+  Runner = 3,
+}
 
-export type OwnershipListInputs = OwnershipType.mesg.api.IListOwnershipRequest
-export type OwnershipListOutputs = Promise<OwnershipType.mesg.api.IListOwnershipResponse>
+export type IOwnership = {
+  hash: string;
+  owner: string;
+  resourceHash: string;
+  resource: Resource;
+  resourceAddress: string;
+}
 
-export default class Ownership {
-
-  private _client: any
-
-  constructor(endpoint: string) {
-    this._client = createClient('Ownership', './protobuf/api/ownership.proto', endpoint)
-  }
-
-  async list(request: OwnershipListInputs): OwnershipListOutputs { 
-    return promisify(this._client, 'List')(request)
+export default class Ownership extends LCDClient {
+  
+  async list(): Promise<IOwnership[]> {
+    return (await this.query(`/ownership/list`)).result || []
   }
 }

@@ -1,4 +1,4 @@
-import { mesg } from "../typedef/execution";
+import { mesg } from "./typedef/execution";
 
 export const encodeField = (value: any) => {
   switch (Object.prototype.toString.call(value)) {

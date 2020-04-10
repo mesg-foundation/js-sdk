@@ -1,48 +1,44 @@
-import { createClient, promisify, Stream } from './util/grpc'
-import * as ExecutionType from './typedef/execution'
+import LCDClient from './util/lcd'
+import { IStruct } from './struct'
 
-export type IExecution = ExecutionType.mesg.types.IExecution
+export enum Status {
+  Unknown = 0,
+  Created = 1,
+  InProgress = 2,
+  Completed = 3,
+  Failed = 4
+}
 
-export type ExecutionGetInputs = ExecutionType.mesg.api.IGetExecutionRequest
-export type ExecutionGetOutputs = Promise<IExecution>
+export type IExecution = {
+  hash: string;
+  parentHash?: string;
+  eventHash?: string;
+  status: Status;
+  instanceHash: string;
+  taskKey: string;
+  inputs?: IStruct[];
+  outputs?: IStruct[];
+  error?: (string | null);
+  tags?: (string[] | null);
+  processHash?: (string | null);
+  nodeKey?: (string | null);
+  executorHash: string;
+  price?: string;
+  blockHeight?: number;
+  emitters?: {
+    runnerHash: string;
+    blockHeight: number;
+  }[];
+  address?: string
+}
 
-export type ExecutionStreamInputs = ExecutionType.mesg.api.IStreamExecutionRequest
-export type ExecutionStreamOutputs = Stream<IExecution>
+export default class Execution extends LCDClient {
 
-export type ExecutionCreateInputs = ExecutionType.mesg.api.ICreateExecutionRequest
-export type ExecutionCreateOutputs = Promise<ExecutionType.mesg.api.ICreateExecutionResponse>
-
-export type ExecutionUpdateInputs = ExecutionType.mesg.api.IUpdateExecutionRequest
-export type ExecutionUpdateOutputs = Promise<ExecutionType.mesg.api.IUpdateExecutionResponse>
-
-export type ExecutionListInputs = ExecutionType.mesg.api.IListExecutionRequest
-export type ExecutionListOutputs = Promise<ExecutionType.mesg.api.IListExecutionResponse>
-
-export default class Execution {
-
-  private _client: any
-
-  constructor(endpoint: string) {
-    this._client = createClient('Execution', './protobuf/api/execution.proto', endpoint)
+  async get(hash: string): Promise<IExecution> {
+    return (await this.query(`/execution/get/${hash}`)).result
   }
 
-  async create(request: ExecutionCreateInputs): ExecutionCreateOutputs {
-    return promisify(this._client, 'Create')(request)
-  }
-
-  async get(request: ExecutionGetInputs): ExecutionGetOutputs { 
-    return promisify(this._client, 'Get')(request)
-  }
-
-  async update(request: ExecutionUpdateInputs): ExecutionUpdateOutputs { 
-    return promisify(this._client, 'Update')(request)
-  }
-
-  async list(request: ExecutionListInputs): ExecutionListOutputs { 
-    return promisify(this._client, 'List')(request)
-  }
-
-  stream(request: ExecutionStreamInputs): ExecutionStreamOutputs {
-    return this._client.Stream(request)
+  async list(): Promise<IExecution[]> {
+    return (await this.query(`/execution/list`)).result || []
   }
 }

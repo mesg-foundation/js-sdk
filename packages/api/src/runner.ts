@@ -1,41 +1,67 @@
-import { createClient, promisify } from './util/grpc'
-import * as RunnerType from './typedef/runner'
+import LCDClient from './util/lcd'
+import { IMsg } from './transaction'
 
-export type IRunner = RunnerType.mesg.types.IRunner
+export type IRunner = {
+  hash: string;
+  owner: string;
+  instanceHash: string | null;
+  address: string | null;
+}
 
-export type RunnerGetInputs = RunnerType.mesg.api.IGetRunnerRequest
-export type RunnerGetOutputs = Promise<IRunner>
+export type IMsgCreate = {
+  owner: string;
+  serviceHash: string;
+  envHash: string;
+}
 
-export type RunnerListInputs = RunnerType.mesg.api.IListRunnerRequest
-export type RunnerListOutputs = Promise<RunnerType.mesg.api.IListRunnerResponse>
+export type IMsgDelete = {
+  owner: string;
+  hash: string;
+}
 
-export type RunnerCreateInputs = RunnerType.mesg.api.ICreateRunnerRequest
-export type RunnerCreateOutputs = Promise<RunnerType.mesg.api.ICreateRunnerResponse>
+export default class Runner extends LCDClient {
 
-export type RunnerDeleteInputs = RunnerType.mesg.api.IDeleteRunnerRequest
-export type RunnerDeleteOutputs = Promise<RunnerType.mesg.api.IDeleteRunnerResponse>
-
-export default class Runner {
-
-  private _client: any
-
-  constructor(endpoint: string) {
-    this._client = createClient('Runner', './protobuf/api/runner.proto', endpoint)
+  createMsg(owner: string, serviceHash: string, envHash: string): IMsg<IMsgCreate> {
+    return {
+      type: 'runner/create',
+      value: {
+        owner,
+        serviceHash,
+        envHash
+      }
+    }
   }
 
-  async create(request: RunnerCreateInputs): RunnerCreateOutputs {
-    return promisify(this._client, 'Create')(request)
+  deleteMsg(owner: string, hash: string): IMsg<IMsgDelete> {
+    return {
+      type: 'runner/delete',
+      value: {
+        owner,
+        hash
+      }
+    }
   }
 
-  async get(request: RunnerGetInputs): RunnerGetOutputs { 
-    return promisify(this._client, 'Get')(request)
-  }
-  
-  async list(request: RunnerListInputs): RunnerListOutputs { 
-    return promisify(this._client, 'List')(request)
+  async get(hash: string): Promise<IRunner> {
+    return (await this.query(`/runner/get/${hash}`)).result
   }
 
-  async delete(request: RunnerDeleteInputs): RunnerDeleteOutputs { 
-    return promisify(this._client, 'Delete')(request)
+  async list(filter?: { instanceHash?: string | null, address?: string | null }): Promise<IRunner[]> {
+    let runners: IRunner[] = (await this.query('/runner/list')).result || []
+    if (filter && filter.instanceHash) runners = runners.filter(x => x.instanceHash === filter.instanceHash)
+    if (filter && filter.address) runners = runners.filter(x => x.address === filter.address)
+    return runners
+  }
+
+  async hash(owner: string, serviceHash: string, env: string[]): Promise<{
+    runnerHash: string,
+    instanceHash: string,
+    envHash: string
+  }> {
+    return (await this.query('/runner/hash', {
+      serviceHash,
+      env,
+      address: owner,
+    }, 'POST')).result
   }
 }
