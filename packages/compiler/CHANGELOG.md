@@ -3,6 +3,12 @@
 ## [Unreleased](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcompiler%40X.X.X)
 
 #### Breaking Changes
+#### Improvements
+#### Bug fixes
+
+## [v0.3.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcompiler%400.3.0)
+
+#### Breaking Changes
 
 - [#186](https://github.com/mesg-foundation/js-sdk/pull/186) Compile process in a LCD format
 - [#188](https://github.com/mesg-foundation/js-sdk/pull/188) Compile services in a LCD format
@@ -20,8 +26,6 @@ eg:
         predicate: EQ
         value: 2
 ```
-
-#### Bug fixes
 
 ## [v0.2.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcompiler%400.2.0)
 

@@ -4,11 +4,14 @@
 
 #### Breaking Changes
 #### Improvements
+#### Bug fixes
+
+## [v0.2.1](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%service%400.2.1)
+
+#### Improvements
 
 - [#216](https://github.com/mesg-foundation/js-sdk/pull/216) Add authentication to services
 - [#221](https://github.com/mesg-foundation/js-sdk/pull/221) Update registration of the service based on orchestrator API + specific runner client
-
-#### Bug fixes
 
 ## [v0.1.1](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%service%400.1.1)
 

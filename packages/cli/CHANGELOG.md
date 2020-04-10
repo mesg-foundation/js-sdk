@@ -3,6 +3,12 @@
 ## [Unreleased](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%40X.X.X)
 
 #### Breaking Changes
+#### Improvements
+#### Bug fixes
+
+## [v0.4.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%400.4.0)
+
+#### Breaking Changes
 
 - [#188](https://github.com/mesg-foundation/js-sdk/pull/188) Rewrite of the CLI, new UX for dev commands, and deletion of many commands
 This is a major breaking change on the CLI.
