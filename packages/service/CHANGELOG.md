@@ -6,7 +6,7 @@
 #### Improvements
 #### Bug fixes
 
-## [v0.2.1](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%service%400.2.1)
+## [v0.2.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%service%400.2.0)
 
 #### Improvements
 
