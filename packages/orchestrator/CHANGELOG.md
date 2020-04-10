@@ -5,3 +5,5 @@
 #### Breaking Changes
 #### Improvements
 #### Bug fixes
+
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Fix issue when starting services with no configurations
