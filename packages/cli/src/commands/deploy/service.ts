@@ -1,7 +1,7 @@
 import { Command, flags } from '@oclif/command'
 import Listr from 'listr'
 import { prompt } from 'inquirer'
-import { IService, IDefinition } from '@mesg/api/lib/service-lcd'
+import { IService, IDefinition } from '@mesg/api/lib/service'
 import { compile } from '../../utils/service'
 import { loginFromCredential } from '../../utils/login'
 
