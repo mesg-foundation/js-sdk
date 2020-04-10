@@ -46,6 +46,7 @@ Commands `service:dev` and `process:dev` are automatically start a local environ
 - [#216](https://github.com/mesg-foundation/js-sdk/pull/216) Add authentication to services
 - [#219](https://github.com/mesg-foundation/js-sdk/pull/219) Improve engine start up detection
 - [#221](https://github.com/mesg-foundation/js-sdk/pull/221) Authenticate CLI to the engine and use new @mesg/orchestrator API
+- [#214](https://github.com/mesg-foundation/js-sdk/pull/214) Add login/logout functions based on firebase
 
 #### Bug fixes
 
