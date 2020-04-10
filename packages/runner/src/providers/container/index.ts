@@ -64,7 +64,7 @@ export default class DockerContainer implements Provider {
       await container.start()
     }
     const envObj: Env = {
-      ...service.configuration.env.reduce((prev, x) => ({ ...prev, [x.split('=')[0]]: x.split('=')[1] }), {}),
+      ...(service.configuration.env || []).reduce((prev, x) => ({ ...prev, [x.split('=')[0]]: x.split('=')[1] }), {}),
       ...env,
       MESG_ENDPOINT: `${this.serviceEndpoint}:50052`
     }
