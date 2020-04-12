@@ -5,6 +5,6 @@
 #### Breaking Changes
 #### Improvements
 
-- [](https://github.com/mesg-foundation/js-sdk/pull/) Possibility to configure the docker client
+- [#230](https://github.com/mesg-foundation/js-sdk/pull/230) Possibility to configure the docker client
 
 #### Bug fixes
