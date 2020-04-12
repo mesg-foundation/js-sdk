@@ -1,6 +1,6 @@
 {
   "name": "@mesg/service",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "",
   "main": "lib/index",
   "types": "lib/index",
@@ -32,7 +32,7 @@
   "dependencies": {
     "@grpc/proto-loader": "^0.5.4",
     "@mesg/api": "^0.3.0",
-    "@mesg/orchestrator": "^0.1.0",
+    "@mesg/orchestrator": "^0.1.1",
     "grpc": "^1.24.2",
     "js-yaml": "^3.13.1"
   },

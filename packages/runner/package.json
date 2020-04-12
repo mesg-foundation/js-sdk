@@ -1,6 +1,6 @@
 {
   "name": "@mesg/runner",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "lib/index",
   "types": "lib/index",
@@ -29,7 +29,7 @@
   "homepage": "https://github.com/mesg-foundation/js-sdk#readme",
   "dependencies": {
     "@mesg/api": "^0.3.0",
-    "@mesg/orchestrator": "^0.1.0",
+    "@mesg/orchestrator": "^0.1.1",
     "debug": "^4.1.1",
     "node-docker-api": "^1.1.22",
     "node-fetch": "^2.6.0"

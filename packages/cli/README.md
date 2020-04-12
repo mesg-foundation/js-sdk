@@ -19,7 +19,7 @@ $ npm install -g @mesg/cli
 $ mesg-cli COMMAND
 running command...
 $ mesg-cli (-v|--version|version)
-@mesg/cli/0.4.0 darwin-x64 node-v12.16.1
+@mesg/cli/0.4.1 darwin-x64 node-v12.16.1
 $ mesg-cli --help [COMMAND]
 USAGE
   $ mesg-cli COMMAND
@@ -54,7 +54,7 @@ OPTIONS
   --password=password  Password of your account
 ```
 
-_See code: [src/commands/deploy/service.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.0/src/commands/deploy/service.ts)_
+_See code: [src/commands/deploy/service.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.1/src/commands/deploy/service.ts)_
 
 ## `mesg-cli dev [PATH]`
 
@@ -72,7 +72,7 @@ OPTIONS
   --version=version  [default: v0.19]
 ```
 
-_See code: [src/commands/dev.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.0/src/commands/dev.ts)_
+_See code: [src/commands/dev.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.1/src/commands/dev.ts)_
 
 ## `mesg-cli help [COMMAND]`
 
@@ -104,7 +104,7 @@ OPTIONS
   --password=password
 ```
 
-_See code: [src/commands/login.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.0/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.1/src/commands/login.ts)_
 
 ## `mesg-cli logout`
 
@@ -115,7 +115,7 @@ USAGE
   $ mesg-cli logout
 ```
 
-_See code: [src/commands/logout.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.0/src/commands/logout.ts)_
+_See code: [src/commands/logout.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.1/src/commands/logout.ts)_
 
 ## `mesg-cli process:dev [PROCESS_FILE]`
 
@@ -134,7 +134,7 @@ OPTIONS
   --version=version  [default: v0.19]
 ```
 
-_See code: [src/commands/process/dev.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.0/src/commands/process/dev.ts)_
+_See code: [src/commands/process/dev.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.1/src/commands/process/dev.ts)_
 
 ## `mesg-cli service:dev [PATH]`
 
@@ -153,7 +153,7 @@ OPTIONS
   --version=version  [default: v0.19]
 ```
 
-_See code: [src/commands/service/dev.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.0/src/commands/service/dev.ts)_
+_See code: [src/commands/service/dev.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.1/src/commands/service/dev.ts)_
 
 ## `mesg-cli service:doc [SERVICE_PATH]`
 
@@ -170,7 +170,7 @@ OPTIONS
   -s, --save  Save to default readme file
 ```
 
-_See code: [src/commands/service/doc.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.0/src/commands/service/doc.ts)_
+_See code: [src/commands/service/doc.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.1/src/commands/service/doc.ts)_
 
 ## `mesg-cli service:execute RUNNER_HASH TASK`
 
@@ -190,7 +190,7 @@ OPTIONS
   --eventHash=eventHash  Event hash to create the execution with
 ```
 
-_See code: [src/commands/service/execute.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.0/src/commands/service/execute.ts)_
+_See code: [src/commands/service/execute.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.1/src/commands/service/execute.ts)_
 
 ## `mesg-cli service:init DIR`
 
@@ -207,5 +207,5 @@ OPTIONS
   -t, --template=template  Specify the template URL to use
 ```
 
-_See code: [src/commands/service/init.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.0/src/commands/service/init.ts)_
+_See code: [src/commands/service/init.ts](https://github.com/mesg-foundation/js-sdk/blob/v0.4.1/src/commands/service/init.ts)_
 <!-- commandsstop -->
