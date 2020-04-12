@@ -70,7 +70,7 @@ export default class DockerContainer implements Provider {
             MaximumRetryCount: MAX_RETRY
           }
         }
-      }, PREFIX + service.hash + '_' + dep.key)
+      }, PREFIX + service.hash + '_' + dep.key, this._client)
       container.addPorts(dep.ports)
       container.connectTo(serviceNetwork, [dep.key])
       await container.start()
@@ -96,7 +96,7 @@ export default class DockerContainer implements Provider {
           MaximumRetryCount: MAX_RETRY
         }
       }
-    }, PREFIX + service.hash)
+    }, PREFIX + service.hash, this._client)
     container.addPorts(service.configuration.ports)
     container.connectTo(serviceNetwork, ['service'])
     container.connectTo(engineNetwork, ['engine'])

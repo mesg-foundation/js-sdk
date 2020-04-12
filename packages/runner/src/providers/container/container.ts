@@ -31,7 +31,7 @@ export type IContainer = {
 }
 
 export default class Container {
-  private client = new Docker(null)
+  private client: Docker
   private _containerInfo: IContainer = {}
   private _networks: Network[] = []
   private _name: string
@@ -67,9 +67,10 @@ export default class Container {
     await streamToPromise(stream)
   }
 
-  constructor(options: IContainer, name: string) {
+  constructor(options: IContainer, name: string, client: Docker) {
     this._containerInfo = options
     this._name = name
+    this.client = client
   }
 
   // https://stackoverflow.com/questions/20428302/binding-a-port-to-a-host-interface-using-the-rest-api/20429133
