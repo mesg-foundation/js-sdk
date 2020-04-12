@@ -13,14 +13,26 @@ const MAX_RETRY = 5
 
 type Labels = { [key: string]: string }
 
+type DockerOptions = {
+  socketPath?: string
+  host?: string
+  port?: string
+  version?: string
+  key?: string
+  cert?: string
+  ca?: string
+  timeout?: string
+  protocol?: string
+}
+
 export default class DockerContainer implements Provider {
 
   private _client: Docker
   private ipfsGateway = "http://ipfs.app.mesg.com:8080/ipfs"
   private serviceEndpoint: string
 
-  constructor(serviceEndpoint: string = ENGINE_NETWORK_NAME) {
-    this._client = new Docker(null)
+  constructor(opts: DockerOptions = null, serviceEndpoint: string = ENGINE_NETWORK_NAME) {
+    this._client = new Docker(opts)
     this.serviceEndpoint = serviceEndpoint
   }
 
