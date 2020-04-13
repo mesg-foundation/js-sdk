@@ -1,10 +1,11 @@
 import { Command, flags } from '@oclif/command'
 import Listr from 'listr'
 import { prompt } from 'inquirer'
-import { IDefinition } from '@mesg/api/lib/service'
+import { IDefinition, IService } from '@mesg/api/lib/service'
 import { compile } from '../../utils/service'
 import { loginFromCredential } from '../../utils/login'
 import firebase from '../../utils/firebase'
+import { EventEmitter } from 'events'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -32,7 +33,7 @@ export default class Service extends Command {
 
 
     let definition: IDefinition
-    let serviceHash: string
+    let service: IService
 
     const { user } = await loginFromCredential(this.config.configDir, password)
     const tasks = new Listr([
@@ -44,55 +45,39 @@ export default class Service extends Command {
       },
       {
         title: 'Creating service',
-        task: async () => {
-          const res = await firebase.firestore().collection('services').add({
-            uid: user.uid,
-            definition
+        task: async (ctx, task) => {
+          const title = task.title
+          const logs = await this.deploy('service', definition, user.uid)
+          logs.on('data', x => {
+            task.title = `${title} (${x.message})`
           })
-          serviceHash = await new Promise((resolve, reject) => {
-            firebase.firestore()
-              .collection('services').doc(res.id)
-              .onSnapshot((snapshot) => {
-                const data = snapshot.data()
-                if (!data.hash) return
-                resolve(data.hash)
-              }, reject)
-          })
+          service = await this.toPromise(logs)
         }
       }
     ])
     await tasks.run()
 
     this.log('')
-    this.log(`Service deployed with the hash ${serviceHash}`)
+    this.log(`Service deployed with the hash ${service.hash}`)
     this.log('')
 
     const { deploy } = await prompt({ type: 'confirm', name: 'deploy', message: 'Would you like to start this service?' })
 
-    if (!deploy) return
+    if (deploy) {
+      const env = await this.getEnv(definition.configuration.env || [])
 
-    const env = await this.getEnv(definition.configuration.env || [])
+      const logs = await this.deploy('runner', {
+        serviceHash: service.hash,
+        env
+      }, user.uid)
+      logs.on('data', this.log)
 
-    const res = await firebase.firestore().collection('runners').add({
-      uid: user.uid,
-      serviceHash: serviceHash,
-      env: env
-    })
+      const runner = await this.toPromise(logs)
+      this.log('')
+      this.log(`Service started with the runner hash ${runner.hash}`)
+    }
 
-    const runnerHash = await new Promise((resolve, reject) => {
-      firebase.firestore()
-        .collection('runners').doc(res.id)
-        .onSnapshot((snapshot) => {
-          const data = snapshot.data()
-          if (!data.hash) return
-          resolve(data.hash)
-        }, reject)
-    })
-
-    this.log('')
-    this.log(`Service started with the runner hash ${runnerHash}`)
-
-    await firebase.firestore().terminate()
+    return firebase.firestore().terminate()
   }
 
   async getEnv(envs: string[]): Promise<string[]> {
@@ -104,5 +89,49 @@ export default class Service extends Command {
       type: 'input'
     }))) as { [key: string]: string }
     return Object.keys(res).map(x => `${x}=${res[x]}`)
+  }
+
+  private async deploy(type: 'service' | 'runner', definition: any, uid: string): Promise<EventEmitter> {
+    const res = await firebase.firestore().collection('deployments').add({ type, uid, definition })
+    const eventEmitter = new EventEmitter()
+
+    let unsubscribeLogs: () => void
+    let unsubscribeDeployment: () => void
+
+    const clearListeners = () => {
+      if (unsubscribeDeployment) unsubscribeDeployment()
+      if (unsubscribeLogs) unsubscribeLogs()
+    }
+
+    unsubscribeLogs = res.collection('logs').onSnapshot(
+      snapshots => {
+        for (const doc of snapshots.docs) {
+          const data = doc.data()
+          if (data.level === 'error') return eventEmitter.emit('error', new Error(data.message))
+          eventEmitter.emit('data', data)
+        }
+      },
+      error => eventEmitter.emit('error', error)
+    )
+
+    unsubscribeDeployment = res.onSnapshot(
+      async snapshot => {
+        const data = snapshot.data()
+        if (!data.resourceRef) return
+        const resource = await data.resourceRef.get()
+        eventEmitter.emit('end', resource.data().definition)
+      },
+      error => eventEmitter.emit('error', error)
+    )
+    eventEmitter.on('error', clearListeners)
+    eventEmitter.on('end', clearListeners)
+    return eventEmitter
+  }
+
+  private async toPromise(eventEmitter: EventEmitter): Promise<any> {
+    return new Promise((resolve, reject) => {
+      eventEmitter.on('end', resolve)
+      eventEmitter.on('error', reject)
+    })
   }
 }
