@@ -105,8 +105,9 @@ export default class Service extends Command {
 
     unsubscribeLogs = res.collection('logs').onSnapshot(
       snapshots => {
-        for (const doc of snapshots.docs) {
-          const data = doc.data()
+        for (const change of snapshots.docChanges()) {
+          if (change.type !== 'added') continue
+          const data = change.doc.data()
           if (data.level === 'error') return eventEmitter.emit('error', new Error(data.message))
           eventEmitter.emit('data', data)
         }
