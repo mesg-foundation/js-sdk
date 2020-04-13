@@ -64,4 +64,8 @@ export default class Runner extends LCDClient {
       address: owner,
     }, 'POST')).result
   }
+
+  async exists(hash: string): Promise<boolean> {
+    return (await this.query(`/runner/exist/${hash}`)).result
+  }
 }

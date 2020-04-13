@@ -6,6 +6,8 @@
 #### Improvements
 #### Bug fixes
 
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Add missing functions `exists`/`hash` for `process` and `runner`
+
 ## [v0.3.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fapi%400.3.0)
 
 #### Breaking Changes
