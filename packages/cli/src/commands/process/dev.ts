@@ -3,6 +3,7 @@ import Listr from 'listr'
 import * as grpc from 'grpc'
 import * as Environment from '../../utils/environment-tasks'
 import * as Process from '../../utils/process'
+import * as Service from '../../utils/service'
 import * as Runner from '../../utils/runner'
 import version from '../../version'
 import Orchestrator from '@mesg/orchestrator'
@@ -14,6 +15,7 @@ import chalk from 'chalk'
 import { decode } from '@mesg/orchestrator/lib/encoder'
 import { IProcess } from '@mesg/api/lib/process'
 import sign from '../../utils/sign'
+import { RunnerInfo } from '@mesg/runner'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -53,8 +55,19 @@ export default class Dev extends Command {
       Environment.start,
       {
         title: 'Compiling process',
-        task: async ctx => {
-          compilation = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, flags.env)
+        task: async (ctx, task) => {
+          const title = task.title
+          const instanceResolver = async (instanceObject: any): Promise<RunnerInfo> => {
+            if (!instanceObject.instanceHash && !instanceObject.instance) throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
+            if (instanceObject.instanceHash) return instanceObject.instanceHash
+            const { src, env } = instanceObject.instance
+            task.title = `${title} (starting ${src})`
+            const definition = await Service.compile(src, this.ipfsClient)
+            const service = await Service.create(this.lcd, definition, ctx.config.mnemonic)
+            const runner = await Runner.create(this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, service.hash, env)
+            return runner
+          }
+          compilation = await Process.compile(args.PROCESS_FILE, instanceResolver, flags.env)
         }
       },
       {

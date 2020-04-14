@@ -2,8 +2,6 @@ import { IProcess, IDefinition } from "@mesg/api/lib/process"
 import LCD from '@mesg/api'
 import { process as compileProcess } from '@mesg/compiler'
 import { readFileSync } from "fs"
-import * as Service from './service'
-import * as Runner from './runner'
 import { findHash } from "@mesg/api/lib/util/txevent"
 import { RunnerInfo } from "@mesg/runner"
 import { IsAlreadyExistsError } from "./error"
@@ -13,24 +11,20 @@ export type CompilationResult = {
   runners: RunnerInfo[]
 }
 
-export const compile = async (processFilePath: string, ipfsClient: any, lcd: LCD, lcdEndpoint: string, orchestratorEndpoint: string, mnemonic: string, engineAddress: string, env: string[] = []): Promise<CompilationResult> => {
+export const compile = async (processFilePath: string, instanceResolver: (definition: any) => Promise<RunnerInfo>, env: string[] = []): Promise<CompilationResult> => {
   const runners: RunnerInfo[] = []
-  const instanceReolver = async (instanceObject: any): Promise<string> => {
-    if (!instanceObject.instanceHash && !instanceObject.instance) throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
-    if (instanceObject.instanceHash) return instanceObject.instanceHash
-    const { src, env } = instanceObject.instance
-    const definition = await Service.compile(src, ipfsClient)
-    const service = await Service.create(lcd, definition, mnemonic)
-    const runner = await Runner.create(lcdEndpoint, orchestratorEndpoint, mnemonic, engineAddress, service.hash, env)
-    if (!runners.find(x => x.hash === runner.hash)) runners.push(runner)
-    return runner.instanceHash
-  }
 
-
-  const definition = await compileProcess(readFileSync(processFilePath), instanceReolver, env.reduce((prev, env) => ({
-    ...prev,
-    [env.split('=')[0]]: env.split('=')[1],
-  }), {}))
+  const definition = await compileProcess(
+    readFileSync(processFilePath),
+    async definition => {
+      const runner = await instanceResolver(definition)
+      if (!runners.find(x => x.hash === runner.hash)) runners.push(runner)
+      return runner.instanceHash
+    },
+    env.reduce((prev, env) => ({
+      ...prev,
+      [env.split('=')[0]]: env.split('=')[1],
+    }), {}))
   return {
     definition,
     runners
