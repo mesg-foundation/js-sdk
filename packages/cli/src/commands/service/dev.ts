@@ -73,7 +73,7 @@ export default class Dev extends Command {
       {
         title: 'Starting service',
         task: async ctx => {
-          runner = await Runner.create(this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, service.hash, flags.env)
+          runner = await Runner.create(this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, service.hash, flags.env)
         }
       },
       {

@@ -80,7 +80,7 @@ export default class Dev extends Command {
         }
       },
       {
-        title: 'Create services',
+        title: 'Creating services',
         task: () => new Listr(Object.keys(servicesToDeploy).map(hash => ({
           title: servicesToDeploy[hash].name,
           skip: () => this.lcd.service.exists(hash),
@@ -88,7 +88,7 @@ export default class Dev extends Command {
         })))
       },
       {
-        title: 'Start services',
+        title: 'Starting services',
         task: () => new Listr(Object.keys(runnersToDeploy).map(hash => ({
           title: hash,
           skip: () => this.lcd.runner.exists(hash),
@@ -151,7 +151,7 @@ export default class Dev extends Command {
         {
           title: 'Deleting process',
           task: async () => {
-            if (deployedProcess) await Process.remove(this.lcd, deployedProcess, config.mnemonic)
+            if (deployedProcess) await Process.remove(this.lcd, deployedProcess.hash, config.mnemonic)
           }
         },
         {

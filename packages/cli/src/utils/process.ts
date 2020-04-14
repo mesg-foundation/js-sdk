@@ -19,7 +19,7 @@ export const compile = async (processFilePath: string, env: string[], instanceRe
     async definition => {
       if (!definition.instanceHash && !definition.instance) throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
       if (definition.instanceHash) return definition.instanceHash
-      const runner = await instanceResolver(definition)
+      const runner = await instanceResolver(definition.instance)
       if (!runners.find(x => x.hash === runner.hash)) runners.push(runner)
       return runner.instanceHash
     },
@@ -51,10 +51,10 @@ export const create = async (lcd: LCD, process: IDefinition, mnemonic: string): 
   }
 }
 
-export const remove = async (lcd: LCD, process: IProcess, mnemonic: string): Promise<void> => {
+export const remove = async (lcd: LCD, processHash: string, mnemonic: string): Promise<void> => {
   const account = await lcd.account.import(mnemonic)
   const tx = await lcd.createTransaction(
-    [lcd.process.deleteMsg(account.address, process.hash)],
+    [lcd.process.deleteMsg(account.address, processHash)],
     account
   )
   await lcd.broadcast(tx.signWithMnemonic(mnemonic))
