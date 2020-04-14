@@ -16,6 +16,7 @@ import { decode } from '@mesg/orchestrator/lib/encoder'
 import { IProcess } from '@mesg/api/lib/process'
 import sign from '../../utils/sign'
 import { RunnerInfo } from '@mesg/runner'
+import { IDefinition } from '@mesg/api/lib/service'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -51,6 +52,9 @@ export default class Dev extends Command {
     let compilation: Process.CompilationResult
     let deployedProcess: IProcess
 
+    const servicesToDeploy: { [key: string]: IDefinition } = {}
+    const runnersToDeploy: { [key: string]: { serviceHash: string, env: string[] } } = {}
+
     const tasks = new Listr<Environment.IStart>([
       Environment.start,
       {
@@ -61,14 +65,35 @@ export default class Dev extends Command {
             if (!instanceObject.instanceHash && !instanceObject.instance) throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
             if (instanceObject.instanceHash) return instanceObject.instanceHash
             const { src, env } = instanceObject.instance
-            task.title = `${title} (starting ${src})`
+            task.title = `${title} (compiling ${src})`
             const definition = await Service.compile(src, this.ipfsClient)
-            const service = await Service.create(this.lcd, definition, ctx.config.mnemonic)
-            const runner = await Runner.create(this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, service.hash, env)
-            return runner
+            const serviceHash = await this.lcd.service.hash(definition)
+            const runner = await this.lcd.runner.hash(ctx.engineAddress, serviceHash, env)
+            servicesToDeploy[serviceHash] = definition
+            runnersToDeploy[runner.runnerHash] = { serviceHash, env }
+            return {
+              hash: runner.runnerHash,
+              instanceHash: runner.instanceHash
+            }
           }
           compilation = await Process.compile(args.PROCESS_FILE, instanceResolver, flags.env)
         }
+      },
+      {
+        title: 'Create services',
+        task: () => new Listr(Object.keys(servicesToDeploy).map(hash => ({
+          title: servicesToDeploy[hash].name,
+          skip: () => this.lcd.service.exists(hash),
+          task: async ctx => await Service.create(this.lcd, servicesToDeploy[hash], ctx.config.mnemonic)
+        })))
+      },
+      {
+        title: 'Start services',
+        task: () => new Listr(Object.keys(runnersToDeploy).map(hash => ({
+          title: hash,
+          skip: () => this.lcd.runner.exists(hash),
+          task: async ctx => await Runner.create(this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, runnersToDeploy[hash].serviceHash, runnersToDeploy[hash].env)
+        })))
       },
       {
         title: 'Creating process',
