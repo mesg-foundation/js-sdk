@@ -237,4 +237,12 @@ export default class Process extends LCDClient {
   async list(): Promise<IProcess[]> {
     return (await this.query('/process/list')).result || []
   }
+
+  async exists(hash: string): Promise<boolean> {
+    return (await this.query(`/process/exist/${hash}`)).result
+  }
+
+  async hash(definition: IDefinition): Promise<string> {
+    return (await this.query(`/process/hash`, definition, 'POST')).result
+  }
 }
