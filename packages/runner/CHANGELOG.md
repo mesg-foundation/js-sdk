@@ -6,7 +6,7 @@
 #### Improvements
 #### Bug fixes
 
-- [#](https://github.com/mesg-foundation/js-sdk/pull/) Handle ports with destination from mesg services
+- [#234](https://github.com/mesg-foundation/js-sdk/pull/234) Handle ports with destination from mesg services
 
 ## [v0.1.3](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%runner%400.1.3)
 
