@@ -2,12 +2,19 @@ import { Test } from 'tape'
 import test from 'tape'
 import API from './';
 import { Resource } from './ownership';
-import { IDefinition } from './service';
+import { IDefinition as IServiceDefinition } from './service';
+import { IDefinition as IProcessDefinition } from './process';
 
 const api = new API('http://localhost:1317')
 const address = "mesgtest19k9xsdy42f4a7f7777wj4rs5eh9622h2z7mzdh"
 const mnemonic = "afford problem shove post clump space govern reward fringe input owner knock toddler orange castle course pepper fox youth field ritual wife weapon desert"
-const service: IDefinition = {
+const serviceHash = "8K1X1rfEL1WCwpm2zBwsWH3bijyNuYWTN3LKoBP4Bkfy"
+const runnerHash = "J58btTi41BJ6gjFyap9w1eRZnpTrf165vDQfpdiwPpXo"
+const instanceHash = "9dq5UXSe1YBmB46c3Fs1YfQS49tyzew27qpYGGzFsQX8"
+const processHash = "AAgUaBch3qycWsDGMFacbe7pcSHFhX968KDiKMfvw4ej"
+// const eventHash = "6aUPZhmnFKiSsHXRaddbnqsKKi9KogbQNiKUcpivaohb"
+// const executionHash = "ErrDsCUCRTucQeynBqxabyMTCkiBicRzuMKqaArhomyN"
+const service: IServiceDefinition = {
   sid: "js-function",
   name: "js-function",
   configuration: {},
@@ -23,11 +30,36 @@ const service: IDefinition = {
   }],
   source: "QmV9uGGMPcaF22TjBJEcko6VxjJpK3wdtaypHEbh6j4Pz9"
 }
-const serviceHash = "8K1X1rfEL1WCwpm2zBwsWH3bijyNuYWTN3LKoBP4Bkfy"
-const runnerHash = "J58btTi41BJ6gjFyap9w1eRZnpTrf165vDQfpdiwPpXo"
-const instanceHash = "9dq5UXSe1YBmB46c3Fs1YfQS49tyzew27qpYGGzFsQX8"
-// const eventHash = "6aUPZhmnFKiSsHXRaddbnqsKKi9KogbQNiKUcpivaohb"
-// const executionHash = "ErrDsCUCRTucQeynBqxabyMTCkiBicRzuMKqaArhomyN"
+const process: IProcessDefinition = {
+  name: 'test',
+  nodes: [{
+    key: 'trigger',
+    Type: {
+      type: "mesg.types.Process_Node_Event_",
+      value: {
+        event: {
+          eventKey: 'xxx',
+          instanceHash
+        }
+      }
+    }
+  }, {
+    key: 'task',
+    Type: {
+      type: 'mesg.types.Process_Node_Task_',
+      value: {
+        task: {
+          instanceHash,
+          taskKey: 'execute'
+        }
+      }
+    },
+  }],
+  edges: [{
+    src: 'trigger',
+    dst: 'task'
+  }]
+}
 
 test('service', async (tt: Test) => {
   tt.test('service hash', async (t: Test) => {
@@ -88,6 +120,12 @@ test('ownership', async (tt: Test) => {
 })
 
 test('runner', async (tt: Test) => {
+  tt.test('runner not exists', async (t: Test) => {
+    t.plan(1)
+    const res = await api.runner.exists(runnerHash)
+    t.false(res)
+  })
+
   tt.test('runner create', async (t: Test) => {
     t.plan(2)
     const account = await api.account.get(address)
@@ -102,6 +140,12 @@ test('runner', async (tt: Test) => {
     const res = await api.broadcast(await tx.signWithMnemonic(mnemonic))
     t.assert(parseInt(res.height, 10) > 0)
     t.assert(!res.code)
+  })
+
+  tt.test('runner exists', async (t: Test) => {
+    t.plan(1)
+    const res = await api.runner.exists(runnerHash)
+    t.true(res)
   })
 
   tt.test('runner list', async (t: Test) => {
@@ -241,41 +285,19 @@ test('instance', async (tt: Test) => {
 // })
 
 test('process', async (tt: Test) => {
+  tt.test('process hash', async (t: Test) => {
+    t.plan(1)
+    const h = await api.process.hash(process)
+
+    t.equal(h, processHash)
+  });
+
   tt.test('process create', async (t: Test) => {
     t.plan(3)
 
     const account = await api.account.get(address)
     const tx = await api.createTransaction([
-      api.process.createMsg(account.address, {
-        name: 'test',
-        nodes: [{
-          key: 'trigger',
-          Type: {
-            type: "mesg.types.Process_Node_Event_",
-            value: {
-              event: {
-                eventKey: 'xxx',
-                instanceHash
-              }
-            }
-          }
-        }, {
-          key: 'task',
-          Type: {
-            type: 'mesg.types.Process_Node_Task_',
-            value: {
-              task: {
-                instanceHash,
-                taskKey: 'execute'
-              }
-            }
-          },
-        }],
-        edges: [{
-          src: 'trigger',
-          dst: 'task'
-        }]
-      })
+      api.process.createMsg(account.address, process)
     ], account, {
       fee: {
         amount: [{ denom: 'atto', amount: '88801' }],
@@ -287,4 +309,24 @@ test('process', async (tt: Test) => {
     t.assert(res.txhash !== '')
     t.assert(!res.code)
   })
+
+  tt.test('process list', async (t: Test) => {
+    t.plan(1)
+    const processes = await api.process.list()
+    t.equal(processes.length, 1)
+  });
+
+  tt.test('process get', async (t: Test) => {
+    t.plan(1)
+    const process = await api.process.get(processHash)
+    t.equal(process.hash, processHash)
+  });
+
+  tt.test('process exists', async (t: Test) => {
+    t.plan(2)
+    const exists = await api.process.exists(processHash)
+    const notExists = await api.process.exists("Dodtu7zTjLNmwbyauavch6gZZrzVaWUh6Aaaaaaaaaaa")
+    t.equal(exists, true)
+    t.equal(notExists, false)
+  });
 })
