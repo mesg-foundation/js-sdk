@@ -6,6 +6,8 @@
 #### Improvements
 #### Bug fixes
 
+- [#](https://github.com/mesg-foundation/js-sdk/pull/) Fix docker container names to support multi instances fix #232
+
 ## [v0.1.3](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%runner%400.1.3)
 
 #### Bug fixes
