@@ -61,22 +61,22 @@ export default class Dev extends Command {
         title: 'Compiling process',
         task: async (ctx, task) => {
           const title = task.title
-          const instanceResolver = async (instanceObject: any): Promise<RunnerInfo> => {
-            if (!instanceObject.instanceHash && !instanceObject.instance) throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
-            if (instanceObject.instanceHash) return instanceObject.instanceHash
-            const { src, env } = instanceObject.instance
-            task.title = `${title} (compiling ${src})`
-            const definition = await Service.compile(src, this.ipfsClient)
-            const serviceHash = await this.lcd.service.hash(definition)
-            const runner = await this.lcd.runner.hash(ctx.engineAddress, serviceHash, env)
-            servicesToDeploy[serviceHash] = definition
-            runnersToDeploy[runner.runnerHash] = { serviceHash, env }
-            return {
-              hash: runner.runnerHash,
-              instanceHash: runner.instanceHash
+          compilation = await Process.compile(
+            args.PROCESS_FILE,
+            flags.env,
+            async ({ env, src }) => {
+              task.title = `${title} (compiling ${src})`
+              const definition = await Service.compile(src, this.ipfsClient)
+              const serviceHash = await this.lcd.service.hash(definition)
+              const runner = await this.lcd.runner.hash(ctx.engineAddress, serviceHash, env)
+              servicesToDeploy[serviceHash] = definition
+              runnersToDeploy[runner.runnerHash] = { serviceHash, env }
+              return {
+                hash: runner.runnerHash,
+                instanceHash: runner.instanceHash
+              }
             }
-          }
-          compilation = await Process.compile(args.PROCESS_FILE, instanceResolver, flags.env)
+          )
         }
       },
       {

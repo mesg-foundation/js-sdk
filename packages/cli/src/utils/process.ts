@@ -11,12 +11,14 @@ export type CompilationResult = {
   runners: RunnerInfo[]
 }
 
-export const compile = async (processFilePath: string, instanceResolver: (definition: any) => Promise<RunnerInfo>, env: string[] = []): Promise<CompilationResult> => {
+export const compile = async (processFilePath: string, env: string[], instanceResolver: (definition: { src: string, env: string[] }) => Promise<RunnerInfo>): Promise<CompilationResult> => {
   const runners: RunnerInfo[] = []
 
   const definition = await compileProcess(
     readFileSync(processFilePath),
     async definition => {
+      if (!definition.instanceHash && !definition.instance) throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
+      if (definition.instanceHash) return definition.instanceHash
       const runner = await instanceResolver(definition)
       if (!runners.find(x => x.hash === runner.hash)) runners.push(runner)
       return runner.instanceHash
