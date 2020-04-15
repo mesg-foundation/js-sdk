@@ -1,5 +1,3 @@
-import * as YAML from 'js-yaml'
-import * as fs from 'fs'
 import * as grpc from 'grpc'
 import * as protoLoader from '@grpc/proto-loader'
 import * as path from 'path'
@@ -11,17 +9,14 @@ import { EventEmitter } from 'events'
 type Options = {
   endpoint?: string
   signature?: string
-  definition?: any
 }
 
 class Service {
-  private definition: any
   private tasks: Tasks
   private _client: Promise<any>
   private _token: grpc.Metadata
 
   constructor(options: Options = {}) {
-    this.definition = options.definition || YAML.safeLoad(fs.readFileSync('./mesg.yml').toString());
     this._client = this.register(
       options.signature || process.env.MESG_REGISTER_SIGNATURE,
       options.endpoint || process.env.MESG_ENDPOINT,
@@ -47,7 +42,6 @@ class Service {
       throw new Error(`listenTask should be called only once`);
     }
     this.tasks = tasks;
-    this.validateTaskNames();
     this._client.then(client => {
       const stream = client.Execution({}, this._token) as grpc.ClientWritableStream<any>
       stream.on('data', x => res.emit('data', x))
@@ -84,17 +78,6 @@ class Service {
         executionHash: execution.hash,
         error
       }, this._token)
-    }
-  }
-
-  private validateTaskNames() {
-    const nonDescribedTasks = Object.keys(this.tasks).filter(x => !this.definition.tasks[x]);
-    if (nonDescribedTasks.length > 0) {
-      throw new Error(`The following tasks are not present in the mesg.yml: ${nonDescribedTasks.join(', ')}`);
-    }
-    const nonHandledTasks = Object.keys(this.definition.tasks).filter(x => !this.tasks[x]);
-    if (nonHandledTasks.length > 0) {
-      console.warn(`WARNING: The following tasks described in the mesg.yml haven't been implemented: ${nonHandledTasks.join(', ')}`);
     }
   }
 
