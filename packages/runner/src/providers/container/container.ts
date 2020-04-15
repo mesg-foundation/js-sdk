@@ -79,8 +79,10 @@ export default class Container {
     if (!this._containerInfo.HostConfig) this._containerInfo.HostConfig = {}
     if (!this._containerInfo.HostConfig.PortBindings) this._containerInfo.HostConfig.PortBindings = {}
     for (const port of ports || []) {
-      this._containerInfo.ExposedPorts[`${port}/tcp`] = {}
-      this._containerInfo.HostConfig.PortBindings[`${port}/tcp`] = [{ HostPort: port }]
+      let [target, host] = port.split(':')
+      if (!host) host = target
+      this._containerInfo.ExposedPorts[`${target}/tcp`] = {}
+      this._containerInfo.HostConfig.PortBindings[`${target}/tcp`] = [{ HostPort: host }]
     }
     return this
   }
