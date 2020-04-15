@@ -1,7 +1,7 @@
 {
   "name": "@mesg/cli",
   "description": "MESG CLI",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "author": "Anthony ESTEBE @antho1404",
   "main": "lib/index",
   "types": "lib/index",
@@ -29,10 +29,10 @@
     "url": "git+https://github.com/mesg-foundation/js-sdk.git"
   },
   "dependencies": {
-    "@mesg/api": "^0.3.0",
-    "@mesg/compiler": "^0.3.0",
-    "@mesg/orchestrator": "^0.1.2",
-    "@mesg/runner": "^0.1.3",
+    "@mesg/api": "^0.3.1",
+    "@mesg/compiler": "^0.3.1",
+    "@mesg/orchestrator": "^0.1.3",
+    "@mesg/runner": "^0.1.4",
     "@mesg/vault": "^0.1.0",
     "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.13.3",
