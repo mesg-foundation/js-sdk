@@ -60,12 +60,11 @@ export default class Dev extends Command {
       {
         title: 'Compiling process',
         task: async (ctx, task) => {
-          const title = task.title
           compilation = await Process.compile(
             args.PROCESS_FILE,
             flags.env,
             async ({ env, src }) => {
-              task.title = `${title} (compiling ${src})`
+              task.output = `compiling ${src}`
               const definition = await Service.compile(src, this.ipfsClient)
               const serviceHash = await this.lcd.service.hash(definition)
               const runner = await this.lcd.runner.hash(ctx.engineAddress, serviceHash, env)

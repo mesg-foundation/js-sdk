@@ -65,11 +65,12 @@ export default class Dev extends Command {
             .filter(x => x.isFile() && x.name.match(/\.(yml|yaml)/))
           return new Listr(processFiles.map(file => ({
             title: file.name,
-            task: async ctx => {
+            task: async (ctx, task) => {
               const compilation = await Process.compile(
                 join(args.PATH, file.name),
                 env,
                 async ({ src, env }) => {
+                  task.output = `compiling ${src}`
                   const definition = await Service.compile(src, this.ipfsClient)
                   const serviceHash = await this.lcd.service.hash(definition)
                   const runner = await this.lcd.runner.hash(ctx.engineAddress, serviceHash, env)
