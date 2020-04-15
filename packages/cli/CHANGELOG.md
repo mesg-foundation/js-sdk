@@ -4,6 +4,9 @@
 
 #### Breaking Changes
 #### Improvements
+
+- [#236](https://github.com/mesg-foundation/js-sdk/pull/236) Improve the `process:dev` and `dev` command with more details of the deployment
+
 #### Bug fixes
 
 ## [v0.4.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%2Fcli%400.4.0)

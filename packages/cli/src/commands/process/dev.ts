@@ -3,6 +3,7 @@ import Listr from 'listr'
 import * as grpc from 'grpc'
 import * as Environment from '../../utils/environment-tasks'
 import * as Process from '../../utils/process'
+import * as Service from '../../utils/service'
 import * as Runner from '../../utils/runner'
 import version from '../../version'
 import Orchestrator from '@mesg/orchestrator'
@@ -14,6 +15,8 @@ import chalk from 'chalk'
 import { decode } from '@mesg/orchestrator/lib/encoder'
 import { IProcess } from '@mesg/api/lib/process'
 import sign from '../../utils/sign'
+import { RunnerInfo } from '@mesg/runner'
+import { IDefinition } from '@mesg/api/lib/service'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -49,13 +52,47 @@ export default class Dev extends Command {
     let compilation: Process.CompilationResult
     let deployedProcess: IProcess
 
+    const servicesToDeploy: { [key: string]: IDefinition } = {}
+    const runnersToDeploy: { [key: string]: { serviceHash: string, env: string[] } } = {}
+
     const tasks = new Listr<Environment.IStart>([
       Environment.start,
       {
         title: 'Compiling process',
-        task: async ctx => {
-          compilation = await Process.compile(args.PROCESS_FILE, this.ipfsClient, this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, flags.env)
+        task: async (ctx, task) => {
+          compilation = await Process.compile(
+            args.PROCESS_FILE,
+            flags.env,
+            async ({ env, src }) => {
+              task.output = `compiling ${src}`
+              const definition = await Service.compile(src, this.ipfsClient)
+              const serviceHash = await this.lcd.service.hash(definition)
+              const runner = await this.lcd.runner.hash(ctx.engineAddress, serviceHash, env)
+              servicesToDeploy[serviceHash] = definition
+              runnersToDeploy[runner.runnerHash] = { serviceHash, env }
+              return {
+                hash: runner.runnerHash,
+                instanceHash: runner.instanceHash
+              }
+            }
+          )
         }
+      },
+      {
+        title: 'Creating services',
+        task: () => new Listr(Object.keys(servicesToDeploy).map(hash => ({
+          title: servicesToDeploy[hash].name,
+          skip: () => this.lcd.service.exists(hash),
+          task: async ctx => await Service.create(this.lcd, servicesToDeploy[hash], ctx.config.mnemonic)
+        })))
+      },
+      {
+        title: 'Starting services',
+        task: () => new Listr(Object.keys(runnersToDeploy).map(hash => ({
+          title: hash,
+          skip: () => this.lcd.runner.exists(hash),
+          task: async ctx => await Runner.create(this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, runnersToDeploy[hash].serviceHash, runnersToDeploy[hash].env)
+        })))
       },
       {
         title: 'Creating process',
@@ -113,7 +150,7 @@ export default class Dev extends Command {
         {
           title: 'Deleting process',
           task: async () => {
-            if (deployedProcess) await Process.remove(this.lcd, deployedProcess, config.mnemonic)
+            if (deployedProcess) await Process.remove(this.lcd, deployedProcess.hash, config.mnemonic)
           }
         },
         {

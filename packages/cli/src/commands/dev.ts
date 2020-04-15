@@ -14,11 +14,10 @@ import * as Runner from '../utils/runner'
 import * as Process from '../utils/process'
 import * as base58 from '@mesg/api/lib/util/base58'
 import version from '../version'
-import { IService } from '@mesg/api/lib/service'
-import { IProcess } from '@mesg/api/lib/process'
+import { IDefinition as IServiceDefinition } from '@mesg/api/lib/service'
+import { IDefinition as IProcessDefinition } from '@mesg/api/lib/process'
 import chalk from 'chalk'
 import { decode } from '@mesg/orchestrator/lib/encoder'
-import { RunnerInfo } from '@mesg/runner'
 import sign from '../utils/sign'
 
 const ipfsClient = require('ipfs-http-client')
@@ -43,9 +42,9 @@ export default class Dev extends Command {
   private ipfsClient = ipfsClient('ipfs.app.mesg.com', '5001', { protocol: 'http' })
   private orchestrator = new Orchestrator(this.orchestratorEndpoint)
   private logs: grpc.ClientReadableStream<Execution.mesg.types.IExecution>
-  private services: IService[] = []
-  private processes: IProcess[] = []
-  private runners: RunnerInfo[] = []
+  private processesToDeploy: { [key: string]: IProcessDefinition } = {}
+  private servicesToDeploy: { [key: string]: IServiceDefinition } = {}
+  private runnersToDeploy: { [key: string]: { serviceHash: string, env: string[] } } = {}
 
   async run() {
     const { args, flags } = this.parse(Dev)
@@ -58,56 +57,76 @@ export default class Dev extends Command {
     const env = Object.keys(envs).reduce((prev, x) => [...prev, `${x}=${envs[x]}`], [])
 
     const tasks = new Listr([
-      Environment.start
-    ])
-
-    const serviceDirs = readdirSync(join(args.PATH, 'services'), { withFileTypes: true })
-      .filter(x => x.isDirectory() || x.isSymbolicLink())
-    for (const dir of serviceDirs) {
-      tasks.add([
-        {
-          title: `Creating service "${dir.name}"`,
-          task: async (ctx) => {
-            const definition = await Service.compile(join(args.PATH, 'services', dir.name), this.ipfsClient)
-            const service = await Service.create(this.lcd, definition, ctx.config.mnemonic)
-            this.services.push(service)
+      Environment.start,
+      {
+        title: 'Compiling processes',
+        task: async () => {
+          const processFiles = readdirSync(args.PATH, { withFileTypes: true })
+            .filter(x => x.isFile() && x.name.match(/\.(yml|yaml)/))
+          return new Listr(processFiles.map(file => ({
+            title: file.name,
+            task: async (ctx, task) => {
+              const compilation = await Process.compile(
+                join(args.PATH, file.name),
+                env,
+                async ({ src, env }) => {
+                  task.output = `compiling ${src}`
+                  const definition = await Service.compile(src, this.ipfsClient)
+                  const serviceHash = await this.lcd.service.hash(definition)
+                  const runner = await this.lcd.runner.hash(ctx.engineAddress, serviceHash, env)
+                  this.servicesToDeploy[serviceHash] = definition
+                  this.runnersToDeploy[runner.runnerHash] = { serviceHash, env }
+                  return {
+                    hash: runner.runnerHash,
+                    instanceHash: runner.instanceHash
+                  }
+                }
+              )
+              const hash = await this.lcd.process.hash(compilation.definition)
+              this.processesToDeploy[hash] = compilation.definition
+            }
+          })))
+        }
+      },
+      {
+        title: 'Creating services',
+        task: () => new Listr(Object.keys(this.servicesToDeploy).map(hash => ({
+          title: this.servicesToDeploy[hash].name,
+          skip: () => this.lcd.service.exists(hash),
+          task: async ctx => await Service.create(this.lcd, this.servicesToDeploy[hash], ctx.config.mnemonic)
+        })))
+      },
+      {
+        title: 'Starting services',
+        task: () => new Listr(Object.keys(this.runnersToDeploy).map(hash => ({
+          title: hash,
+          skip: () => this.lcd.runner.exists(hash),
+          task: async ctx => await Runner.create(this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, this.runnersToDeploy[hash].serviceHash, this.runnersToDeploy[hash].env)
+        })))
+      },
+      {
+        title: 'Creating processes',
+        task: () => new Listr(Object.keys(this.processesToDeploy).map(hash => ({
+          title: this.processesToDeploy[hash].name,
+          skip: () => this.lcd.process.exists(hash),
+          task: async ctx => await Process.create(this.lcd, this.processesToDeploy[hash], ctx.config.mnemonic)
+        })))
+      },
+      {
+        title: 'Fetching logs',
+        task: ctx => {
+          const payload = {
+            filter: {
+              statuses: [
+                Status.Completed,
+                Status.Failed
+              ]
+            }
           }
+          this.logs = this.orchestrator.execution.stream(payload, sign(payload, ctx.config.mnemonic))
         }
-      ])
-    }
-
-    const processFiles = readdirSync(args.PATH, { withFileTypes: true })
-      .filter(x => x.isFile() && x.name.match(/\.(yml|yaml)/))
-
-    for (const file of processFiles) {
-      tasks.add({
-        title: `Creating process "${file.name}"`,
-        task: async (ctx) => {
-          const compilation = await Process.compile(join(args.PATH, file.name), this.ipfsClient, this.lcd, this.lcdEndpoint, this.orchestratorEndpoint, ctx.config.mnemonic, ctx.engineAddress, env)
-          const deployedProcess = await Process.create(this.lcd, compilation.definition, ctx.config.mnemonic)
-          this.processes.push(deployedProcess)
-          this.runners = [
-            ...this.runners,
-            ...compilation.runners,
-          ].filter((item, i, self) => i === self.indexOf(item))
-        }
-      })
-    }
-
-    tasks.add({
-      title: 'Fetching logs',
-      task: ctx => {
-        const payload = {
-          filter: {
-            statuses: [
-              Status.Completed,
-              Status.Failed
-            ]
-          }
-        }
-        this.logs = this.orchestrator.execution.stream(payload, sign(payload, ctx.config.mnemonic))
       }
-    })
+    ])
 
     const { config, engineAddress } = await tasks.run({
       configDir: this.config.dataDir,
@@ -120,7 +139,7 @@ export default class Dev extends Command {
       .on('error', (error: Error) => { this.warn('Result stream error: ' + error.message) })
       .on('data', (execution) => {
         if (!execution.processHash) return
-        const process = this.processes.find(x => x.hash === base58.encode(execution.processHash))
+        const process = this.processesToDeploy[base58.encode(execution.processHash)]
         if (!process) return
 
         const prefix = `[${process.name}][${execution.nodeKey}] - ${base58.encode(execution.instanceHash)} - ${execution.taskKey}`
@@ -144,20 +163,17 @@ export default class Dev extends Command {
         },
         {
           title: 'Stopping running services',
-          task: async () => {
-            const uniqueRunners = this.runners.filter((item, i, self) => i === self.indexOf(item))
-            for (const runner of uniqueRunners) {
-              await Runner.stop(this.lcdEndpoint, this.orchestratorEndpoint, config.mnemonic, engineAddress, runner.hash)
-            }
-          }
+          task: async () => new Listr(Object.keys(this.runnersToDeploy).map(hash => ({
+            title: hash,
+            task: async () => Runner.stop(this.lcdEndpoint, this.orchestratorEndpoint, config.mnemonic, engineAddress, hash)
+          })))
         },
         {
           title: 'Deleting processes',
-          task: async () => {
-            for (const process of this.processes) {
-              await Process.remove(this.lcd, process, config.mnemonic)
-            }
-          }
+          task: async () => new Listr(Object.keys(this.processesToDeploy).map(hash => ({
+            title: this.processesToDeploy[hash].name,
+            task: async () => await Process.remove(this.lcd, hash, config.mnemonic)
+          })))
         },
         Environment.stop
       ]).run({
