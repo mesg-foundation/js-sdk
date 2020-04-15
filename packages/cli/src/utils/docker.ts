@@ -60,7 +60,7 @@ export const createContainer = async (image: string, directory: string, client =
     }
   }, engineName, client)
   container.addPorts(['1317', '50052'])
-  container.connectTo(network, ["engine"])
+  container.connectTo(network, [engineName])
   return container.start()
 }
 
