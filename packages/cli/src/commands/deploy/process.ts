@@ -51,13 +51,13 @@ export default class Process extends Command {
               let title = `deploying ${src}`
               task.output = title
               const definition = await Service.compile(src, this.ipfsClient)
-              const serviceLogs = await deploy('service', definition, user.uid)
+              const serviceLogs = await deploy.service(definition, user.uid)
               serviceLogs.on('data', x => task.output = `${title} (${x.message})`)
               const service = await serviceLogs.promise()
 
               title = `starting ${src}`
               task.output = title
-              const runnerLogs = await deploy('runner', { serviceHash: service.hash, env }, user.uid)
+              const runnerLogs = await deploy.runner({ serviceHash: service.hash, env }, user.uid)
               runnerLogs.on('data', x => task.output = `${title} (${x.message})`)
               const runner = await runnerLogs.promise()
 
@@ -73,7 +73,7 @@ export default class Process extends Command {
       {
         title: 'Creating process',
         task: async (ctx, task) => {
-          const logs = await deploy('process', definition, user.uid)
+          const logs = await deploy.process(definition, user.uid)
           logs.on('data', x => task.output = x.message)
           process = await logs.promise()
         }

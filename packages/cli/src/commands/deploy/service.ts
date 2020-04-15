@@ -47,7 +47,7 @@ export default class Service extends Command {
       {
         title: 'Creating service',
         task: async (ctx, task) => {
-          const logs = await deploy('service', definition, user.uid)
+          const logs = await deploy.service(definition, user.uid)
           logs.on('data', x => task.output = x.message)
           service = await logs.promise()
         }
@@ -68,7 +68,7 @@ export default class Service extends Command {
         {
           title: 'Starting service',
           task: async (ctx, task) => {
-            const logs = await deploy('runner', { serviceHash: service.hash, env }, user.uid)
+            const logs = await deploy.runner({ serviceHash: service.hash, env }, user.uid)
             logs.on('data', x => task.output = x.message)
             runner = await logs.promise()
           }
