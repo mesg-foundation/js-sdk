@@ -46,7 +46,7 @@ export default class DockerContainer implements Provider {
 
     let serviceNetwork = await this.findNetwork(labels)
     if (!serviceNetwork) serviceNetwork = await this._client.network.create({
-      name: PREFIX + service.hash,
+      name: PREFIX + runnerHash,
       labels
     })
 
@@ -64,13 +64,13 @@ export default class DockerContainer implements Provider {
           'mesg.dependency': dep.key,
         },
         HostConfig: {
-          Mounts: this.convertVolumes(service, dep.volumes, dep.volumesFrom, dep),
+          Mounts: this.convertVolumes(service, runnerHash, dep.volumes, dep.volumesFrom, dep),
           RestartPolicy: {
             Name: 'on-failure',
             MaximumRetryCount: MAX_RETRY
           }
         }
-      }, PREFIX + service.hash + '_' + dep.key, this._client)
+      }, PREFIX + runnerHash + '_' + dep.key, this._client)
       container.addPorts(dep.ports)
       container.connectTo(serviceNetwork, [dep.key])
       await container.start()
@@ -90,16 +90,16 @@ export default class DockerContainer implements Provider {
         'mesg.dependency': 'service'
       },
       HostConfig: {
-        Mounts: this.convertVolumes(service, service.configuration.volumes, service.configuration.volumesFrom),
+        Mounts: this.convertVolumes(service, runnerHash, service.configuration.volumes, service.configuration.volumesFrom),
         RestartPolicy: {
           Name: 'on-failure',
           MaximumRetryCount: MAX_RETRY
         }
       }
-    }, PREFIX + service.hash, this._client)
+    }, PREFIX + runnerHash, this._client)
     container.addPorts(service.configuration.ports)
     container.connectTo(serviceNetwork, ['service'])
-    container.connectTo(engineNetwork, ['engine'])
+    container.connectTo(engineNetwork, [])
     await container.start()
 
     return true
@@ -158,11 +158,11 @@ export default class DockerContainer implements Provider {
     return tag
   }
 
-  private convertVolumes(service: IService, volumes: string[], volumesFrom: string[], dependency?: IDependency): any[] {
+  private convertVolumes(service: IService, runnerHash: string, volumes: string[], volumesFrom: string[], dependency?: IDependency): any[] {
     const res = []
     for (const volume of volumes || []) {
       res.push({
-        Source: this.volumeName(service, volume, dependency),
+        Source: this.volumeName(runnerHash, volume, dependency),
         Target: volume,
         Type: 'volume'
       })
@@ -174,7 +174,7 @@ export default class DockerContainer implements Provider {
       if (!dependency) throw new Error(`dependency "${dependency}" missing`)
       for (const volume of dependency.volumes) {
         res.push({
-          Source: this.volumeName(service, volume, dependency),
+          Source: this.volumeName(runnerHash, volume, dependency),
           Target: volume,
           Type: 'volume'
         })
@@ -183,10 +183,10 @@ export default class DockerContainer implements Provider {
     return res
   }
 
-  private volumeName(service: IService, vol: string, dependency?: IDependency): string {
+  private volumeName(runnerHash: string, vol: string, dependency?: IDependency): string {
     return createHash('sha256')
       .update(JSON.stringify([
-        service.hash,
+        runnerHash,
         dependency ? dependency.key : null,
         vol
       ]))

@@ -2,9 +2,10 @@ import Runner, { RunnerInfo } from "@mesg/runner";
 import DockerContainer from "@mesg/runner/lib/providers/container";
 import API from "@mesg/api";
 import { IInstance } from "@mesg/api/lib/instance";
+import { engineName } from "./docker";
 
 export const create = async (lcd: API, lcdEndpoint: string, orchestratorEndpoint: string, mnemonic: string, engineAddress: string, serviceHash: string, env: string[]): Promise<RunnerInfo> => {
-  const provider = new DockerContainer()
+  const provider = new DockerContainer(null, engineName)
   const runner = new Runner(provider, lcdEndpoint, orchestratorEndpoint, mnemonic, engineAddress)
   const info = await runner.start(serviceHash, env)
   await waitForInstance(lcd, info.instanceHash)
@@ -12,7 +13,7 @@ export const create = async (lcd: API, lcdEndpoint: string, orchestratorEndpoint
 }
 
 export const stop = async (lcdEndpoint: string, orchestratorEndpoint: string, mnemonic: string, engineAddress: string, runnerHash: string): Promise<void> => {
-  const provider = new DockerContainer()
+  const provider = new DockerContainer(null, engineName)
   const runner = new Runner(provider, lcdEndpoint, orchestratorEndpoint, mnemonic, engineAddress)
   return runner.stop(runnerHash)
 }
