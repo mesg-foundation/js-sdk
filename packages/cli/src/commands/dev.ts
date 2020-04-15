@@ -71,7 +71,7 @@ export default class Dev extends Command {
                 env,
                 async ({ src, env }) => {
                   task.output = `compiling ${src}`
-                  const definition = await Service.compile(src, this.ipfsClient)
+                  const definition = await Service.compile(join(args.PATH, src), this.ipfsClient)
                   const serviceHash = await this.lcd.service.hash(definition)
                   const runner = await this.lcd.runner.hash(ctx.engineAddress, serviceHash, env)
                   this.servicesToDeploy[serviceHash] = definition

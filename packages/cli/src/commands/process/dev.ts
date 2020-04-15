@@ -17,6 +17,7 @@ import { IProcess } from '@mesg/api/lib/process'
 import sign from '../../utils/sign'
 import { RunnerInfo } from '@mesg/runner'
 import { IDefinition } from '@mesg/api/lib/service'
+import { join, parse } from 'path'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -49,6 +50,7 @@ export default class Dev extends Command {
   async run() {
     const { args, flags } = this.parse(Dev)
 
+    const path = parse(args.PROCESS_FILE)
     let compilation: Process.CompilationResult
     let deployedProcess: IProcess
 
@@ -61,11 +63,11 @@ export default class Dev extends Command {
         title: 'Compiling process',
         task: async (ctx, task) => {
           compilation = await Process.compile(
-            args.PROCESS_FILE,
+            join(path.dir, path.base),
             flags.env,
             async ({ env, src }) => {
               task.output = `compiling ${src}`
-              const definition = await Service.compile(src, this.ipfsClient)
+              const definition = await Service.compile(join(path.dir, src), this.ipfsClient)
               const serviceHash = await this.lcd.service.hash(definition)
               const runner = await this.lcd.runner.hash(ctx.engineAddress, serviceHash, env)
               servicesToDeploy[serviceHash] = definition
