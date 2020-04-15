@@ -5,6 +5,7 @@ import { IDefinition, IService } from '@mesg/api/lib/service'
 import { compile } from '../../utils/service'
 import { loginFromCredential } from '../../utils/login'
 import firebase, { deploy } from '../../utils/firebase'
+import { IRunner } from '@mesg/api/lib/runner'
 
 const ipfsClient = require('ipfs-http-client')
 
@@ -33,6 +34,7 @@ export default class Service extends Command {
 
     let definition: IDefinition
     let service: IService
+    let runner: IRunner
 
     const { user } = await loginFromCredential(this.config.configDir, password)
     const tasks = new Listr([
@@ -45,11 +47,8 @@ export default class Service extends Command {
       {
         title: 'Creating service',
         task: async (ctx, task) => {
-          const title = task.title
           const logs = await deploy('service', definition, user.uid)
-          logs.on('data', x => {
-            task.title = `${title} (${x.message})`
-          })
+          logs.on('data', x => task.output = x.message)
           service = await logs.promise()
         }
       }
@@ -65,15 +64,19 @@ export default class Service extends Command {
     if (start) {
       const env = await this.getEnv(definition.configuration.env || [])
 
-      const logs = await deploy('runner', {
-        serviceHash: service.hash,
-        env
-      }, user.uid)
-      logs.on('data', this.log)
+      await new Listr([
+        {
+          title: 'Starting service',
+          task: async (ctx, task) => {
+            const logs = await deploy('runner', { serviceHash: service.hash, env }, user.uid)
+            logs.on('data', x => task.output = x.message)
+            runner = await logs.promise()
+          }
+        }
+      ]).run()
 
-      const runner = await logs.promise()
       this.log('')
-      this.log(`Service started with the runner hash ${runner.hash}`)
+      this.log(`Service started with the hash ${runner.hash}`)
     }
 
     return firebase.firestore().terminate()
@@ -82,6 +85,7 @@ export default class Service extends Command {
   async getEnv(envs: string[]): Promise<string[]> {
     if (!envs.length) return []
 
+    this.log('Enter the value of the env variables:')
     const res = await prompt(envs.map((x: string) => ({
       name: x.split('=')[0],
       default: x.split('=')[1],
