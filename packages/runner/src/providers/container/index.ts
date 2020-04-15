@@ -99,7 +99,7 @@ export default class DockerContainer implements Provider {
     }, PREFIX + runnerHash, this._client)
     container.addPorts(service.configuration.ports)
     container.connectTo(serviceNetwork, ['service'])
-    container.connectTo(engineNetwork, ['engine'])
+    container.connectTo(engineNetwork, [])
     await container.start()
 
     return true
