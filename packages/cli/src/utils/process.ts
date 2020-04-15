@@ -23,7 +23,7 @@ export const compile = async (processFilePath: string, env: string[], instanceRe
       if (!runners.find(x => x.hash === runner.hash)) runners.push(runner)
       return runner.instanceHash
     },
-    env.reduce((prev, env) => ({
+    (env || []).reduce((prev, env) => ({
       ...prev,
       [env.split('=')[0]]: env.split('=')[1],
     }), {}))
