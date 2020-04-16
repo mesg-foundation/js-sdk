@@ -6,6 +6,8 @@
 #### Improvements
 #### Bug fixes
 
+- [#241](https://github.com/mesg-foundation/js-sdk/pull/241) Remove unnecessary dependency to the mesg.yml inside the service
+
 ## [v0.2.0](https://github.com/mesg-foundation/js-sdk/releases/tag/%40mesg%service%400.2.0)
 
 #### Improvements
