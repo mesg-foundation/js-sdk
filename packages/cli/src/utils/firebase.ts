@@ -1,5 +1,8 @@
 import Firebase from 'firebase'
 import { EventEmitter } from 'events'
+import { IService, IDefinition as IServiceDefinition } from '@mesg/api/lib/service'
+import { IProcess, IDefinition as IProcessDefinition } from '@mesg/api/lib/process'
+import { IRunner } from '@mesg/api/lib/runner'
 
 export default Firebase.initializeApp({
   apiKey: "AIzaSyDp-sk6i2gICPGv66O13l_ttoitXu9849w",
@@ -12,13 +15,19 @@ export default Firebase.initializeApp({
   measurementId: "G-VQKX4K7PTT"
 })
 
-export type DeployerEvents = EventEmitter & {
-  promise: () => Promise<any>
+export type DeployerEvents<T> = EventEmitter & {
+  promise: () => Promise<T>
 }
 
-export const deploy = async (type: 'service' | 'process' | 'runner', definition: any, uid: string): Promise<DeployerEvents> => {
+export const deploy = {
+  service: async (definition: IServiceDefinition, uid: string): Promise<DeployerEvents<IService>> => deployResource('service', definition, uid),
+  process: async (definition: IProcessDefinition, uid: string): Promise<DeployerEvents<IProcess>> => deployResource('process', definition, uid),
+  runner: async (definition: { serviceHash: string, env: string[] }, uid: string): Promise<DeployerEvents<IRunner>> => deployResource('runner', definition, uid)
+}
+
+const deployResource = async (type: 'service' | 'process' | 'runner', definition: any, uid: string): Promise<DeployerEvents<any>> => {
   const res = await Firebase.firestore().collection('deployments').add({ type, uid, definition })
-  const eventEmitter = new EventEmitter() as DeployerEvents
+  const eventEmitter = new EventEmitter() as DeployerEvents<any>
 
   let unsubscribeLogs: () => void
   let unsubscribeDeployment: () => void

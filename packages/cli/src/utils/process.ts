@@ -16,10 +16,13 @@ export const compile = async (processFilePath: string, env: string[], instanceRe
 
   const definition = await compileProcess(
     readFileSync(processFilePath),
-    async definition => {
+    async (definition: any) => {
       if (!definition.instanceHash && !definition.instance) throw new Error('"instanceHash" or "instance" not found in the process\'s definition')
       if (definition.instanceHash) return definition.instanceHash
-      const runner = await instanceResolver(definition.instance)
+      const runner = await instanceResolver({
+        src: definition.instance.src,
+        env: definition.instance.env || [],
+      })
       if (!runners.find(x => x.hash === runner.hash)) runners.push(runner)
       return runner.instanceHash
     },
