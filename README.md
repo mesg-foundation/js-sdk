@@ -6,7 +6,6 @@ This repository is a list of tools in javascript to interact with MESG. It conta
 
 - [@mesg/api](./packages/api): This library responsible for the communication with the MESG Engine API.
 - [@mesg/orchestrator](./packages/orchestrator): This library let you interact with the orchestrator API.
-- [@mesg/service](./packages/service): Handles the connection with the MESG Engine, some authentication, and finally, the functions for your service to listen to tasks sent by the engine or emit events that your service needs to expose to the engine.
 
 # Contribute
 
