@@ -1,3 +1,10 @@
+# THIS REPO IS ARCHIVED
+
+This repository is archived and is compatible with MESG Engine v0.19.
+
+The development continue on https://github.com/liteflow-labs/liteflow-js
+
+
 # MESG js-sdk
 
 [Website](https://mesg.com/) - [Docs](https://docs.mesg.com/) - [Forum](https://forum.mesg.com/) - [Chat](https://discordapp.com/invite/SaZ5HcE) - [Blog](https://blog.mesg.com)
